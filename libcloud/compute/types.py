@@ -78,6 +78,7 @@ class Provider(Type):
     :cvar OPSOURCE: Opsource Cloud
     :cvar OUTSCALE_INC: Outscale INC driver.
     :cvar OUTSCALE_SAS: Outscale SAS driver.
+    :cvar OUTSCALE_SDK: Outscale SDK driver.
     :cvar PROFIT_BRICKS: ProfitBricks driver.
     :cvar RACKSPACE: Rackspace next-gen OpenStack based Cloud Servers
     :cvar RACKSPACE_FIRST_GEN: Rackspace First Gen Cloud Servers
@@ -141,6 +142,7 @@ class Provider(Type):
     OPSOURCE = 'opsource'
     OUTSCALE_INC = 'outscale_inc'
     OUTSCALE_SAS = 'outscale_sas'
+    OUTSCALE_SDK = 'outscale_sdk'
     OVH = 'ovh'
     PROFIT_BRICKS = 'profitbricks'
     RACKSPACE = 'rackspace'
