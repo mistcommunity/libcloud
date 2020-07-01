@@ -143,6 +143,7 @@ class Provider(Type):
     OUTSCALE_INC = 'outscale_inc'
     OUTSCALE_SAS = 'outscale_sas'
     OUTSCALE_SDK = 'outscale_sdk'
+    OUTSCALE = 'outscale'
     OVH = 'ovh'
     PROFIT_BRICKS = 'profitbricks'
     RACKSPACE = 'rackspace'
