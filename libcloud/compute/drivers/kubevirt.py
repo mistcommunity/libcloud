@@ -30,6 +30,7 @@ import libcloud.security
 
 from libcloud.common.kubernetes import KubernetesResponse
 from libcloud.common.kubernetes import KubernetesBasicAuthConnection
+from libcloud.common.types import LibcloudError
 from libcloud.common.kubernetes import KubernetesDriverMixin
 from libcloud.common.kubernetes import KubernetesTLSAuthConnection
 from libcloud.common.kubernetes import KubernetesTokenAuthConnection
@@ -178,12 +179,13 @@ class KubeVirtNodeDriver(KubernetesDriverMixin, NodeDriver):
         services = self.ex_list_services(namespace=namespace, node_name=name)
         for service in services:
             service_type = service['spec']['type']
-            self.ex_create_service(node=node, ports=[], 
+            self.ex_create_service(node=node, ports=[],
                                    service_type=service_type)
         # stop the vmi
         self.stop_node(node)
         try:
-            result = self.connection.request(KUBEVIRT_URL + 'namespaces/' +
+            result = self.connection.request(KUBEVIRT_URL +
+                                             'namespaces/' +
                                              namespace +
                                              '/virtualmachines/' + name,
                                              method='DELETE')
@@ -193,7 +195,8 @@ class KubeVirtNodeDriver(KubernetesDriverMixin, NodeDriver):
 
     # only has container disk support atm with no persistency
     def create_node(self, name, image, location=None, ex_memory=128, ex_cpu=1,
-                    ex_disks=None, ex_network=None, ex_termination_grace_period=0,
+                    ex_disks=None, ex_network=None,
+                    ex_termination_grace_period=0,
                     ports={}):
         """
         Creating a VM with a containerDisk.
@@ -976,8 +979,9 @@ class KubeVirtNodeDriver(KubernetesDriverMixin, NodeDriver):
                     'domain']['resources']['limits']:
                 memory = vm['spec']['template']['spec'][
                     'domain']['resources']['limits']['memory']
-        elif vm['spec']['template']['spec']['domain'][
-             'resources'].get('requests', None):
+        elif vm['spec']['template']['spec']['domain']['resources'].get(
+                'requests', None):
+
             if vm['spec']['template']['spec'][
                'domain']['resources']['requests'].get('memory', None):
                 memory = vm['spec']['template']['spec'][
