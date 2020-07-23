@@ -201,6 +201,14 @@ class KubeVirtMockHttp(MockHttp):
             AssertionError('Unsupported method')
 
         return (httplib.OK, body, {}, httplib.responses[httplib.OK])
+    
+    def _api_v1_namespaces_default_services(self, method, url, body, headers):
+        if method == "GET":
+            body = self.fixtures.load('get_services.json')
+        else:
+            AssertionError('Unsupported method')
+
+        return (httplib.OK, body, {}, httplib.responses[httplib.OK])
 
 
 if __name__ == '__main__':
