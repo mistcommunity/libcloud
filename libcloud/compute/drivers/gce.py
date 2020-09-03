@@ -9207,8 +9207,13 @@ class GCENodeDriver(NodeDriver):
         extra['sourceSnapshot'] = volume.get('sourceSnapshot')
         extra['sourceSnapshotId'] = volume.get('sourceSnapshotId')
         extra['options'] = volume.get('options')
-        extra['licenses'] = volume.get('licenses')
-        extra['users'] = volume.get('users')
+        extra['labels'] = volume.get('labels', {})
+        extra['labelFingerprint'] = volume.get('labelFingerprint')
+        extra['users'] = volume.get('users', [])
+
+        if 'licenses' in volume:
+            lic_objs = self._licenses_from_urls(licenses=volume['licenses'])
+            extra['licenses'] = lic_objs
 
         extra['type'] = volume.get('type', 'pd-standard').split('/')[-1]
 
