@@ -85,6 +85,9 @@ Images
 * ``list_images`` - Returns a list of ``NodeImage``
 * ``get_image`` - Returns a ``NodeImage``
 * ``delete_image`` - Return a ``bool``
+* ``ex_create_image_export_task`` - Returns a ``dict``
+* ``ex_list_image_export_task`` - Returns a ``list`` of ``dict``
+* ``ex_update_image`` - Returns a ``dict``
 
 Key Pairs
 _________
@@ -99,6 +102,9 @@ Snapshots
 * ``list_snapshots`` - Returns a list of ``VolumeSnapshot``
 * ``destroy_volume_snapshot`` - Returns a ``bool``
 * ``list_volume_snapshots`` - Returns a list of ``VolumeSnapshot``
+* ``ex_create_snapshot_export_task`` - Returns a ``dict``
+* ``ex_list_snapshot_export_tasks`` - Returns a ``list`` of ``dict``
+* ``ex_update_snapshot`` - Returns a ``dict``
 
 Volumes
 -------
@@ -130,6 +136,7 @@ Accounts
 * ``ex_send_reset_password_email`` - Returns a ``bool``
 * ``ex_create_account`` - Returns a ``bool``
 * ``ex_update_account`` - Returns a ``dict``
+* ``ex_list_consumption_account`` - Returns a ``list`` of ``dict``
 
 Tags
 ----
@@ -281,6 +288,22 @@ Route Tables
 * ``ex_link_route_table`` - Returns a ``bool``
 * ``ex_list_route_tables`` - Returns a ``list`` of ``dict``
 * ``ex_unlink_route_table`` - Returns a ``bool``
+
+Server Certificates
+-------------------
+* ``ex_create_server_certificate`` - Returns a ``dict``
+* ``ex_delete_server_certificate`` - Returns a ``bool``
+* ``ex_list_server_certificates`` - Returns a ``list`` of ``dict``
+* ``ex_update_server_certificate`` - Returns a ``dict``
+
+Virtual Gateways
+----------------
+* ``ex_create_virtual_gateway`` - Returns a ``dict``
+* ``ex_delete_virtual_gateway`` - Returns a ``bool``
+* ``ex_link_virtual_gateway`` - Returns a ``dict``
+* ``ex_list_virtual_gateways`` - Returns a ``list`` of ``dict``
+* ``ex_unlink_virtual_gateway`` - Returns a ``bool``
+* ``ex_update_route_propagation`` - Returns a ``dict``
 
 Security Groups
 ---------------
