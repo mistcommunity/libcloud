@@ -88,6 +88,7 @@ class Provider(Type):
     :cvar VCL: VCL driver
     :cvar VCLOUD: vmware vCloud
     :cvar VPSNET: VPS.net
+    :cvar VSphere: VSphere driver.
     :cvar VULTR: vultr driver.
     """
     AZURE = 'azure'
