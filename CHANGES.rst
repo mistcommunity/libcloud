@@ -57,9 +57,12 @@ Compute
   (GITHUB-1495)
   [Miguel Caballer - @micafer]
 
-- [Linode] Add support for Linode's API v4.
-  (GITHUB-1504)
-  [Dimitris Galanis - @dimgal1]
+Storage
+~~~~~~~
+
+- Deprecated ``lockfile`` library which is used by the Local Storage driver has
+  been replaced with ``fasteners`` library.
+  [Tomaz Muraus - @Kami]
 
 DNS
 ~~~
