@@ -1248,7 +1248,7 @@ class EC2Connection(SignedAWSConnection):
     """
 
     version = API_VERSION
-    host = "aaa.com"
+    host = REGION_DETAILS['us-east-1']['endpoint']
     responseCls = EC2Response
     service_name = 'ec2'
 
