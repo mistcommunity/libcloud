@@ -4,20 +4,32 @@
 Changes in Apache Libcloud in development
 -----------------------------------------
 
-Storage
+Compute
 ~~~~~~~
 
-- [Google Cloud Storage] Fix a bug and make sure we also correctly handle
-  scenario in ``get_object()`` method when the object size is returned in
-  ``x-goog-stored-content-length`` and not ``content-length`` header.
+- [EC2] Fix a regression introduced in v3.3.0 which would break EC2 driver for
+  some regions because the driver would incorrectly try to use signature version
+  2 for all the regions whereas some newer regions require signature version 4
+  to be used.
 
-  Reported by Veith Röthlingshöfer - @RunOrVeith.
-  (GITHUB-1544, GITHUB-1547)
+  If you are unable to upgrade, you can use the following workaround, as long
+  as you only use code which supports / works with authentication signature
+  algorithm version 4:
 
-- [Google Cloud Storage] Update ``get_object()`` method and ensure
-  ``object.size`` attribute is an integer and not a string. This way it's
-  consistent with ``list_objects()`` method.
-  (GITHUB-1544, GITHUB-1547)
+  .. sourcecode:: python
+
+    import libcloud.common.aws
+    libcloud.common.aws.DEFAULT_SIGNATURE_VERSION = "4"
+
+    # Instantiate affected driver here...
+
+  Reported by @olegrtecno.
+  (GITHUB-1545, GITHUB-1546)
+
+- [EC2] Allow user to override which signature algorithm version is used for
+  authentication by passing ``signature_version`` keyword argument to the EC2
+  driver constructor.
+  (GITHUB-1546)
 
 Changes in Apache Libcloud 3.3.0
 --------------------------------
