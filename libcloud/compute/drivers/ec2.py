@@ -5781,7 +5781,8 @@ class EC2NodeDriver(BaseEC2NodeDriver):
     }
 
     def __init__(self, key, secret=None, secure=True, host=None, port=None,
-                 region='us-east-1', token=None, signature_version=None, **kwargs):
+                 region='us-east-1', token=None, signature_version=None,
+                 **kwargs):
         if hasattr(self, '_region'):
             region = self._region  # pylint: disable=no-member
 
