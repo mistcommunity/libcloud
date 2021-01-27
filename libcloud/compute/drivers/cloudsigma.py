@@ -36,6 +36,7 @@ from libcloud.utils.misc import str2dicts, str2list, dict2str
 from libcloud.common.base import ConnectionUserAndKey, JsonResponse, Response
 from libcloud.common.types import InvalidCredsError, ProviderError
 from libcloud.common.cloudsigma import INSTANCE_TYPES
+from libcloud.common.cloudsigma import SPECS_TO_SIZE
 from libcloud.common.cloudsigma import API_ENDPOINTS_1_0
 from libcloud.common.cloudsigma import API_ENDPOINTS_2_0
 from libcloud.common.cloudsigma import DEFAULT_API_VERSION, DEFAULT_REGION
@@ -97,7 +98,8 @@ class CloudSigmaInsufficientFundsException(Exception):
 
 
 class CloudSigmaNodeSize(NodeSize):
-    def __init__(self, id, name, cpu, ram, disk, bandwidth, price, driver):
+    def __init__(self, id, name, cpu, ram, disk, bandwidth, price,
+                 driver, extra=None):
         self.id = id
         self.name = name
         self.cpu = cpu
@@ -106,7 +108,7 @@ class CloudSigmaNodeSize(NodeSize):
         self.bandwidth = bandwidth
         self.price = price
         self.driver = driver
-        self.extra = {}
+        self.extra = extra or {}
 
     def __repr__(self):
         return (('<NodeSize: id=%s, name=%s, cpu=%s, ram=%s disk=%s '
@@ -787,8 +789,8 @@ class CloudSigmaDrive(NodeImage):
         :param name: Drive name.
         :type name: ``str``
 
-        :param size: Drive size (in bytes).
-        :type size: ``int``
+        :param size: Drive size (in GBs).
+        :type size: ``float``
 
         :param media: Drive media (cdrom / disk).
         :type media: ``str``
@@ -1150,6 +1152,8 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
         # ide 0:0
         data = {}
         data['name'] = name
+        # cloudsigma uses MHz to measure cpu cores,
+        # where 1 cpu core equals 2000MHz
         data['cpu'] = size.cpu * 2000
         data['mem'] = (size.ram * 1024 * 1024)
         data['vnc_password'] = vnc_password
@@ -1210,7 +1214,7 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
 
         return node
 
-    def destroy_node(self, node, delete_drives=False):
+    def destroy_node(self, node, ex_delete_drives=False):
         """
         Destroy the node and all the associated drives.
 
@@ -1218,7 +1222,7 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
         :rtype: ``bool``
         """
         action = '/servers/%s/' % (node.id)
-        if delete_drives is True:
+        if ex_delete_drives is True:
             params = {'recurse': 'all_drives'}
         else:
             params = None
@@ -1232,8 +1236,10 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
 
         Because Cloudsigma API does not provide native reboot call,
         it's emulated using stop and start.
+
+        :param node: Node to reboot.
+        :type node: :class:`libcloud.compute.base.Node`
         """
-        node = self.ex_get_node(node.id)
         state = node.state
 
         if state == NodeState.RUNNING:
@@ -1277,8 +1283,8 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
         # name, cpu, mem and vnc_password attributes must always be present so
         # we just copy them from the to-be-edited node
         data['name'] = node.name
-        data['cpu'] = node.extra['cpu']
-        data['mem'] = node.extra['mem']
+        data['cpu'] = node.extra['cpus']
+        data['mem'] = node.extra['memory']
         data['vnc_password'] = node.extra['vnc_password']
 
         nics = copy.deepcopy(node.extra.get('nics', []))
@@ -1530,11 +1536,23 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
         return drive
 
     def ex_attach_drive(self, node, drive):
+        """
+        Attach drive to node
+
+        :param node: Node to attach the drive to.
+        :type node: :class:`libcloud.compute.base.Node`
+
+        :param drive: Drive to attach.
+        :type drive: :class:`.CloudSigmaDrive`
+
+        :return: ``True`` on success, ``False`` otherwise.
+        :rtype: ``bool``
+        """
         data = self.ex_get_node(node.id, return_json=True)
-        # find the first available controller and unit
-        # total of 920 drives, max 4 units per controller i.e 0-3
-        # virtio - 0:0, …, 0:5, …, 1:0, …, 1:5, … etc
-        # format {controller}:{unit}
+        # find the first available device channel to attach the drive
+        # device channel format is: {controller}:{unit}
+        # total of 920 virtio drives are supported
+        # 0:0, …, 0:3, …, 1:0, …, 1:3, …
         # https://cloudsigma-docs.readthedocs.io/en/2.14.3/servers_kvm.html?highlight=dev%20channel#device-channel
         dev_channels = [item['dev_channel'] for item in data['drives']]
         dev_channel = None
@@ -2019,7 +2037,6 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
         return self._to_key_pair(response['objects'][0])
 
     def import_key_pair_from_string(self, name, key_material):
-        # type: (str, str) -> KeyPair
         """
         Import a new public key from string.
 
@@ -2139,13 +2156,12 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
                                        drive.extra.get('version', ''))
                 break
         # try to find if node size is from example sizes given by CloudSigma
-        for example_size in self.list_sizes():
-            if example_size.cpu == extra['cpus'] \
-                    and example_size.ram == extra['memory'] \
-                    and example_size.disk == drive_size:
-                size = example_size
-                break
-        else:
+        try:
+            kwargs = SPECS_TO_SIZE[(extra['cpus'],
+                                    extra['memory'],
+                                    drive_size)]
+            size = CloudSigmaNodeSize(**kwargs, driver=self)
+        except KeyError:
             id_to_hash = str(extra['cpus']) + str(extra['memory']) \
                 + str(drive_size)
             size_id = hashlib.md5(id_to_hash.encode('utf-8')).hexdigest()
