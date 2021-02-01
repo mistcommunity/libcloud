@@ -1369,7 +1369,7 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
         drives = [self._to_drive(data=item) for item in response['objects']]
         return drives
 
-    def list_volumes(self):
+    def ex_list_user_drives(self):
         """
         Return a list of all the available user's drives.
 
@@ -1379,7 +1379,10 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
         drives = [self._to_drive(data=item) for item in response['objects']]
         return drives
 
-    def create_volume(self, name, size, media='disk', ex_avoid=None):
+    def list_volumes(self):
+        return self.ex_list_user_drives()
+
+    def ex_create_drive(self, name, size, media='disk', ex_avoid=None):
         """
         Create a new drive.
 
@@ -1417,6 +1420,10 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
                                            params=params, data=data).object
         drive = self._to_drive(data=response['objects'][0])
         return drive
+
+    def create_volume(self, name, size, media='disk', ex_avoid=None):
+        return self.ex_create_drive(name=name, size=size, media=media,
+                                    ex_avoid=ex_avoid)
 
     def ex_clone_drive(self, drive, name=None, ex_avoid=None):
         """
@@ -1539,6 +1546,14 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
         response = self.connection.request(action=action).object
         drive = self._to_drive(data=response)
         return drive
+
+    def ex_destroy_drive(self, drive):
+        action = '/drives/%s/' % (drive.id)
+        response = self.connection.request(action=action, method='DELETE')
+        return response.status == httplib.NO_CONTENT
+
+    def destroy_volume(self, drive):
+        return self.ex_destroy_drive(drive=drive)
 
     # Firewall policies extension methods
 
