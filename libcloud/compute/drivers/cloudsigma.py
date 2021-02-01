@@ -1118,7 +1118,7 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
 
         drive_name = '%s-drive' % (name)
 
-        # size is specified in GB
+        # size is specified in GB but cloudsigma expects bytes
         drive_size = (size.disk * 1024 * 1024 * 1024)
 
         if not is_installation_cd:
@@ -2064,7 +2064,7 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
         public_ips = []
         private_ips = []
         extra = self._extract_values(obj=data, keys=extra_keys)
-        # find image
+        # find image from boot drive
         image = None
         for item in extra['drives']:
             if item['boot_order'] == 1:
