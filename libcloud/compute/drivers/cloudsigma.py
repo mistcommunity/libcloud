@@ -2081,12 +2081,27 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
         extra = self._extract_values(obj=data, keys=extra_keys)
         # find image from boot drive
         image = None
+        drive_size = None
         for item in extra['drives']:
             if item['boot_order'] == 1:
                 drive = self.ex_get_drive(item['drive']['uuid'])
+                drive_size = drive.size
                 image = '{} {}'.format(drive.extra.get('distribution', ''),
                                        drive.extra.get('version', ''))
                 break
+
+        # cloudsigma returns memory size in bytes
+        extra['memory'] = extra.pop('mem') / 1024 / 1024
+        # try to find if node size is from example sizes given by CloudSigma
+        size = None
+        for example_size in INSTANCE_TYPES:
+            if example_size['cpu'] == extra['cpu'] \
+                    and example_size['memory'] == extra['memory'] \
+                    and example_size['disk'] == drive_size:
+                size = example_size['id']
+                break
+
+        extra['cpus'] = extra.pop('cpu') / 2000
 
         for nic in data['nics']:
             _public_ips, _private_ips = self._parse_ips_from_nic(nic=nic)
@@ -2096,7 +2111,7 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
 
         node = Node(id=id, name=name, state=state, public_ips=public_ips,
                     image=image, private_ips=private_ips, driver=self,
-                    extra=extra)
+                    size=size, extra=extra)
         return node
 
     def _to_image(self, data):
