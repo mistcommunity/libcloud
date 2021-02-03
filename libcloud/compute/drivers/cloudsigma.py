@@ -39,6 +39,7 @@ from libcloud.common.cloudsigma import INSTANCE_TYPES
 from libcloud.common.cloudsigma import API_ENDPOINTS_1_0
 from libcloud.common.cloudsigma import API_ENDPOINTS_2_0
 from libcloud.common.cloudsigma import DEFAULT_API_VERSION, DEFAULT_REGION
+from libcloud.common.cloudsigma import MAX_VIRTIO_CONTROLLERS, MAX_VIRTIO_UNITS
 from libcloud.compute.types import NodeState, Provider
 from libcloud.compute.base import NodeDriver, NodeSize, Node
 from libcloud.compute.base import NodeImage
@@ -1326,6 +1327,13 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
         node = self._to_node(data=response)
         return node
 
+    def ex_get_node(self, node_id, return_json=False):
+        action = '/servers/%s/' % (node_id)
+        response = self.connection.request(action=action).object
+        if return_json is True:
+            return response
+        return self._to_node(response)
+
     def ex_open_vnc_tunnel(self, node):
         """
         Open a VNC tunnel to the provided node and return the VNC url.
@@ -1483,55 +1491,52 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
         drive = self._to_drive(data=response.object['objects'][0])
         return drive
 
-    def attach_volume(self, node, volume):
-        """
-        :param node: Node to attach volume to.
-        :type node: :class:`.Node`
+    def ex_attach_drive(self, node, drive):
+        data = self.ex_get_node(node.id, return_json=True)
+        # find the first available controller and unit
+        # total of 920 drives, max 4 units per controller i.e 0-5
+        # virtio - 0:0, …, 0:5, …, 1:0, …, 1:5, … etc
+        # format {controller}:{unit}
+        # https://cloudsigma-docs.readthedocs.io/en/2.14.3/servers_kvm.html?highlight=dev%20channel#device-channel
+        dev_channels = [item['dev_channel'] for item in data['drives']]
+        dev_channel = None
+        for controller in range(MAX_VIRTIO_CONTROLLERS):
+            for unit in range(MAX_VIRTIO_UNITS):
+                if '{}:{}'.format(controller, unit) not in dev_channels:
+                    dev_channel = '{}:{}'.format(controller, unit)
+                    break
+            if dev_channel:
+                break
+        else:
+            raise CloudSigmaException('Could not attach drive to %s'
+                                      % (node.id))
 
-        :param volume: Volume to attach.
-        :type volume: :class:`.StorageVolume`
-
-        :param device: Where the device is exposed, e.g. '/dev/sdb'
-        :type device: ``str``
-
-        :rytpe: ``bool``
-
-        PUT /servers/{uuid}/
-
-        data = {
-            'drives': [
-                {
-                    'boot_order': None,
-                    'dev_channel': '0:0',
-                    'device': 'virtio',
-                    'drive': str(volume.id)
-                }
-            ],
-            'vnc_password': node.extra['vnc_password'],
-            'mem': node.extra['mem'],
-            'cpu': node.extra['cpu'],
-            'name': node.name,
+        item = {
+            'boot_order': None,
+            'dev_channel': dev_channel,
+            'device': 'virtio',
+            'drive': str(drive.id),
         }
-        """
-        data = {
-            'drives': [
-                {
-                    'boot_order': None,
-                    'dev_channel': '0:0',
-                    'device': 'virtio',
-                    'drive': str(volume.id)
-                }
-            ],
-            'vnc_password': node.extra['vnc_password'],
-            'mem': node.extra['mem'],
-            'cpu': node.extra['cpu'],
-            'name': node.name,
-        }
+        data['drives'].append(item)
         action = '/servers/%s/' % (node.id)
         response = self.connection.request(action=action, data=data,
                                            method='PUT')
-
         return response.status == 200
+
+    def attach_volume(self, node, volume):
+        return self.ex_attach_drive(node=node, drive=volume)
+
+    def ex_detach_drive(self, node, drive):
+        data = self.ex_get_node(node.id, return_json=True)
+        data['drives'] = [item for item in data['drives']
+                          if item['drive']['uuid'] != drive.id]
+        action = '/servers/%s/' % (node.id)
+        response = self.connection.request(action=action, data=data,
+                                           method='PUT')
+        return response.status == 200
+
+    def detach_volume(self, node, volume):
+        return self.ex_detach_drive(node=node, drive=volume)
 
     def ex_get_drive(self, drive_id):
         """
@@ -2096,7 +2101,6 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
                                        drive.extra.get('version', ''))
                 break
         # try to find if node size is from example sizes given by CloudSigma
-        size = None
         for example_size in self.list_sizes():
             if example_size.cpu == extra['cpus'] \
                     and example_size.ram == extra['memory'] \

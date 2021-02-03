@@ -18,7 +18,9 @@ __all__ = [
     'API_ENDPOINTS_1_0',
     'API_ENDPOINTS_2_0',
     'API_VERSIONS',
-    'INSTANCE_TYPES'
+    'INSTANCE_TYPES',
+    'MAX_VIRTIO_CONTROLLERS',
+    'MAX_VIRTIO_UNITS'
 ]
 
 # API end-points
@@ -176,3 +178,7 @@ INSTANCE_TYPES = [
         'bandwidth': None,
     },
 ]
+
+
+MAX_VIRTIO_CONTROLLERS = 203
+MAX_VIRTIO_UNITS = 4
