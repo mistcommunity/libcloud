@@ -22,6 +22,7 @@ import re
 import time
 import copy
 import base64
+import hashlib
 
 try:
     import simplejson as json
@@ -1145,7 +1146,7 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
         # ide 0:0
         data = {}
         data['name'] = name
-        data['cpu'] = size.cpu
+        data['cpu'] = size.cpu * 2000
         data['mem'] = (size.ram * 1024 * 1024)
         data['vnc_password'] = vnc_password
 
@@ -2069,19 +2070,24 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
         return public_ips, private_ips
 
     def _to_node(self, data):
-        extra_keys = ['cpu', 'mem', 'nics', 'vnc_password', 'meta', 'runtime',
-                      'drives']
-
         id = data['uuid']
         name = data['name']
         state = self.NODE_STATE_MAP.get(data['status'], NodeState.UNKNOWN)
 
         public_ips = []
         private_ips = []
-        extra = self._extract_values(obj=data, keys=extra_keys)
-        # find image from boot drive
+        extra = {
+            'cpus': data['cpu'] / 2000,
+            'memory': data['mem'] / 1024 / 1024,
+            'nics': data['nics'],
+            'vnc_password': data['vnc_password'],
+            'meta': data['meta'],
+            'runtime': data['runtime'],
+            'drives': data['drives'],
+        }
+        # find image name and boot drive size
         image = None
-        drive_size = None
+        drive_size = 0
         for item in extra['drives']:
             if item['boot_order'] == 1:
                 drive = self.ex_get_drive(item['drive']['uuid'])
@@ -2089,19 +2095,23 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
                 image = '{} {}'.format(drive.extra.get('distribution', ''),
                                        drive.extra.get('version', ''))
                 break
-
-        # cloudsigma returns memory size in bytes
-        extra['memory'] = extra.pop('mem') / 1024 / 1024
         # try to find if node size is from example sizes given by CloudSigma
         size = None
-        for example_size in INSTANCE_TYPES:
-            if example_size['cpu'] == extra['cpu'] \
-                    and example_size['memory'] == extra['memory'] \
-                    and example_size['disk'] == drive_size:
-                size = example_size['id']
+        for example_size in self.list_sizes():
+            if example_size.cpu == extra['cpus'] \
+                    and example_size.ram == extra['memory'] \
+                    and example_size.disk == drive_size:
+                size = example_size
                 break
-
-        extra['cpus'] = extra.pop('cpu') / 2000
+        else:
+            id_to_hash = str(extra['cpus']) + str(extra['memory']) \
+                + str(drive_size)
+            size_id = hashlib.md5(id_to_hash.encode('utf-8')).hexdigest()
+            size_name = 'custom, {} CPUs, {}MB RAM, {}GB disk'.format(extra['cpus'], extra['memory'], drive_size)  # noqa
+            size = CloudSigmaNodeSize(id=size_id, name=size_name,
+                                      cpu=extra['cpus'], ram=extra['memory'],
+                                      disk=drive_size, bandwidth=None,
+                                      price=0, driver=self)
 
         for nic in data['nics']:
             _public_ips, _private_ips = self._parse_ips_from_nic(nic=nic)
