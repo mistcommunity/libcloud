@@ -1206,7 +1206,7 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
 
         return node
 
-    def destroy_node(self, node):
+    def destroy_node(self, node, delete_drives=False):
         """
         Destroy the node and all the associated drives.
 
@@ -1214,7 +1214,10 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
         :rtype: ``bool``
         """
         action = '/servers/%s/' % (node.id)
-        params = {'recurse': 'all_drives'}
+        if delete_drives is True:
+            params = {'recurse': 'all_drives'}
+        else:
+            params = None
         response = self.connection.request(action=action, method='DELETE',
                                            params=params)
         return response.status == httplib.NO_CONTENT
@@ -1494,7 +1497,7 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
     def ex_attach_drive(self, node, drive):
         data = self.ex_get_node(node.id, return_json=True)
         # find the first available controller and unit
-        # total of 920 drives, max 4 units per controller i.e 0-5
+        # total of 920 drives, max 4 units per controller i.e 0-3
         # virtio - 0:0, …, 0:5, …, 1:0, …, 1:5, … etc
         # format {controller}:{unit}
         # https://cloudsigma-docs.readthedocs.io/en/2.14.3/servers_kvm.html?highlight=dev%20channel#device-channel
