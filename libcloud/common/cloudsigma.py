@@ -39,7 +39,7 @@ API_ENDPOINTS_1_0 = {
 
 API_ENDPOINTS_2_0 = {
     'zrh': {
-        'name': 'Zurich',
+        'name': 'Zurich, Switzerland',
         'country': 'Switzerland',
         'host': 'zrh.cloudsigma.com'
     },
@@ -47,11 +47,6 @@ API_ENDPOINTS_2_0 = {
         'name': 'San Jose, CA',
         'country': 'United States',
         'host': 'sjc.cloudsigma.com'
-    },
-    'mia': {
-        'name': 'Miami, FL',
-        'country': 'United States',
-        'host': 'mia.cloudsigma.com'
     },
     'wdc': {
         'name': 'Washington, DC',
@@ -73,11 +68,51 @@ API_ENDPOINTS_2_0 = {
         'country': 'Philippines',
         'host': 'mnl.cloudsigma.com'
     },
-    'waw': {
-        'name': 'Warsaw, Poland',
-        'country': 'Poland',
-        'host': 'waw.cloudsigma.com'
-    }
+    'fra': {
+        'name': 'Frankfurt, Germany',
+        'country': 'Germany',
+        'host': 'fra.cloudsigma.com'
+    },
+    'mel': {
+        'name': 'Melbourne, Australia',
+        'country': 'Australia',
+        'host': 'mel.cloudsigma.com'
+    },
+    'dbl': {
+        'name': 'Dublin, Ireland',
+        'country': 'Ireland',
+        'host': 'ec.servecentric.com'
+    },
+    'tyo': {
+        'name': 'Tokyo, Japan',
+        'country': 'Japan',
+        'host': 'tyo.cloudsigma.com'
+    },
+    'crk': {
+        'name': 'Clark, Philippines',
+        'country': 'Philippines',
+        'host': 'crk.cloudsigma.com'
+    },
+    'mnl2': {
+        'name': 'Manila-2, Philippines',
+        'country': 'Philippines',
+        'host': 'mnl2.cloudsigma.com'
+    },
+    'ruh': {
+        'name': 'Riyadh, Saudi Arabia',
+        'country': 'Saudi Arabia',
+        'host': 'ruh.cloudsigma.com'
+    },
+    'bdn': {
+        'name': 'Boden, Sweden',
+        'country': 'Sweden',
+        'host': 'cloud.hydro66.com'
+    },
+    'gva': {
+        'name': 'Geneva, Switzerland',
+        'country': 'Switzerland',
+        'host': 'gva.cloudsigma.com'
+    },
 }
 
 DEFAULT_REGION = 'zrh'
