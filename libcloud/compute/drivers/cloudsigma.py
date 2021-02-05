@@ -1222,6 +1222,37 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
                                            params=params)
         return response.status == httplib.NO_CONTENT
 
+    def reboot_node(self, node):
+        """
+        Reboot a node.
+
+        Because Cloudsigma API does not provide native reboot call,
+        it's emulated using stop and start.
+        """
+        node = self.ex_get_node(node.id)
+        state = node.state
+
+        if state == NodeState.RUNNING:
+            stopped = self.stop_node(node)
+        else:
+            stopped = True
+
+        if not stopped:
+            raise CloudSigmaException(
+                'Could not stop node with id %s' % (node.id))
+
+        success = False
+        for _ in range(5):
+            try:
+                success = self.start_node(node)
+            except CloudSigmaError:
+                time.sleep(1)
+                continue
+            else:
+                break
+
+        return success
+
     # Server extension methods
 
     def ex_edit_node(self, node, params):
