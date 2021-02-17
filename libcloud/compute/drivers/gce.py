@@ -9063,7 +9063,7 @@ class GCENodeDriver(NodeDriver):
             price = None
         return GCENodeSize(id=machine_type['id'], name=machine_type['name'],
                            ram=machine_type.get('memoryMb'),
-                           disk=machine_type.get('imageSpaceGb'), bandwidth=0,
+                           disk=0, bandwidth=0,
                            price=price, driver=self, extra=extra)
 
     def _to_project(self, project):
