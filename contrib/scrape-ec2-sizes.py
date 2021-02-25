@@ -133,6 +133,13 @@ REGION_DETAILS = {
         'country': 'Stockholm',
         'signature_version': '4',
     },
+    'EU (Milan)': {
+        'id': 'eu-south-1',
+        'endpoint': 'ec2.eu-south-1.amazonaws.com',
+        'api_name': 'ec2_eu_south',
+        'country': 'Italy',
+        'signature_version': '4',
+    },
     # Asia
     'Asia Pacific (Mumbai)': {
         'id': 'ap-south-1',
@@ -174,6 +181,29 @@ REGION_DETAILS = {
         'endpoint': 'ec2.ap-northeast-3.amazonaws.com',
         'api_name': 'ec2_ap_northeast',
         'country': 'Japan',
+        'signature_version': '4',
+    },
+    'Asia Pacific (Hong Kong)': {
+        'id': 'ap-east-1',
+        'endpoint': 'ec2.ap-east-1.amazonaws.com',
+        'api_name': 'ec2_ap_east',
+        'country': 'China',
+        'signature_version': '4',
+    },
+    # Middle East
+    'Middle East (Bahrain)': {
+        'id': 'me-south-1',
+        'endpoint': 'ec2.me-south-1.amazonaws.com',
+        'api_name': 'ec2_middle_east',
+        'country': 'Bahrain',
+        'signature_version': '4',
+    },
+    # Africa
+    'Africa (Cape Town)': {
+        'id': 'af-south-1',
+        'endpoint': 'ec2.af-south-1.amazonaws.com',
+        'api_name': 'ec2_af_south',
+        'country': 'South Africa',
         'signature_version': '4',
     },
     # Not in JSON
