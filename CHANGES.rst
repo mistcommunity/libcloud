@@ -41,9 +41,9 @@ Compute
   (GITHUB-1555)
   [Rob Juffermans - @robjuffermans]
 
-- [OpenStack] Support volume v3 API endpoint in OpenStack driver.
+- [GCE] Get accelerators field in the GCE machineType.
 
-  (GITHUB-1561)
+  (GITHUB-1565)
   [Miguel Caballer - @micafer]
 
 Changes in Apache Libcloud 3.3.1
@@ -75,6 +75,21 @@ Compute
   authentication by passing ``signature_version`` keyword argument to the EC2
   driver constructor.
   (GITHUB-1546)
+
+Storage
+~~~~~~~
+
+- [Google Cloud Storage] Fix a bug and make sure we also correctly handle
+  scenario in ``get_object()`` method when the object size is returned in
+  ``x-goog-stored-content-length`` and not ``content-length`` header.
+
+  Reported by Veith Röthlingshöfer - @RunOrVeith.
+  (GITHUB-1544, GITHUB-1547)
+
+- [Google Cloud Storage] Update ``get_object()`` method and ensure
+  ``object.size`` attribute is an integer and not a string. This way it's
+  consistent with ``list_objects()`` method.
+  (GITHUB-1547)
 
 Changes in Apache Libcloud 3.3.0
 --------------------------------
