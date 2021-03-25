@@ -884,8 +884,9 @@ class LibvirtNodeDriver(NodeDriver):
 
         # Point disk path to its new location.
         for child in et.findall('devices/disk/source'):
-            if child.get('file') and child.get('file').endswith('.img'):
-                old_disk_path = child.get('file')
+            child_file = child.get('file')
+            if child_file and domain.name() in child_file:
+                old_disk_path = child_file
                 new_disk_path = old_disk_path.replace(domain.name(), new_name)
                 child.set('file', new_disk_path)
                 break
