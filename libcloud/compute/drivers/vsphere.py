@@ -261,8 +261,8 @@ class VSphereNodeDriver(NodeDriver):
             try:
                 if vm.config and vm.config.template:
                     images.append(self._to_image(vm))
-            except:
-                pass
+            except Exception as e:
+                logger.error("Skipping %r: %r" % (vm, e))
 
         return images
 
