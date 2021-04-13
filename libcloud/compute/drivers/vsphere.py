@@ -256,10 +256,13 @@ class VSphereNodeDriver(NodeDriver):
                 [vim.VirtualMachine],
                 recursive=True
             ).view
-
+        # if vm config throws error, ignore
         for vm in vms:
-            if vm.config and vm.config.template:
-                images.append(self._to_image(vm))
+            try:
+                if vm.config and vm.config.template:
+                    images.append(self._to_image(vm))
+            except:
+                pass
 
         return images
 
@@ -365,7 +368,7 @@ class VSphereNodeDriver(NodeDriver):
             data.append(properties)
         return data
 
-    def list_nodes(self, enhance=True, max_properties=20):
+    def list_nodes(self, enhance=True, max_properties=20, async_io=False):
         """
         List nodes, excluding templates
         """
@@ -399,9 +402,14 @@ class VSphereNodeDriver(NodeDriver):
                     vm_dict[vm['obj']].update(vm)
 
         vm_list = [vm_dict[k] for k in vm_dict]
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        nodes = loop.run_until_complete(self._to_nodes(vm_list))
+
+        if async_io:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            nodes = loop.run_until_complete(self._to_nodes(vm_list))
+        else:
+            nodes = [self._to_node(vm) for vm in vm_list]
+
         if enhance:
             nodes = self._enhance_metadata(nodes, content)
         return nodes
@@ -1228,10 +1236,10 @@ class VSphere_6_7_NodeDriver(NodeDriver):
             raise ImportError('Missing "pyvmomi" dependency. '
                               'You can install it '
                               'using pip - pip install pyvmomi')
-        self.driver_soap =  VSphereNodeDriver(self.host, self.username,
-                                              self.connection.secret,
-                                              ca_cert=self.
-                                              connection.connection.ca_cert)
+        self.driver_soap = VSphereNodeDriver(self.host, self.username,
+                                             self.connection.secret,
+                                             ca_cert=self.
+                                             connection.connection.ca_cert)
 
     def _get_session_token(self):
         uri = "/rest/com/vmware/cis/session"
