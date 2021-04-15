@@ -511,14 +511,21 @@ class VSphereNodeDriver(NodeDriver):
         memory = vm.get('summary.config.memorySizeMB')
         cpus = vm.get('summary.config.numCpu')
         disk = vm.get('summary.storage.committed', 0) // (1024 ** 3)
-        folder = vm.get('obj').parent
-        if isinstance(folder, vim.Folder):
-            folder = folder.name
-        else:
+        try:
+            folder = vm.get('obj').parent
+            if isinstance(folder, vim.Folder):
+                folder = folder.name
+            else:
+                folder = ""
+        except Exception as e:
             folder = ""
+            logger.warn("I couldn't find folder. Error: %r" % e)
         datastore = ""
-        if vm.get('obj').config:
-            datastore = vm.get('obj').config.datastoreUrl[0].name
+        try:
+            if vm.get('obj').config:
+                datastore = vm.get('obj').config.datastoreUrl[0].name
+        except Exception as e:
+            logger.warn("Couldn't find datastore. Error: %r" % e)
         id_to_hash = str(memory) + str(cpus) + str(disk)
         size_id = hashlib.md5(id_to_hash.encode("utf-8")).hexdigest()
         size_name = name + "-size"
