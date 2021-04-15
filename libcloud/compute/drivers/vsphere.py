@@ -519,13 +519,13 @@ class VSphereNodeDriver(NodeDriver):
                 folder = ""
         except Exception as e:
             folder = ""
-            logger.error("%r" % e)
+            logger.warn("I couldn't find folder. Error: %r" % e)
         datastore = ""
         try:
             if vm.get('obj').config:
                 datastore = vm.get('obj').config.datastoreUrl[0].name
         except Exception as e:
-            logger.error("%r" % e)
+            logger.warn("Couldn't find datastore. Error: %r" % e)
         id_to_hash = str(memory) + str(cpus) + str(disk)
         size_id = hashlib.md5(id_to_hash.encode("utf-8")).hexdigest()
         size_name = name + "-size"
