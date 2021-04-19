@@ -105,6 +105,25 @@ class EquinixMetalNodeDriver(NodeDriver):
                       'deprovisioning': NodeState.TERMINATED,
                       'failed': NodeState.ERROR,
                       'active': NodeState.RUNNING}
+    NUM_OF_CORES ={
+        "Ampere eMAG 8180 32-core @ 3.0Ghz": 32,  # https://amperecomputing.com/wp-content/uploads/2019/01/eMAG8180_PB_v0.5_20180914.pdf
+        "AMD EPYC 7401P 24-Core Processor @ 2.0GHz": 24,  # https://www.amd.com/en/products/cpu/amd-epyc-7401p
+        "AMD EPYC 7402P 24-Core Processor @ 2.8GHz": 24,  # https://www.amd.com/en/products/cpu/amd-epyc-7402p
+        "Intel(R) Xeon(R) E-2278G CPU @ 3.40GHz": 8,  # https://ark.intel.com/content/www/us/en/ark/products/193745/intel-xeon-e-2278g-processor-16m-cache-3-40-ghz.html
+        "Intel Xeon Gold 6126": 12,  # https://ark.intel.com/content/www/us/en/ark/products/120483/intel-xeon-gold-6126-processor-19-25m-cache-2-60-ghz.html
+        "Intel Scalable Gold 5120 28-Core Processor @ 2.2GHz": 14,  # https://ark.intel.com/content/www/us/en/ark/products/120474/intel-xeon-gold-5120-processor-19-25m-cache-2-20-ghz.html
+        "AMD EPYC 7502P 32-Core Processor @ 2.5Ghz": 32,  # https://www.amd.com/en/products/cpu/amd-epyc-7502p
+        "Intel(R) Xeon(R) Gold 5120 CPU @ 2.20GHz": 14,  # https://ark.intel.com/content/www/us/en/ark/products/120474/intel-xeon-gold-5120-processor-19-25m-cache-2-20-ghz.html
+        "Intel(R) Xeon(R) Silver 4214 CPU @ 2.20GHz": 12,  # https://ark.intel.com/content/www/us/en/ark/products/193385/intel-xeon-silver-4214-processor-16-5m-cache-2-20-ghz.html
+        "Cavium ThunderX CN8890 @2GHz": 48,  # https://en.wikichip.org/wiki/cavium/thunderx/cn8890
+        "32-core HiSilicon Hi1616 @ 2.4Ghz": 32,  # https://en.wikichip.org/wiki/hisilicon/kunpeng/hi1616
+        "Intel E3-1240 v3": 4,  # https://ark.intel.com/content/www/us/en/ark/products/75055/intel-xeon-processor-e3-1240-v3-8m-cache-3-40-ghz.html
+        "Intel E5-2640 v3": 8,  # https://ark.intel.com/content/www/us/en/ark/products/83359/intel-xeon-processor-e5-2640-v3-20m-cache-2-60-ghz.html
+        "Intel Xeon E5-2650 v4 @2.2GHz": 12,  # https://ark.intel.com/content/www/us/en/ark/products/91767/intel-xeon-processor-e5-2650-v4-30m-cache-2-20-ghz.html
+        "Intel Xeon D-1537 @1.7GHz": 8,  # https://ark.intel.com/content/www/us/en/ark/products/91196/intel-xeon-processor-d-1537-12m-cache-1-70-ghz.html
+        "Intel Atom C2550 @ 2.4Ghz": 4,  # https://ark.intel.com/content/www/us/en/ark/products/77982/intel-atom-processor-c2550-2m-cache-2-40-ghz.html
+        "Intel(R) Xeon(R) CPU E3-1578L v5 @ 2.00GHz": 4,  # https://ark.intel.com/content/www/us/en/ark/products/93848/intel-xeon-processor-e3-1578l-v5-8m-cache-2-00-ghz.html
+    }
 
     def __init__(self, key, project=None):
         """
@@ -455,10 +474,22 @@ def _list_async(driver):
             cpus = data['specs']['cpus'][0].get('count')
         except KeyError:
             cpus = None
+
+        try:
+            cpu_type = data['specs']['cpus'][0].get('type')
+        except KeyError:
+            cpu_type = None
+
+        cpu_cores = self.NUM_OF_CORES.get(cpu_type)
+        if cpus and cpu_cores:
+            total_cores = cpu_cores * cpus
+        else:
+            total_cores = None
+
         regions = [region.get('href').replace('/metal/v1/facilities/', '')
                    for region in data.get('available_in')]
         extra = {'description': data['description'], 'line': data['line'],
-                 'cpus': cpus, 'regions': regions}
+                 'cpus': cpus, 'regions': regions, 'cpu_cores': total_cores}
         try:
             ram = int(data['specs']['memory']['total'].replace('GB', '')) * 1024
         except KeyError:
