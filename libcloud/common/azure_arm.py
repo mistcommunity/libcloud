@@ -27,7 +27,7 @@ from libcloud.common.base import (ConnectionUserAndKey,
 from libcloud.common.base import BaseDriver
 from libcloud.http import LibcloudConnection
 from libcloud.utils.py3 import basestring, urlencode
-
+from libcloud.utils.misc import retry
 
 class AzureBaseDriver(BaseDriver):
     name = "Microsoft Azure Resource Management API"
@@ -224,7 +224,9 @@ class AzureResourceManagementConnection(ConnectionUserAndKey):
         if (time.time() + 300) >= int(self.expires_on):
             self.get_token_from_credentials()
 
-        return super(AzureResourceManagementConnection, self) \
-            .request(action, params=params,
-                     data=data, headers=headers,
-                     method=method, raw=raw)
+        retry_request = retry()
+        response = retry_request(super().request)(action, params=params,
+                                                  data=data, headers=headers,
+                                                  method=method, raw=raw)
+
+        return response
