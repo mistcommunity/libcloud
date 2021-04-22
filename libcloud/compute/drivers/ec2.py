@@ -1975,7 +1975,7 @@ class BaseEC2NodeDriver(NodeDriver):
                 auth.pubkey, ex_keyname)
             params['KeyName'] = key['keyName']
 
-        if ex_keyname:
+        if ex_keyname and not params.get('KeyName'):
             params['KeyName'] = ex_keyname
 
         if ex_userdata:
