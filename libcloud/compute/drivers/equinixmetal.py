@@ -268,6 +268,10 @@ def _list_async(driver):
         return [self._to_size(size) for size in data if
                 size.get('line') == 'baremetal']
 
+    def ex_get_node(self, node_id):
+        data= self.connection.request(f'/metal/v1/devices/{node_id}').object
+        return self._to_node(data)
+
     def create_node(self, name, size, image, location,
                     ex_project_id=None, ip_addresses=[], cloud_init=None,
                     disk=None, disk_size=0, **kwargs):
@@ -754,8 +758,9 @@ def _list_async(driver):
             'facility': facility,
             'plan': plan,
             'size': size,
-            'locked': locked
         }
+        if locked is True:
+            params['locked'] = True
         params.update(kwargs)
         if description:
             params['description'] = description
