@@ -31,6 +31,7 @@ from libcloud.common.google import GoogleBaseConnection
 from libcloud.common.google import GoogleBaseError
 from libcloud.common.google import ResourceNotFoundError
 from libcloud.common.google import ResourceExistsError
+from libcloud.common.google import SUPPORTED_ACCELERATORS
 from libcloud.common.types import LibcloudError
 
 from libcloud.compute.base import Node, NodeDriver, NodeImage, NodeLocation
@@ -2492,6 +2493,31 @@ class GCENodeDriver(NodeDriver):
         response = self.connection.request(request, method='GET').object
         list_locations = [self._to_node_location(l) for l in response['items']]
         return list_locations
+
+    def ex_list_accelerator_types_for_location(self, location, cached=True):
+        """
+        Return a list of accelerator types supported in location(zone).
+
+        :param  location: Location, Zone or Location/Zone name
+        :type   location: ``str`` or :class:`GCEZone` or  :class:`NodeLocation`
+
+        :return: List of supported accelerator types for location
+        :rtype: ``list`` of ``dict``
+        """
+        if isinstance(location, str):
+            name = location
+        else:
+            name = location.name
+
+        if cached is True:
+            return SUPPORTED_ACCELERATORS.get(name, [])
+    
+        path = f'/zones/{name}/acceleratorTypes'
+        response = self.connection.request(path, method='GET').object
+        keys = ('name', 'maximumCardsPerInstance')
+        supported_accelerators = [{key: value for key, value in accelerator.items() if key in keys}
+                                  for accelerator in response.get('items', [])]
+        return supported_accelerators
 
     def ex_list_routes(self):
         """
@@ -8946,6 +8972,7 @@ class GCENodeDriver(NodeDriver):
         """
         extra = {}
         extra['region'] = location.get('region').split('/')[-1]
+        extra['acceleratorTypes'] = self.ex_list_accelerator_types_for_location(location['name'])
         return NodeLocation(id=location['id'], name=location['name'],
                             country=location['name'].split('-')[0],
                             extra=extra, driver=self)
@@ -9046,6 +9073,8 @@ class GCENodeDriver(NodeDriver):
         extra['description'] = machine_type.get('description')
         extra['guestCpus'] = machine_type.get('guestCpus')
         extra['creationTimestamp'] = machine_type.get('creationTimestamp')
+        extra['accelerators'] = machine_type.get('accelerators', [])
+        extra['isSharedCpu'] = machine_type.get('isSharedCpu')
         try:
             size_name = machine_type['name'].split('-')[0]
             location = extra['zone'].name
