@@ -722,7 +722,7 @@ class DockerContainerDriver(ContainerDriver):
             created = ts_to_str(created)
         extra = {
             'id': data.get('Id'),
-            'status': data.get('Status'),
+            'state': data.get('State'),
             'created': created,
             'image': image,
             'ports': ports,
