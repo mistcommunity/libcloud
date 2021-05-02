@@ -41,6 +41,21 @@ Compute
   (GITHUB-1555)
   [Rob Juffermans - @robjuffermans]
 
+- [OpenStack] Support volume v3 API endpoint in OpenStack driver.
+
+  (GITHUB-1561)
+  [Miguel Caballer - @micafer]
+
+- [GCE] Get accelerators field in the GCE machineType.
+
+  (GITHUB-1565)
+  [Miguel Caballer - @micafer]
+
+- [OpenStack] Support updating ``allowed_address_pairs`` on OpenStack ports
+  using ``ex_update_port`` method.
+  (GITHUB-1569)
+  [@dpeschman]
+
 DNS
 ~~~
 
