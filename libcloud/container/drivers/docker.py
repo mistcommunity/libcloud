@@ -54,7 +54,8 @@ class DockerResponse(JsonResponse):
         try:
             # error responses are tricky in Docker. Eg response could be
             # an error, but response status could still be 200
-            content_type = self.headers.get('content-type', 'application/json')
+            content_type = self.request.headers.get('content-type',
+                                                    'application/json')
             if content_type == 'application/json' or content_type == '':
                 if self.headers.get('transfer-encoding') == 'chunked' and \
                         'fromImage' in self.request.url:
@@ -108,7 +109,8 @@ class DockerConnection(ConnectionUserAndKey):
         If user and password are specified, include a base http auth
         header
         """
-        headers['Content-Type'] = 'application/json'
+        if 'Content-Type' not in headers:
+            headers['Content-Type'] = 'application/json'
         if self.user_id and self.key:
             user_b64 = base64.b64encode(b('%s:%s' % (self.user_id, self.key)))
             headers['Authorization'] = 'Basic %s' % (user_b64.decode('utf-8'))
@@ -151,7 +153,8 @@ class DockertlsConnection(KeyCertificateConnection):
             self.cert_file = cert_file
 
     def add_default_headers(self, headers):
-        headers['Content-Type'] = 'application/json'
+        if 'Content-Type' not in headers:
+            headers['Content-Type'] = 'application/json'
         return headers
 
 
@@ -594,7 +597,7 @@ class DockerContainerDriver(ContainerDriver):
         if result.status in VALID_RESPONSE_CODES:
             return self.get_container(container.id)
 
-    def ex_get_logs(self, container, stream=False):
+    def ex_get_logs(self, container, stream=False, stdout=True, stderr=True):
         """
         Get container logs
 
@@ -612,16 +615,20 @@ class DockerContainerDriver(ContainerDriver):
         """
         payload = {}
         data = json.dumps(payload)
+        headers = {'Content-Type': 'text/plain'}
 
         if float(self.version) > 1.10:
             result = self.connection.request(
-                "/v%s/containers/%s/logs?follow=%s&stdout=1&stderr=1" %
-                (self.version, container.id, str(stream))).object
+                "/v%s/containers/%s/logs?follow=%s&stdout=%d&stderr=%d"
+                % (self.version, container.id, str(stream),
+                    stdout, stderr), headers=headers).object
             logs = result
         else:
             result = self.connection.request(
-                "/v%s/containers/%s/attach?logs=1&stream=%s&stdout=1&stderr=1"
-                % (self.version, container.id, str(stream)),
+                "/v%s/containers/%s/attach?logs=1"
+                "&stream=%s&stdout=%d&stderr=%d"
+                % (self.version, container.id, str(stream), stdout, stderr),
+                headers=headers,
                 method='POST',
                 data=data)
             logs = result.body
@@ -715,7 +722,7 @@ class DockerContainerDriver(ContainerDriver):
             created = ts_to_str(created)
         extra = {
             'id': data.get('Id'),
-            'status': data.get('Status'),
+            'state': data.get('State'),
             'created': created,
             'image': image,
             'ports': ports,
