@@ -368,7 +368,7 @@ class VSphereNodeDriver(NodeDriver):
             data.append(properties)
         return data
 
-    def list_nodes(self, enhance=True, max_properties=20, async_io=False):
+    def list_nodes(self, enhance=True, extra=True, max_properties=20, async_io=False):
         """
         List nodes, excluding templates
         """
@@ -395,11 +395,13 @@ class VSphereNodeDriver(NodeDriver):
                                                    i:i + max_properties],
                                                include_mors=True)
             i += max_properties
-            for vm in vm_list:
-                if not vm_dict.get(vm['obj']):
-                    vm_dict[vm['obj']] = vm
-                else:
-                    vm_dict[vm['obj']].update(vm)
+        for vm in vm_list:
+            if vm.get('config.template'):
+                continue
+            if not vm_dict.get(vm['obj']):
+                vm_dict[vm['obj']] = vm
+            else:
+                vm_dict[vm['obj']].update(vm)
 
         vm_list = [vm_dict[k] for k in vm_dict]
 
@@ -408,7 +410,7 @@ class VSphereNodeDriver(NodeDriver):
             asyncio.set_event_loop(loop)
             nodes = loop.run_until_complete(self._to_nodes(vm_list))
         else:
-            nodes = [self._to_node(vm) for vm in vm_list]
+            nodes = [self._to_node(vm, _complete_extra=extra) for vm in vm_list]
 
         if enhance:
             nodes = self._enhance_metadata(nodes, content)
@@ -505,27 +507,12 @@ class VSphereNodeDriver(NodeDriver):
                 nodes.append(self._to_node_recursive(virtual_machine))
         return nodes
 
-    def _to_node(self, vm):
+    def _to_node(self, vm, _complete_extra=True):
         name = vm.get('summary.config.name')
         path = vm.get('summary.config.vmPathName')
         memory = vm.get('summary.config.memorySizeMB')
         cpus = vm.get('summary.config.numCpu')
         disk = vm.get('summary.storage.committed', 0) // (1024 ** 3)
-        try:
-            folder = vm.get('obj').parent
-            if isinstance(folder, vim.Folder):
-                folder = folder.name
-            else:
-                folder = ""
-        except Exception as e:
-            folder = ""
-            logger.warn("I couldn't find folder. Error: %r" % e)
-        datastore = ""
-        try:
-            if vm.get('obj').config:
-                datastore = vm.get('obj').config.datastoreUrl[0].name
-        except Exception as e:
-            logger.warn("Couldn't find datastore. Error: %r" % e)
         id_to_hash = str(memory) + str(cpus) + str(disk)
         size_id = hashlib.md5(id_to_hash.encode("utf-8")).hexdigest()
         size_name = name + "-size"
@@ -534,8 +521,6 @@ class VSphereNodeDriver(NodeDriver):
         size = NodeSize(id=size_id, name=size_name, ram=memory, disk=disk,
                         bandwidth=0, price=0, driver=driver, extra=size_extra)
         operating_system = vm.get('summary.config.guestFullName')
-        host = vm.get('summary.runtime.host')
-
         os_type = 'unix'
         if 'Microsoft' in str(operating_system):
             os_type = 'windows'
@@ -543,15 +528,11 @@ class VSphereNodeDriver(NodeDriver):
             (vm.get('obj').config and vm.get('obj').config.instanceUuid)
         if not uuid:
             logger.error('No uuid for vm: {}'.format(vm))
-        annotation = vm.get('summary.config.annotation')
         state = vm.get('summary.runtime.powerState')
         status = self.NODE_STATE_MAP.get(state, NodeState.UNKNOWN)
-        boot_time = vm.get('summary.runtime.bootTime')
-
         ip_addresses = []
         if vm.get('summary.guest.ipAddress'):
             ip_addresses.append(vm.get('summary.guest.ipAddress'))
-
         overall_status = str(vm.get('summary.overallStatus'))
         public_ips = []
         private_ips = []
@@ -564,27 +545,11 @@ class VSphereNodeDriver(NodeDriver):
             'cpus': cpus,
             'overall_status': overall_status,
             'metadata': {},
-            'snapshots': [],
-            'folder': folder,
-            'datastore': datastore
+            'datastore': path[1:path.index(']')]
         }
 
         if disk:
             extra['disk'] = disk
-
-        if host:
-            extra['host'] = host.name
-            parent = host.parent
-            while parent:
-                if isinstance(parent, vim.ClusterComputeResource):
-                    extra['cluster'] = parent.name
-                    break
-                parent = parent.parent
-
-        if boot_time:
-            extra['boot_time'] = boot_time.isoformat()
-        if annotation:
-            extra['annotation'] = annotation
 
         for ip_address in ip_addresses:
             try:
@@ -595,14 +560,43 @@ class VSphereNodeDriver(NodeDriver):
             except Exception:
                 # IPV6 not supported
                 pass
-        if vm.get('snapshot'):
-            extra['snapshots'] = format_snapshots(
-                recurse_snapshots(vm.get('snapshot').rootSnapshotList))
 
         for custom_field in vm.get('customValue', []):
             key_id = custom_field.key
             key = self.find_custom_field_key(key_id)
             extra['metadata'][key] = custom_field.value
+
+        if _complete_extra:
+            try:
+                folder = vm.get('obj').parent
+                if isinstance(folder, vim.Folder):
+                    extra['folder'] = folder.name
+            except Exception as e:
+                logger.warn("I couldn't find folder. Error: %r" % e)
+            try:
+                if vm.get('obj').config:
+                    extra['datastore'] = vm.get('obj').config.datastoreUrl[0].name
+            except Exception as e:
+                logger.warn("Couldn't find datastore. Error: %r" % e)
+            boot_time = vm.get('summary.runtime.bootTime')
+            annotation = vm.get('summary.config.annotation')
+            if boot_time:
+                extra['boot_time'] = boot_time.isoformat()
+            if annotation:
+                extra['annotation'] = annotation
+            host = vm.get('summary.runtime.host')
+            if host:
+                extra['host'] = host.name
+                parent = host.parent
+                while parent:
+                    if isinstance(parent, vim.ClusterComputeResource):
+                        extra['cluster'] = parent.name
+                        break
+                    parent = parent.parent
+            if vm.get('snapshot'):
+                extra['snapshots'] = format_snapshots(
+                    recurse_snapshots(vm.get('snapshot').rootSnapshotList))
+
 
         node = Node(id=uuid, name=name, state=status, size=size,
                     public_ips=public_ips, private_ips=private_ips,
