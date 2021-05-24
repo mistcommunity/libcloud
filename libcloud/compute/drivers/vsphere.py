@@ -240,7 +240,6 @@ class VSphereNodeDriver(NodeDriver):
         """
         Lists VM templates as images.
         """
-        from time import time
         vm_properties = [
             'config.template', 'summary.config.vmPathName',
             'summary.config.name',
@@ -257,7 +256,7 @@ class VSphereNodeDriver(NodeDriver):
             [vim.VirtualMachine],
             recursive=True
         )
-        i=0
+        i = 0
         while i < len(vm_properties):
             vm_list = self._collect_properties(content, view,
                                                vim.VirtualMachine,
@@ -292,7 +291,8 @@ class VSphereNodeDriver(NodeDriver):
             "cpus": cpus,
             "metadata": {},
             "type": "template_6_5",
-            "disk_size": int(data.get('summary.storage.committed', 0)) // (1024**3),
+            "disk_size": int(data.get(
+                'summary.storage.committed', 0)) // (1024**3),
             'datastore': path[1:path.index(']')]
         }
         annotation = data.get('summary.config.annotation')
@@ -373,7 +373,8 @@ class VSphereNodeDriver(NodeDriver):
             data.append(properties)
         return data
 
-    def list_nodes(self, enhance=True, extra=True, max_properties=20, async_io=False):
+    def list_nodes(self, enhance=True, extra=True,
+                   max_properties=20, async_io=False):
         """
         List nodes, excluding templates
         """
@@ -415,7 +416,8 @@ class VSphereNodeDriver(NodeDriver):
             asyncio.set_event_loop(loop)
             nodes = loop.run_until_complete(self._to_nodes(vm_list))
         else:
-            nodes = [self._to_node(vm, _complete_extra=extra) for vm in vm_list]
+            nodes = [self._to_node(
+                vm, _complete_extra=extra) for vm in vm_list]
 
         if enhance:
             nodes = self._enhance_metadata(nodes, content)
@@ -580,7 +582,8 @@ class VSphereNodeDriver(NodeDriver):
                 logger.warn("I couldn't find folder. Error: %r" % e)
             try:
                 if vm.get('obj').config:
-                    extra['datastore'] = vm.get('obj').config.datastoreUrl[0].name
+                    extra['datastore'] = vm.get(
+                        'obj').config.datastoreUrl[0].name
             except Exception as e:
                 logger.warn("Couldn't find datastore. Error: %r" % e)
             boot_time = vm.get('summary.runtime.bootTime')
@@ -601,7 +604,6 @@ class VSphereNodeDriver(NodeDriver):
             if vm.get('snapshot'):
                 extra['snapshots'] = format_snapshots(
                     recurse_snapshots(vm.get('snapshot').rootSnapshotList))
-
 
         node = Node(id=uuid, name=name, state=status, size=size,
                     public_ips=public_ips, private_ips=private_ips,
