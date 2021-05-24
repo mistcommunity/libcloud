@@ -236,11 +236,12 @@ class VSphereNodeDriver(NodeDriver):
         """
         return []
 
-    def list_images(self, location=None, folder_ids=[]):
+    def list_images(self, folder_ids=[]):
         """
         Lists VM templates as images.
         If folder is given then it will list images contained
         in that folder only.
+
         """
 
         images = []
@@ -249,21 +250,44 @@ class VSphereNodeDriver(NodeDriver):
             for folder_id in folder_ids:
                 folder_object = self._get_item_by_moid('Folder', folder_id)
                 vms.extend(folder_object.childEntity)
-        else:
-            content = self.connection.RetrieveContent()
-            vms = content.viewManager.CreateContainerView(
-                content.rootFolder,
-                [vim.VirtualMachine],
-                recursive=True
-            ).view
+            for vm in vms:
+                try:
+                    if vm.config and vm.config.template:
+                        images.append(self._to_image(vm))
+                except Exception as e:
+                    logger.error("Skipping %r: %r" % (vm, e))
+            return images
+
+        vm_properties = [
+            'config.template', 'summary.config.vmPathName',
+            'summary.config.name',
+            'summary.config.memorySizeMB', 'summary.config.numCpu',
+            'summary.storage.committed', 'summary.config.guestFullName',
+            'summary.runtime.host', 'summary.config.instanceUuid',
+            'summary.config.annotation', 'summary.runtime.bootTime',
+            'customValue'
+        ]
+        content = self.connection.RetrieveContent()
+        view = content.viewManager.CreateContainerView(
+            content.rootFolder,
+            [vim.VirtualMachine],
+            recursive=True
+        )
+        i = 0
+        while i < len(vm_properties):
+            vm_list = self._collect_properties(content, view,
+                                               vim.VirtualMachine,
+                                               path_set=vm_properties[
+                                                   i:i + 20],
+                                               include_mors=True)
+            i += 20
         # if vm config throws error, ignore
-        for vm in vms:
+        for vm in vm_list:
             try:
-                if vm.config and vm.config.template:
-                    images.append(self._to_image(vm))
+                if vm.get('config.template', False):
+                    images.append(self._to_image_properties_ready(vm))
             except Exception as e:
                 logger.error("Skipping %r: %r" % (vm, e))
-
         return images
 
     def _to_image(self, data):
@@ -297,6 +321,42 @@ class VSphereNodeDriver(NodeDriver):
             extra['annotation'] = annotation
 
         for custom_field in data.customValue:
+            key_id = custom_field.key
+            key = self.find_custom_field_key(key_id)
+            extra["metadata"][key] = custom_field.value
+
+        return NodeImage(id=uuid, name=name, driver=self,
+                         extra=extra)
+
+    def _to_image_properties_ready(self, data):
+        name = data.get('summary.config.name')
+        uuid = data.get('summary.config.instanceUuid', None)
+        memory = data.get('summary.config.memorySizeMB')
+        cpus = data.get('summary.config.numCpu')
+        operating_system = data.get('summary.config.guestFullName')
+        os_type = 'unix'
+        if 'Microsoft' in str(operating_system):
+            os_type = 'windows'
+        path = data.get('summary.config.vmPathName')
+        extra = {
+            "path": path,
+            "operating_system": operating_system,
+            "os_type": os_type,
+            "memory_MB": memory,
+            "cpus": cpus,
+            "metadata": {},
+            "type": "template_6_5",
+            "disk_size": int(data.get(
+                'summary.storage.committed', 0)) // (1024**3),
+            'datastore': path[1:path.index(']')]
+        }
+        annotation = data.get('summary.config.annotation')
+        boot_time = data.get('summary.runtime.bootTime')
+        if boot_time:
+            extra['boot_time'] = boot_time.isoformat()
+        if annotation:
+            extra['annotation'] = annotation
+        for custom_field in data.get('customValue', []):
             key_id = custom_field.key
             key = self.find_custom_field_key(key_id)
             extra["metadata"][key] = custom_field.value
@@ -368,7 +428,8 @@ class VSphereNodeDriver(NodeDriver):
             data.append(properties)
         return data
 
-    def list_nodes(self, enhance=True, extra=True, max_properties=20, async_io=False):
+    def list_nodes(self, enhance=True, extra=True,
+                   max_properties=20, async_io=False):
         """
         List nodes, excluding templates
         """
@@ -410,7 +471,8 @@ class VSphereNodeDriver(NodeDriver):
             asyncio.set_event_loop(loop)
             nodes = loop.run_until_complete(self._to_nodes(vm_list))
         else:
-            nodes = [self._to_node(vm, _complete_extra=extra) for vm in vm_list]
+            nodes = [self._to_node(
+                vm, _complete_extra=extra) for vm in vm_list]
 
         if enhance:
             nodes = self._enhance_metadata(nodes, content)
@@ -575,7 +637,8 @@ class VSphereNodeDriver(NodeDriver):
                 logger.warn("I couldn't find folder. Error: %r" % e)
             try:
                 if vm.get('obj').config:
-                    extra['datastore'] = vm.get('obj').config.datastoreUrl[0].name
+                    extra['datastore'] = vm.get(
+                        'obj').config.datastoreUrl[0].name
             except Exception as e:
                 logger.warn("Couldn't find datastore. Error: %r" % e)
             boot_time = vm.get('summary.runtime.bootTime')
@@ -596,7 +659,6 @@ class VSphereNodeDriver(NodeDriver):
             if vm.get('snapshot'):
                 extra['snapshots'] = format_snapshots(
                     recurse_snapshots(vm.get('snapshot').rootSnapshotList))
-
 
         node = Node(id=uuid, name=name, state=status, size=size,
                     public_ips=public_ips, private_ips=private_ips,
