@@ -2510,13 +2510,15 @@ class GCENodeDriver(NodeDriver):
             name = location.name
 
         if cached is True:
-            return SUPPORTED_ACCELERATORS.get(name, [])
-    
+            return SUPPORTED_ACCELERATORS.get(name, {})
+
         path = f'/zones/{name}/acceleratorTypes'
         response = self.connection.request(path, method='GET').object
-        keys = ('name', 'maximumCardsPerInstance')
-        supported_accelerators = [{key: value for key, value in accelerator.items() if key in keys}
-                                  for accelerator in response.get('items', [])]
+        supported_accelerators = {
+            item.get('name'): item.get('maximumCardsPerInstance')
+            for item in response.get('items', [])
+            if item.get('name') and item.get('maximumCardsPerInstance')
+        }
         return supported_accelerators
 
     def ex_list_routes(self):
@@ -8972,7 +8974,8 @@ class GCENodeDriver(NodeDriver):
         """
         extra = {}
         extra['region'] = location.get('region').split('/')[-1]
-        extra['acceleratorTypes'] = self.ex_list_accelerator_types_for_location(location['name'])
+        extra['acceleratorTypes'] = self.ex_list_accelerator_types_for_location(
+            location['name'])
         return NodeLocation(id=location['id'], name=location['name'],
                             country=location['name'].split('-')[0],
                             extra=extra, driver=self)
