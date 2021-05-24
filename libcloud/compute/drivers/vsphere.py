@@ -236,67 +236,72 @@ class VSphereNodeDriver(NodeDriver):
         """
         return []
 
-    def list_images(self, location=None, folder_ids=[]):
+    def list_images(self, location=None):
         """
         Lists VM templates as images.
-        If folder is given then it will list images contained
-        in that folder only.
         """
-
+        from time import time
+        vm_properties = [
+            'config.template', 'summary.config.vmPathName',
+            'summary.config.name',
+            'summary.config.memorySizeMB', 'summary.config.numCpu',
+            'summary.storage.committed', 'summary.config.guestFullName',
+            'summary.runtime.host', 'summary.config.instanceUuid',
+            'summary.config.annotation', 'summary.runtime.bootTime',
+            'customValue'
+        ]
         images = []
-        if folder_ids:
-            vms = []
-            for folder_id in folder_ids:
-                folder_object = self._get_item_by_moid('Folder', folder_id)
-                vms.extend(folder_object.childEntity)
-        else:
-            content = self.connection.RetrieveContent()
-            vms = content.viewManager.CreateContainerView(
-                content.rootFolder,
-                [vim.VirtualMachine],
-                recursive=True
-            ).view
+        content = self.connection.RetrieveContent()
+        view = content.viewManager.CreateContainerView(
+            content.rootFolder,
+            [vim.VirtualMachine],
+            recursive=True
+        )
+        i=0
+        while i < len(vm_properties):
+            vm_list = self._collect_properties(content, view,
+                                               vim.VirtualMachine,
+                                               path_set=vm_properties[
+                                                   i:i + 20],
+                                               include_mors=True)
+            i += 20
         # if vm config throws error, ignore
-        for vm in vms:
+        for vm in vm_list:
             try:
-                if vm.config and vm.config.template:
+                if vm.get('config.template', False):
                     images.append(self._to_image(vm))
             except Exception as e:
                 logger.error("Skipping %r: %r" % (vm, e))
-
         return images
 
     def _to_image(self, data):
-        summary = data.summary
-        name = summary.config.name
-        uuid = summary.config.instanceUuid
-        memory = summary.config.memorySizeMB
-        cpus = summary.config.numCpu
-        operating_system = summary.config.guestFullName
+        name = data.get('summary.config.name')
+        uuid = data.get('summary.config.instanceUuid', None)
+        memory = data.get('summary.config.memorySizeMB')
+        cpus = data.get('summary.config.numCpu')
+        operating_system = data.get('summary.config.guestFullName')
         os_type = 'unix'
         if 'Microsoft' in str(operating_system):
             os_type = 'windows'
-        annotation = summary.config.annotation
+        path = data.get('summary.config.vmPathName')
         extra = {
-            "path": summary.config.vmPathName,
+            "path": path,
             "operating_system": operating_system,
             "os_type": os_type,
             "memory_MB": memory,
             "cpus": cpus,
-            "overallStatus": str(summary.overallStatus),
             "metadata": {},
             "type": "template_6_5",
-            "disk_size": int(summary.storage.committed) // (1024**3),
-            'datastore': data.datastore[0].info.name
+            "disk_size": int(data.get('summary.storage.committed', 0)) // (1024**3),
+            'datastore': path[1:path.index(']')]
         }
-
-        boot_time = summary.runtime.bootTime
+        annotation = data.get('summary.config.annotation')
+        boot_time = data.get('summary.runtime.bootTime')
         if boot_time:
             extra['boot_time'] = boot_time.isoformat()
         if annotation:
             extra['annotation'] = annotation
-
-        for custom_field in data.customValue:
+        for custom_field in data.get('customValue', []):
             key_id = custom_field.key
             key = self.find_custom_field_key(key_id)
             extra["metadata"][key] = custom_field.value
