@@ -236,10 +236,28 @@ class VSphereNodeDriver(NodeDriver):
         """
         return []
 
-    def list_images(self, location=None):
+    def list_images(self, folder_ids=[]):
         """
         Lists VM templates as images.
+        If folder is given then it will list images contained
+        in that folder only.
+
         """
+
+        images = []
+        if folder_ids:
+            vms = []
+            for folder_id in folder_ids:
+                folder_object = self._get_item_by_moid('Folder', folder_id)
+                vms.extend(folder_object.childEntity)
+            for vm in vms:
+                try:
+                    if vm.config and vm.config.template:
+                        images.append(self._to_image(vm))
+                except Exception as e:
+                    logger.error("Skipping %r: %r" % (vm, e))
+            return images
+
         vm_properties = [
             'config.template', 'summary.config.vmPathName',
             'summary.config.name',
@@ -249,7 +267,6 @@ class VSphereNodeDriver(NodeDriver):
             'summary.config.annotation', 'summary.runtime.bootTime',
             'customValue'
         ]
-        images = []
         content = self.connection.RetrieveContent()
         view = content.viewManager.CreateContainerView(
             content.rootFolder,
@@ -268,12 +285,50 @@ class VSphereNodeDriver(NodeDriver):
         for vm in vm_list:
             try:
                 if vm.get('config.template', False):
-                    images.append(self._to_image(vm))
+                    images.append(self._to_image_properties_ready(vm))
             except Exception as e:
                 logger.error("Skipping %r: %r" % (vm, e))
         return images
 
     def _to_image(self, data):
+        summary = data.summary
+        name = summary.config.name
+        uuid = summary.config.instanceUuid
+        memory = summary.config.memorySizeMB
+        cpus = summary.config.numCpu
+        operating_system = summary.config.guestFullName
+        os_type = 'unix'
+        if 'Microsoft' in str(operating_system):
+            os_type = 'windows'
+        annotation = summary.config.annotation
+        extra = {
+            "path": summary.config.vmPathName,
+            "operating_system": operating_system,
+            "os_type": os_type,
+            "memory_MB": memory,
+            "cpus": cpus,
+            "overallStatus": str(summary.overallStatus),
+            "metadata": {},
+            "type": "template_6_5",
+            "disk_size": int(summary.storage.committed) // (1024**3),
+            'datastore': data.datastore[0].info.name
+        }
+
+        boot_time = summary.runtime.bootTime
+        if boot_time:
+            extra['boot_time'] = boot_time.isoformat()
+        if annotation:
+            extra['annotation'] = annotation
+
+        for custom_field in data.customValue:
+            key_id = custom_field.key
+            key = self.find_custom_field_key(key_id)
+            extra["metadata"][key] = custom_field.value
+
+        return NodeImage(id=uuid, name=name, driver=self,
+                         extra=extra)
+
+    def _to_image_properties_ready(self, data):
         name = data.get('summary.config.name')
         uuid = data.get('summary.config.instanceUuid', None)
         memory = data.get('summary.config.memorySizeMB')
