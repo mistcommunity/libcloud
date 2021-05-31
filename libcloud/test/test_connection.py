@@ -32,7 +32,7 @@ from libcloud.common.base import Connection, CertificateConnection
 from libcloud.http import LibcloudBaseConnection
 from libcloud.http import LibcloudConnection
 from libcloud.http import SignedHTTPSAdapter
-from libcloud.utils.misc import retry
+from libcloud.utils.retry import Retry
 from libcloud.utils.py3 import assertRaisesRegex
 
 
@@ -435,7 +435,7 @@ class ConnectionClassTestCase(unittest.TestCase):
             mock_connect.__name__ = 'mock_connect'
             with self.assertRaises(socket.gaierror):
                 mock_connect.side_effect = socket.gaierror('')
-                retry_request = retry(timeout=0.2, retry_delay=0.1,
+                retry_request = Retry(timeout=0.2, retry_delay=0.1,
                                       backoff=1)
                 retry_request(con.request)(action='/')
 
@@ -451,7 +451,7 @@ class ConnectionClassTestCase(unittest.TestCase):
             mock_connect.__name__ = 'mock_connect'
             with self.assertRaises(socket.gaierror):
                 mock_connect.side_effect = socket.gaierror('')
-                retry_request = retry(timeout=0.2, retry_delay=0.1,
+                retry_request = Retry(timeout=0.2, retry_delay=0.1,
                                       backoff=1)
                 retry_request(con.request)(action='/')
 
@@ -467,7 +467,7 @@ class ConnectionClassTestCase(unittest.TestCase):
             mock_connect.__name__ = 'mock_connect'
             with self.assertRaises(socket.gaierror):
                 mock_connect.side_effect = socket.gaierror('')
-                retry_request = retry(timeout=0.2, retry_delay=0.1,
+                retry_request = Retry(timeout=0.2, retry_delay=0.1,
                                       backoff=1)
                 retry_request(con.request)(action='/')
 
