@@ -25,6 +25,8 @@ import binascii
 import os
 import time
 
+from dateutil import parser
+
 from libcloud.common.azure_arm import AzureResourceManagementConnection
 from libcloud.compute.providers import Provider
 from libcloud.compute.base import Node, NodeDriver, NodeLocation, NodeSize
@@ -2351,23 +2353,23 @@ class AzureNodeDriver(NodeDriver):
             for status in r.object["statuses"]:
                 if status["code"] in ["ProvisioningState/creating"]:
                     state = NodeState.PENDING
-                    if status.get('time'):
-                        created_at = status.get('time')
+                    created_at = self._find_earlier_date(created_at,
+                                                         status.get('time'))
                 elif status["code"] == "ProvisioningState/deleting":
                     state = NodeState.TERMINATED
                     break
                 elif status["code"].startswith("ProvisioningState/failed"):
                     state = NodeState.ERROR
-                    if status.get('time'):
-                        created_at = status.get('time')
+                    created_at = self._find_earlier_date(created_at,
+                                                         status.get('time'))
                     break
                 elif status["code"] == "ProvisioningState/updating":
                     state = NodeState.UPDATING
                     break
                 elif status["code"] == "ProvisioningState/succeeded":
                     state = NodeState.RUNNING
-                    if status.get('time'):
-                        created_at = status.get('time')
+                    created_at = self._find_earlier_date(created_at,
+                                                         status.get('time'))
                 if status["code"] == "PowerState/deallocated":
                     state = NodeState.STOPPED
                     break
@@ -2384,6 +2386,17 @@ class AzureNodeDriver(NodeDriver):
                     state = NodeState.RUNNING
         except BaseHTTPError as h:
             pass
+
+        disks = r.object.get('disks') or []
+        for disk in disks:
+            # by default Azure boot drives are assigned
+            # a name of "<machine_name>-osDisk"
+            if 'osDisk' in disk.get('name', ''):
+                for status in disk.get('statuses', []):
+                    if status['code'] in ['ProvisioningState/creating',
+                                          'ProvisioningState/succeeded']:
+                        created_at = self._find_earlier_date(created_at,
+                                                             status.get('time'))
 
         return state, created_at
 
@@ -2544,6 +2557,29 @@ class AzureNodeDriver(NodeDriver):
         raise LibcloudError("Unable to find a name for a VHD to use for "
                             "instance in 10 tries, errors were:\n  - %s" %
                             ("\n  - ".join(errors)))
+
+    @staticmethod
+    def _find_earlier_date(date_string_1, date_string_2):
+        """Compare the given dates and return the earlier one.
+
+        :param date_string_1: A datetime string or None
+        :type date_string_1: ``str`` or None
+
+        :param date_string_2: A datetime string or None
+        :type date_string_2: ``str`` or None
+
+        :returns: A datetime string
+        """
+        if date_string_1 is None:
+            return date_string_2
+
+        if date_string_2 is None:
+            return date_string_1
+
+        dt1 = parser.parse(date_string_1)
+        dt2 = parser.parse(date_string_2)
+
+        return str(min(dt1, dt2))
 
 
 def _split_blob_uri(uri):
