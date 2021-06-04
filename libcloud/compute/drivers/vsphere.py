@@ -628,6 +628,10 @@ class VSphereNodeDriver(NodeDriver):
             key = self.find_custom_field_key(key_id)
             extra['metadata'][key] = custom_field.value
 
+        if vm.get('snapshot'):
+                extra['snapshots'] = format_snapshots(
+                    recurse_snapshots(vm.get('snapshot').rootSnapshotList))
+
         if _complete_extra:
             try:
                 folder = vm.get('obj').parent
@@ -656,9 +660,6 @@ class VSphereNodeDriver(NodeDriver):
                         extra['cluster'] = parent.name
                         break
                     parent = parent.parent
-            if vm.get('snapshot'):
-                extra['snapshots'] = format_snapshots(
-                    recurse_snapshots(vm.get('snapshot').rootSnapshotList))
 
         node = Node(id=uuid, name=name, state=status, size=size,
                     public_ips=public_ips, private_ips=private_ips,
