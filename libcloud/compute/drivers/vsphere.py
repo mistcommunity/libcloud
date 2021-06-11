@@ -771,7 +771,13 @@ class VSphereNodeDriver(NodeDriver):
         """
         """
         vm = self.find_by_uuid(node.id)
-        return self.wait_for_task(vm.RebootGuest())
+        try:
+            vm.RebootGuest()
+        except:
+            # forceably shutoff/on
+            # need to do if vmware guestadditions isn't running
+            vm.ResetVM_Task()
+        return True
 
     def destroy_node(self, node):
         """
