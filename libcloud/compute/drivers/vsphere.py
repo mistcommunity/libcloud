@@ -632,7 +632,7 @@ class VSphereNodeDriver(NodeDriver):
             try:
                 folder = vm.get('obj').parent
                 if isinstance(folder, vim.Folder):
-                    extra['folder'] = folder.name
+                    extra['folder'] = folder._moId
             except Exception as e:
                 logger.warn("I couldn't find folder. Error: %r" % e)
             try:
@@ -678,7 +678,7 @@ class VSphereNodeDriver(NodeDriver):
         id_to_hash = str(memory) + str(cpus) + str(disk)
         folder = virtual_machine.parent
         if isinstance(folder, vim.Folder):
-            folder = folder.name
+            folder = folder._moId
         else:
             folder = ""
         datastore = virtual_machine.config.datastoreUrl[0].name
@@ -820,7 +820,7 @@ class VSphereNodeDriver(NodeDriver):
         )
 
     def ex_remove_snapshot(self, node, snapshot_name=None,
-                           remove_children=True):
+                           remove_children=False):
         """
         Remove a snapshot from node.
         If snapshot_name is not defined remove the last one.
