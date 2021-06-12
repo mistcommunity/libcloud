@@ -338,6 +338,9 @@ class VSphereNodeDriver(NodeDriver):
         if 'Microsoft' in str(operating_system):
             os_type = 'windows'
         path = data.get('summary.config.vmPathName')
+        datastore = ""
+        if path:
+            datastore = path[1:path.index(']')]
         extra = {
             "path": path,
             "operating_system": operating_system,
@@ -348,7 +351,7 @@ class VSphereNodeDriver(NodeDriver):
             "type": "template_6_5",
             "disk_size": int(data.get(
                 'summary.storage.committed', 0)) // (1024**3),
-            'datastore': path[1:path.index(']')]
+            'datastore': datastore
         }
         annotation = data.get('summary.config.annotation')
         boot_time = data.get('summary.runtime.bootTime')
