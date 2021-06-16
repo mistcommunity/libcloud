@@ -306,7 +306,7 @@ class VSphereNodeDriver(NodeDriver):
             "operating_system": operating_system,
             "os_type": os_type,
             "memory_MB": memory,
-            "cpus": cpus,
+            "cpu": cpus,
             "overallStatus": str(summary.overallStatus),
             "metadata": {},
             "type": "template_6_5",
@@ -343,7 +343,7 @@ class VSphereNodeDriver(NodeDriver):
             "operating_system": operating_system,
             "os_type": os_type,
             "memory_MB": memory,
-            "cpus": cpus,
+            "cpu": cpus,
             "metadata": {},
             "type": "template_6_5",
             "disk_size": int(data.get(
@@ -578,7 +578,7 @@ class VSphereNodeDriver(NodeDriver):
         id_to_hash = str(memory) + str(cpus) + str(disk)
         size_id = hashlib.md5(id_to_hash.encode("utf-8")).hexdigest()
         size_name = name + "-size"
-        size_extra = {'cpus': cpus}
+        size_extra = {'cpu': cpus}
         driver = self
         size = NodeSize(id=size_id, name=size_name, ram=memory, disk=disk,
                         bandwidth=0, price=0, driver=driver, extra=size_extra)
@@ -598,16 +598,18 @@ class VSphereNodeDriver(NodeDriver):
         overall_status = str(vm.get('summary.overallStatus'))
         public_ips = []
         private_ips = []
-
+        datastore = ''
+        if path:
+            datastore = path[1:path.index(']')]
         extra = {
             'path': path,
             'operating_system': operating_system,
             'os_type': os_type,
             'memory_MB': memory,
-            'cpus': cpus,
+            'cpu': cpus,
             'overall_status': overall_status,
             'metadata': {},
-            'datastore': path[1:path.index(']')]
+            'datastore': datastore
         }
 
         if disk:
@@ -684,7 +686,7 @@ class VSphereNodeDriver(NodeDriver):
         datastore = virtual_machine.config.datastoreUrl[0].name
         size_id = hashlib.md5(id_to_hash.encode("utf-8")).hexdigest()
         size_name = name + "-size"
-        size_extra = {'cpus': cpus}
+        size_extra = {'cpu': cpus}
         driver = self
         size = NodeSize(id=size_id, name=size_name, ram=memory, disk=disk,
                         bandwidth=0, price=0, driver=driver, extra=size_extra)
@@ -713,7 +715,7 @@ class VSphereNodeDriver(NodeDriver):
             "operating_system": operating_system,
             "os_type": os_type,
             "memory_MB": memory,
-            "cpus": cpus,
+            "cpu": cpus,
             "overallStatus": overall_status,
             "metadata": {},
             "snapshots": [],
@@ -1557,7 +1559,7 @@ class VSphere_6_7_NodeDriver(NodeDriver):
         id_to_hash = str(ram) + str(cpus) + str(total_size)
         size_id = hashlib.md5(id_to_hash.encode("utf-8")).hexdigest()
         size_name = name + "-size"
-        size_extra = {'cpus': cpus}
+        size_extra = {'cpu': cpus}
         size = NodeSize(id=size_id, name=size_name, ram=ram, disk=total_size,
                         bandwidth=0, price=0, driver=driver, extra=size_extra)
 
