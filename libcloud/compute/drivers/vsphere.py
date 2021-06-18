@@ -598,7 +598,9 @@ class VSphereNodeDriver(NodeDriver):
         overall_status = str(vm.get('summary.overallStatus'))
         public_ips = []
         private_ips = []
-
+        datastore = ""
+        if path:
+            datastore = path[1:path.index(']')]
         extra = {
             'path': path,
             'operating_system': operating_system,
@@ -607,7 +609,7 @@ class VSphereNodeDriver(NodeDriver):
             'cpus': cpus,
             'overall_status': overall_status,
             'metadata': {},
-            'datastore': path[1:path.index(']')]
+            'datastore': datastore
         }
 
         if disk:
@@ -1007,7 +1009,7 @@ class VSphereNodeDriver(NodeDriver):
                 resource_pool = cluster.parent.resourcePool
         devices = []
         vmconf = vim.vm.ConfigSpec(
-            numCPUs=int(size.extra.get('cpu', 1)),
+            numCPUs=int(size.extra.get('cpus', 1)),
             memoryMB=int(size.ram),
             deviceChange=devices
         )
