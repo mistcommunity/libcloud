@@ -24,6 +24,7 @@ import base64
 import binascii
 import os
 import time
+import secrets
 
 from dateutil import parser
 
@@ -619,7 +620,7 @@ class AzureNodeDriver(NodeDriver):
                     "version": image.version
                 },
                 "osDisk": {
-                    "name": name + '-osDisk',
+                    "name": f'{name}-{secrets.token_hex(2)}-osDisk',
                     "osType": os_type,
                     "caching": "ReadWrite",
                     "createOption": "FromImage"
@@ -1527,9 +1528,14 @@ class AzureNodeDriver(NodeDriver):
         :rtype: :class:`.AzureResourceGroup`
         """
 
+        if isinstance(location, str):
+            location_id = location
+        else:
+            location_id = location.id
+
         data = {
             "name": name,
-            "location": location.id
+            "location": location_id
         }
         action = "/subscriptions/%s/resourceGroups/%s/" \
                  % (self.subscription_id, name)
@@ -1560,6 +1566,31 @@ class AzureNodeDriver(NodeDriver):
         return AzureResourceGroup(resp["id"], resp["name"],
                                   resp["location"], resp["properties"])
 
+    def ex_resource_group_exists(self, name):
+        """
+        Check whether a resource group exists.
+
+        :param name: The resource group's name.
+        :type name: ``str``
+
+        :rtype: ``bool``
+        """
+        # HEAD ?api-version=2021-04-01'
+        action = f'/subscriptions/{self.subscription_id}/resourcegroups/{name}'
+
+        try:
+            self.connection.request(action,
+                                    params={
+                                        "api-version": "2021-04-01"},
+                                    method='HEAD')
+        except BaseHTTPError as exc:
+            if exc.code == 404:
+                return False
+            elif exc.code == 204:
+                return True
+            else:
+                raise
+
     def ex_list_resource_groups(self):
         """
         List resource groups.
@@ -1580,13 +1611,18 @@ class AzureNodeDriver(NodeDriver):
         Create storage account.
         """
 
+        if isinstance(location, str):
+            location_id = location
+        else:
+            location_id = location.id
+
         data = {
             "sku": {
                 "name": "Standard_GRS"
             },
             "name": name,
             "kind": kind,
-            "location": location.id
+            "location": location_id
         }
         action = "/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Storage/storageAccounts/%s" \
                  % (self.subscription_id, ex_resource_group, name)
@@ -1611,12 +1647,12 @@ class AzureNodeDriver(NodeDriver):
                                     grp["properties"])
                 for grp in r.object["value"]]
 
-    def ex_get_storage_account(self, storage_account, resource_group):
+    def ex_get_storage_account(self, name, resource_group):
         """
         Fetch information about a storage account.
 
-        :param network_name: The storage account's name.
-        :type network_name: ``str``
+        :param name: The storage account's name.
+        :type name: ``str``
 
         :param resource_group: The resource group the account belongs to.
         :type resource_group: ``str``
@@ -1626,7 +1662,7 @@ class AzureNodeDriver(NodeDriver):
         """
         action = (f'/subscriptions/{self.subscription_id}/resourceGroups/'
                   f'{resource_group}/providers/Microsoft.Storage/'
-                  f'storageAccounts/{storage_account}')
+                  f'storageAccounts/{name}')
 
         resp = self.connection.request(action,
                                        params={"api-version": "2021-04-01"}
@@ -1634,6 +1670,29 @@ class AzureNodeDriver(NodeDriver):
 
         return AzureStorageAccount(resp["id"], resp["name"],
                                    resp["location"], resp["properties"])
+
+    def ex_check_storage_account_name(self, name):
+        """
+        Checks that the storage account name is valid and is not already in use.
+
+        :param name: The storage account's name.
+        :type name: ``str``
+
+        :return: Whether name is valid and available
+        :rtype: ``bool``
+        """
+        action = (f'/subscriptions/{self.subscription_id}/providers/'
+                  f'Microsoft.Storage/checkNameAvailability')
+        data = {
+            'name': name,
+            'type': 'Microsoft.Storage/storageAccounts'
+        }
+        resp = self.connection.request(action,
+                                       params={'api-version': '2021-04-01'},
+                                       data=data,
+                                       method='POST'
+                                       ).object
+        return resp['nameAvailable']
 
     def ex_list_network_security_groups(self, resource_group):
         """
@@ -1762,9 +1821,14 @@ class AzureNodeDriver(NodeDriver):
                 }
             ]
 
+        if isinstance(location, str):
+            location_id = location
+        else:
+            location_id = location.id
+
         data = {
             "name": name,
-            "location": location.id,
+            "location": location_id,
             "tags": {},
             "properties": {
                 "addressSpace": {
