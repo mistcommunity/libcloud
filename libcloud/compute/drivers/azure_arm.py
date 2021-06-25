@@ -94,6 +94,7 @@ class AzureResourceGroup(object):
         return (('<AzureResourceGroup: id=%s, name=%s, location=%s ...>')
                 % (self.id, self.name, self.location))
 
+
 class AzureStorageAccount(object):
     """Represent an Azure storage account."""
 
@@ -665,7 +666,8 @@ class AzureNodeDriver(NodeDriver):
                 disk_size = disk.get('size')
                 disk_type = disk.get('storage_account_type')
                 caching = disk.get('host_caching', None)
-                new_disk = {"createOption": "Empty", "name": disk_name, "diskSizeGB": disk_size, 'caching': caching, 'lun': lun, 'managedDisk': {'storageAccountType': disk_type}}
+                new_disk = {"createOption": "Empty", "name": disk_name, "diskSizeGB": disk_size,
+                            'caching': caching, 'lun': lun, 'managedDisk': {'storageAccountType': disk_type}}
                 data_disks.append(new_disk)
 
         storage_profile.update({'dataDisks': data_disks})
@@ -857,7 +859,8 @@ class AzureNodeDriver(NodeDriver):
 
         # Optionally clean up OS disk VHD.
         try:
-            vhd = node.extra["properties"]["storageProfile"]["osDisk"].get("vhd")
+            vhd = node.extra["properties"]["storageProfile"]["osDisk"].get(
+                "vhd")
         except KeyError:
             vhd = None
         if ex_destroy_vhd and vhd is not None:
@@ -1048,7 +1051,7 @@ class AzureNodeDriver(NodeDriver):
                 'lun': ex_lun,
                 'createOption': 'attach',
                 'managedDisk': {'id': volume.extra['id']},
-                }
+            }
 
         disks.append(new_disk)
         self.connection.request(
@@ -1537,6 +1540,26 @@ class AzureNodeDriver(NodeDriver):
         return AzureResourceGroup(r.object["id"], r.object["name"],
                                   r.object["location"], r.object["properties"])
 
+    def ex_get_resource_group(self, name):
+        """
+        Fetch information about a resource group.
+
+        :param name: The resource group's name.
+        :type name: ``str``
+
+        :return: The AzureResourceGroup object
+        :rtype: :class:`.AzureResourceGroup`
+        """
+        action = "/subscriptions/%s/resourceGroups/%s/" \
+            % (self.subscription_id, name)
+
+        resp = self.connection.request(action,
+                                       params={"api-version": "2021-04-01"},
+                                       ).object
+
+        return AzureResourceGroup(resp["id"], resp["name"],
+                                  resp["location"], resp["properties"])
+
     def ex_list_resource_groups(self):
         """
         List resource groups.
@@ -1568,9 +1591,9 @@ class AzureNodeDriver(NodeDriver):
         action = "/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Storage/storageAccounts/%s" \
                  % (self.subscription_id, ex_resource_group, name)
         ret = self.connection.request(action,
-                                    params={"api-version": "2017-06-01"},
-                                    data=data,
-                                    method='PUT')
+                                      params={"api-version": "2017-06-01"},
+                                      data=data,
+                                      method='PUT')
 
     def ex_list_storage_accounts(self):
         """
@@ -1580,12 +1603,37 @@ class AzureNodeDriver(NodeDriver):
         :rtype: ``list`` of :class:`.AzureStorageAccount`
         """
 
-        action = "/subscriptions/%s/providers/Microsoft.Storage/storageAccounts" % (self.subscription_id)
+        action = "/subscriptions/%s/providers/Microsoft.Storage/storageAccounts" % (
+            self.subscription_id)
         r = self.connection.request(action,
                                     params={"api-version": "2017-06-01"})
         return [AzureStorageAccount(grp["id"], grp["name"], grp["location"],
-                                   grp["properties"])
+                                    grp["properties"])
                 for grp in r.object["value"]]
+
+    def ex_get_storage_account(self, storage_account, resource_group):
+        """
+        Fetch information about a storage account.
+
+        :param network_name: The storage account's name.
+        :type network_name: ``str``
+
+        :param resource_group: The resource group the account belongs to.
+        :type resource_group: ``str``
+
+        :return: The AzureStorageAccount object
+        :rtype: :class:`.AzureStorageAccount`
+        """
+        action = (f'/subscriptions/{self.subscription_id}/resourceGroups/'
+                  f'{resource_group}/providers/Microsoft.Storage/'
+                  f'storageAccounts/{storage_account}')
+
+        resp = self.connection.request(action,
+                                       params={"api-version": "2021-04-01"}
+                                       ).object
+
+        return AzureStorageAccount(resp["id"], resp["name"],
+                                   resp["location"], resp["properties"])
 
     def ex_list_network_security_groups(self, resource_group):
         """
@@ -1644,12 +1692,12 @@ class AzureNodeDriver(NodeDriver):
             }
         }
         r = self.connection.request(target,
-                                params={"api-version": "2017-09-01"},
-                                data=data,
-                                method='PUT')
+                                    params={"api-version": "2017-09-01"},
+                                    data=data,
+                                    method='PUT')
 
         return AzureNetworkSecurityGroup(r.object["id"], r.object["name"],
-                            r.object["location"], r.object["properties"])
+                                         r.object["location"], r.object["properties"])
 
     def ex_delete_network_security_group(self, name, resource_group,
                                          location=None):
@@ -1705,13 +1753,13 @@ class AzureNodeDriver(NodeDriver):
 
         if not subnets:
             subnets = [
-              {
-                "name": "Default",
-                "properties": {
-                  "networkSecurityGroup": {"id":networkSecurityGroup},
-                  "addressPrefix": "10.0.0.0/24"
+                {
+                    "name": "Default",
+                    "properties": {
+                        "networkSecurityGroup": {"id": networkSecurityGroup},
+                        "addressPrefix": "10.0.0.0/24"
+                    }
                 }
-              }
             ]
 
         data = {
@@ -1720,9 +1768,9 @@ class AzureNodeDriver(NodeDriver):
             "tags": {},
             "properties": {
                 "addressSpace": {
-                  "addressPrefixes": [
-                    addressSpace
-                  ]
+                    "addressPrefixes": [
+                        addressSpace
+                    ]
                 },
                 "subnets": subnets
             }
@@ -1751,6 +1799,30 @@ class AzureNodeDriver(NodeDriver):
                                     params={"api-version": "2015-06-15"})
         return [AzureNetwork(net["id"], net["name"], net["location"],
                              net["properties"]) for net in r.object["value"]]
+
+    def ex_get_network(self, network_name, resource_group):
+        """
+        Fetch information about a network.
+
+        :param network_name: The network's name.
+        :type network_name: ``str``
+
+        :param resource_group: The resource group the network belongs to.
+        :type resource_group: ``str``
+
+        :return: The AzureNetwork object
+        :rtype: :class:`.AzureNetwork`
+        """
+        action = (f'/subscriptions/{self.subscription_id}/resourceGroups/'
+                  f'{resource_group}/providers/Microsoft.Network/'
+                  f'virtualNetworks/{network_name}')
+
+        net = self.connection.request(action,
+                                      params={"api-version": "2020-11-01"}
+                                      ).object
+
+        return AzureNetwork(net["id"], net["name"],
+                            net["location"], net["properties"])
 
     def ex_list_subnets(self, network):
         """
@@ -2419,7 +2491,8 @@ class AzureNodeDriver(NodeDriver):
                         addr = pub_addr.extra.get("ipAddress")
                         if addr:
                             public_ips.append(addr)
-                    subnet = n.extra["ipConfigurations"][0]["properties"]["subnet"].get("id")
+                    subnet = n.extra["ipConfigurations"][0]["properties"]["subnet"].get(
+                        "id")
                 except BaseHTTPError:
                     pass
 
@@ -2441,16 +2514,18 @@ class AzureNodeDriver(NodeDriver):
                 state = NodeState.RUNNING
 
         extra = {}
-        extra['location'] = data.get('location','')
+        extra['location'] = data.get('location', '')
         try:
             extra['storageUri'] = data['properties']['diagnosticsProfile']['bootDiagnostics']['storageUri']
         except:
             pass
 
         extra['storageProfile'] = data['properties'].get('storageProfile')
-        extra['size'] = data['properties'].get('hardwareProfile', {}).get('vmSize')
+        extra['size'] = data['properties'].get(
+            'hardwareProfile', {}).get('vmSize')
         extra['osProfile'] = data['properties'].get('osProfile')
-        extra['osDisk'] = data['properties'].get('storageProfile', {}).get('osDisk')
+        extra['osDisk'] = data['properties'].get(
+            'storageProfile', {}).get('osDisk')
         try:
             extra['system_vhd'] = extra['osDisk']['vhd']['uri']
         except:
@@ -2471,18 +2546,21 @@ class AzureNodeDriver(NodeDriver):
             pass
         for datadisk in extra['storageProfile']['dataDisks']:
             try:
-                extra['disk-%s' % datadisk['name']] = "%sGB - %s" % (datadisk['diskSizeGB'], datadisk['vhd']['uri'])
+                extra['disk-%s' % datadisk['name']
+                      ] = "%sGB - %s" % (datadisk['diskSizeGB'], datadisk['vhd']['uri'])
             except:
                 pass
 
         extra["networkProfile"] = data['properties']["networkProfile"]["networkInterfaces"]
         extra["subnet"] = subnet
 
-        subscription = re.search(r"/subscriptions/(.*?)/resourceGroups", data['id'])
+        subscription = re.search(
+            r"/subscriptions/(.*?)/resourceGroups", data['id'])
         if subscription:
             extra['subscription'] = subscription.group(1)
 
-        resource_group = re.search(r"/resourceGroups/(.*?)/providers", data['id'])
+        resource_group = re.search(
+            r"/resourceGroups/(.*?)/providers", data['id'])
         if resource_group:
             extra['resource_group'] = resource_group.group(1)
 
