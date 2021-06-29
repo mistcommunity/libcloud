@@ -1350,6 +1350,22 @@ class OpenStackIdentity_3_0_Connection(OpenStackIdentityConnection):
         user = self._to_user(data=response.object['user'])
         return user
 
+    def get_token_data(self):
+        """Fetch information about the authentication token.
+
+        :rtype: dict
+        """
+        if self.is_token_valid() is False:
+            raise ValueError(
+                'Need to be authenticated to perform this request')
+
+        headers = {'Content-Type': 'application/json',
+                   'X-Subject-Token': self.auth_token}
+        data = self.authenticated_request('/v3/auth/tokens',
+                                          headers=headers).object
+
+        return data
+
     def _to_domains(self, data):
         result = []
         for item in data:
