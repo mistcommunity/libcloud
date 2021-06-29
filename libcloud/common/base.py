@@ -493,7 +493,8 @@ class Connection(object):
         self.ua.append(token)
 
     def request(self, action, params=None, data=None, headers=None,
-                method='GET', raw=False, stream=False, json=None):
+                method='GET', raw=False, stream=False, json=None,
+                enforce_unicode_response=False):
         """
         Request a given `action`.
 
@@ -527,6 +528,10 @@ class Connection(object):
         :param stream: True to return an iterator in Response.iter_content
                     and allow streaming of the response data
                     (for downloading large files)
+
+        :type enforce_unicode_response: ``bool``
+        :param enforce_unicode_response: True to set the response encoding
+                    to utf-8
 
         :return: An :class:`Response` instance.
         :rtype: :class:`Response` instance
@@ -638,6 +643,10 @@ class Connection(object):
         except ssl.SSLError as e:
             self.reset_context()
             raise ssl.SSLError(str(e))
+
+        if enforce_unicode_response:
+            # Handle problem: https://github.com/psf/requests/issues/2359
+            self.connection.response.encoding = 'utf-8'
 
         if raw:
             responseCls = self.rawResponseCls

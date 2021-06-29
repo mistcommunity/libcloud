@@ -14,6 +14,7 @@
 # limitations under the License.
 
 from typing import List
+from collections import OrderedDict
 
 import os
 import binascii
@@ -43,6 +44,77 @@ __all__ = [
 
     'ReprMixin'
 ]
+
+K8S_UNIT_MAP = OrderedDict({
+    'K': 1000,
+    'Ki': 1024,
+    'M': 1000 * 1000,
+    'Mi': 1024 * 1024,
+    'G': 1000 * 1000 * 1000,
+    'Gi': 1024 * 1024 * 1024
+})
+
+def to_n_bytes_from_memory_str(memory_str):
+    """Convert memory string to number of bytes
+    (e.g. '1234Mi'-> 1293942784)
+    """
+    if memory_str.startswith('0'):
+        return 0
+    if memory_str.isnumeric():
+        return int(memory_str)
+    for unit, multiplier in K8S_UNIT_MAP.items():
+        if memory_str.endswith(unit):
+            return int(memory_str.strip(unit)) * multiplier
+
+
+def to_memory_str_from_n_bytes(n_bytes, unit=None):
+    """Convert number of bytes to k8s memory string
+    (e.g. 1293942784 -> '1234Mi')
+    """
+    if n_bytes == 0:
+        return '0K'
+    n_bytes = int(n_bytes)
+    memory_str = None
+    if unit is None:
+        for unit, multiplier in reversed(K8S_UNIT_MAP.items()):
+            converted_n_bytes_float = n_bytes / multiplier
+            converted_n_bytes = n_bytes // multiplier
+            memory_str = f'{converted_n_bytes}{unit}'
+            if converted_n_bytes_float % 1 == 0:
+                break
+    elif K8S_UNIT_MAP.get(unit):
+        memory_str = f'{n_bytes // K8S_UNIT_MAP[unit]}{unit}'
+    return memory_str
+
+def to_cpu_str(n_cpus):
+    """Convert number of cpus to cpu string
+    (e.g. 0.5 -> '500m')
+    """
+    if n_cpus == 0:
+        return '0'
+    millicores = n_cpus * 1000
+    if millicores % 1 == 0:
+        return f'{int(millicores)}m'
+    microcores = n_cpus * 1000000
+    if microcores % 1 == 0:
+        return f'{int(microcores)}u'
+    nanocores = n_cpus * 1000000000
+    return f'{int(nanocores)}n'
+
+def to_n_cpus_from_cpu_str(cpu_str):
+    """Convert cpu string to number of cpus
+    (e.g. '500m' -> 0.5, '2000000000n' -> 2)
+    """
+    if cpu_str.endswith('n'):
+        return int(cpu_str.strip('n')) / 1000000000
+    elif cpu_str.endswith('u'):
+        return int(cpu_str.strip('u')) / 1000000
+    elif cpu_str.endswith('m'):
+        return int(cpu_str.strip('m')) / 1000
+    elif cpu_str.isnumeric():
+        return int(cpu_str)
+    else:
+        return 0
 
 # Error message which indicates a transient SSL error upon which request
 # can be retried
