@@ -1356,8 +1356,7 @@ class OpenStackIdentity_3_0_Connection(OpenStackIdentityConnection):
         :rtype: dict
         """
         if self.is_token_valid() is False:
-            raise ValueError(
-                'Need to be authenticated to perform this request')
+            self.authenticate()
 
         headers = {'Content-Type': 'application/json',
                    'X-Subject-Token': self.auth_token}
@@ -1365,6 +1364,19 @@ class OpenStackIdentity_3_0_Connection(OpenStackIdentityConnection):
                                           headers=headers).object
 
         return data
+
+    def get_tenant_id(self):
+        """Get tenant id.
+
+        :rtype: ``str``
+        """
+        data = self.get_token_data()
+        try:
+            tenant_id = data['token']['project']['id']
+        except (KeyError, TypeError):
+            tenant_id = None
+
+        return tenant_id
 
     def _to_domains(self, data):
         result = []
