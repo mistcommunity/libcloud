@@ -3821,30 +3821,30 @@ class OpenStack_2_NodeDriver(OpenStack_1_1_NodeDriver):
                                                 method='DELETE')
         return resp.status in (httplib.NO_CONTENT, httplib.ACCEPTED)
 
-    def ex_list_security_groups(self, scoped=True):
+    def ex_get_tenant_id(self):
+        """Get current tenant id from the project name the driver
+        was instantiated with.
+
+        :rtype: ``str``
+        """
+        auth = self.connection.get_auth_class()
+        return auth.get_tenant_id()
+
+    def ex_list_security_groups(self, tenant_id=None):
         """
         Get a list of Security Groups that are available.
 
-        :param scoped: If true list security groups for current project else \
-        list security groups for all projects the credentials have access to.
-        Scoped is only supported with project-scoped credentials.
-        :type  scoped: ``bool``
+        :param tenant_id: The project id to list security groups for
+        :type  tenant_id: ``str``
 
         :rtype: ``list`` of :class:`OpenStackSecurityGroup`
         """
         security_groups = self._to_security_groups(
             self.network_connection.request('/v2.0/security-groups').object)
 
-        if scoped is True and self._ex_token_scope == 'project':
-            try:
-                auth = self.connection.get_auth_class().authenticate()
-                token_data = auth.get_token_data()
-                project_id = token_data['token']['project']['id']
-            except Exception:
-                pass
-            else:
-                security_groups = [sec_group for sec_group in security_groups
-                                   if sec_group.tenant_id == project_id]
+        if tenant_id is not None:
+            security_groups = [sec_group for sec_group in security_groups
+                                if sec_group.tenant_id == tenant_id]
 
         return security_groups
 
