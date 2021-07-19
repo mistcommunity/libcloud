@@ -1413,6 +1413,20 @@ class OpenStackKeyPair(object):
                 % (self.name, self.fingerprint, self.public_key))
 
 
+class OpenStackVolumeType:
+    """ 
+    A volume type.
+    """
+
+    def __init__(self, id_, name, extra=None):
+        self.id = id_
+        self.name = name
+        self.extra = extra or {}
+
+    def __repr__(self):
+        return (f'<OpenStackVolumeType id={self.id} name={self.name}...>')
+
+
 class OpenStack_1_1_Connection(OpenStackComputeConnection):
     responseCls = OpenStack_1_1_Response
     accept_format = 'application/json'
@@ -3821,6 +3835,23 @@ class OpenStack_2_NodeDriver(OpenStack_1_1_NodeDriver):
                                                 method='DELETE')
         return resp.status in (httplib.NO_CONTENT, httplib.ACCEPTED)
 
+    def ex_list_volume_types(self):
+        """List available volume types
+
+        :rtype: ``list`` of :class:`OpenStackVolumeType`
+        """
+        resp = self.volumev2_connection.request('/types').object
+        return [self._to_volume_type(data) for data in resp['volume_types']]
+
+    def _to_volume_type(self, data):
+        excluded_extra_values = {'id', 'name'}
+        name = data['name']
+        id_ = data.get('id', '')
+        extra = {key: data[key] for key in data
+                 if key not in excluded_extra_values}
+
+        return OpenStackVolumeType(id_, name, extra)
+
     def ex_get_tenant_id(self):
         """Get current tenant id from the project name the driver
         was instantiated with.
@@ -3844,7 +3875,7 @@ class OpenStack_2_NodeDriver(OpenStack_1_1_NodeDriver):
 
         if tenant_id is not None:
             security_groups = [sec_group for sec_group in security_groups
-                                if sec_group.tenant_id == tenant_id]
+                               if sec_group.tenant_id == tenant_id]
 
         return security_groups
 
