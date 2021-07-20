@@ -1414,7 +1414,7 @@ class OpenStackKeyPair(object):
 
 
 class OpenStackVolumeType:
-    """ 
+    """
     A volume type.
     """
 
@@ -1424,7 +1424,7 @@ class OpenStackVolumeType:
         self.extra = extra or {}
 
     def __repr__(self):
-        return (f'<OpenStackVolumeType id={self.id} name={self.name}...>')
+        return f'<OpenStackVolumeType id={self.id} name={self.name} ...>'
 
 
 class OpenStack_1_1_Connection(OpenStackComputeConnection):
@@ -3852,6 +3852,82 @@ class OpenStack_2_NodeDriver(OpenStack_1_1_NodeDriver):
 
         return OpenStackVolumeType(id_, name, extra)
 
+    def ex_list_availability_zones(self):
+        try:
+            compute_zones = self.ex_list_compute_availability_zones_info()
+        except BaseHTTPError:
+            compute_zones = []
+
+        try:
+            storage_zones = self.ex_list_storage_availability_zones_info()
+        except BaseHTTPError:
+            storage_zones = []
+
+        try:
+            network_zones = self.ex_list_network_availability_zones_info()
+        except BaseHTTPError:
+            network_zones = []
+
+        zones = compute_zones + storage_zones + network_zones
+        availability_zones = {}
+        for zone in zones:
+            if not availability_zones.get(zone['name']):
+                availability_zones[zone['name']] = {}
+            availability_zones[zone['name']][zone['type']] = zone['available']
+        return self._to_availability_zones(availability_zones)
+
+    def ex_list_compute_availability_zones_info(self):
+        response = self.connection.request(
+            '/os-availability-zone').object
+
+        return [{'name': item['zoneName'],
+                 'available': item['zoneState'].get('available', False),
+                 'type': 'compute',
+                 'hosts': item.get('hosts')
+                 }
+                for item in response['availabilityZoneInfo']]
+
+    def ex_list_storage_availability_zones_info(self):
+        response = self.volumev2_connection.request(
+            '/os-availability-zone').object
+
+        return [{'name': item['zoneName'],
+                 'available': item['zoneState'].get('available', False),
+                 'type': 'storage',
+                 }
+                for item in response['availabilityZoneInfo']]
+
+    def ex_list_network_availability_zones_info(self):
+        response = self.network_connection.request(
+            '/v2.0/availability_zones',
+            params={'resource': 'network'}).object
+
+        return [{'name': item['name'],
+                 'available': True if item.get('state') == 'available' else False,
+                 'type': 'network',
+                 }
+                for item in response['availability_zones']]
+
+    def _to_availability_zones(self, data):
+        return [self._to_availability_zone(key, **value)
+                for key, value in data.items()]
+
+    def _to_availability_zone(self,
+                              name,
+                              compute=False,
+                              storage=False,
+                              network=False):
+        extra = {
+            'compute': compute,
+            'storage': storage,
+            'network': network,
+        }
+        return NodeLocation(id=name,
+                            name=name,
+                            country=None,
+                            driver=self,
+                            extra=extra)
+
     def ex_get_tenant_id(self):
         """Get current tenant id from the project name the driver
         was instantiated with.
@@ -4320,7 +4396,7 @@ class OpenStack_2_FloatingIpPool(object):
             if port:
                 obj['port_details'] = {"device_id": port.extra["device_id"],
                                        "device_owner":
-                                           port.extra["device_owner"],
+                                       port.extra["device_owner"],
                                        "mac_address":
                                            port.extra["mac_address"]}
 
@@ -4418,7 +4494,7 @@ class OpenStack_2_FloatingIpPool(object):
             if port:
                 obj['port_details'] = {"device_id": port.extra["device_id"],
                                        "device_owner":
-                                           port.extra["device_owner"],
+                                       port.extra["device_owner"],
                                        "mac_address":
                                            port.extra["mac_address"]}
 
