@@ -1413,6 +1413,20 @@ class OpenStackKeyPair(object):
                 % (self.name, self.fingerprint, self.public_key))
 
 
+class OpenStackVolumeType:
+    """
+    A volume type.
+    """
+
+    def __init__(self, id_, name, extra=None):
+        self.id = id_
+        self.name = name
+        self.extra = extra or {}
+
+    def __repr__(self):
+        return f'<OpenStackVolumeType id={self.id} name={self.name} ...>'
+
+
 class OpenStack_1_1_Connection(OpenStackComputeConnection):
     responseCls = OpenStack_1_1_Response
     accept_format = 'application/json'
@@ -3821,6 +3835,99 @@ class OpenStack_2_NodeDriver(OpenStack_1_1_NodeDriver):
                                                 method='DELETE')
         return resp.status in (httplib.NO_CONTENT, httplib.ACCEPTED)
 
+    def ex_list_volume_types(self):
+        """List available volume types
+
+        :rtype: ``list`` of :class:`OpenStackVolumeType`
+        """
+        resp = self.volumev2_connection.request('/types').object
+        return [self._to_volume_type(data) for data in resp['volume_types']]
+
+    def _to_volume_type(self, data):
+        excluded_extra_values = {'id', 'name'}
+        name = data['name']
+        id_ = data.get('id', '')
+        extra = {key: data[key] for key in data
+                 if key not in excluded_extra_values}
+
+        return OpenStackVolumeType(id_, name, extra)
+
+    def ex_list_availability_zones(self):
+        try:
+            compute_zones = self.ex_list_compute_availability_zones_info()
+        except BaseHTTPError:
+            compute_zones = []
+
+        try:
+            storage_zones = self.ex_list_storage_availability_zones_info()
+        except BaseHTTPError:
+            storage_zones = []
+
+        try:
+            network_zones = self.ex_list_network_availability_zones_info()
+        except BaseHTTPError:
+            network_zones = []
+
+        zones = compute_zones + storage_zones + network_zones
+        availability_zones = {}
+        for zone in zones:
+            if not availability_zones.get(zone['name']):
+                availability_zones[zone['name']] = {}
+            availability_zones[zone['name']][zone['type']] = zone['available']
+        return self._to_availability_zones(availability_zones)
+
+    def ex_list_compute_availability_zones_info(self):
+        response = self.connection.request(
+            '/os-availability-zone').object
+
+        return [{'name': item['zoneName'],
+                 'available': item['zoneState'].get('available', False),
+                 'type': 'compute',
+                 'hosts': item.get('hosts')
+                 }
+                for item in response['availabilityZoneInfo']]
+
+    def ex_list_storage_availability_zones_info(self):
+        response = self.volumev2_connection.request(
+            '/os-availability-zone').object
+
+        return [{'name': item['zoneName'],
+                 'available': item['zoneState'].get('available', False),
+                 'type': 'storage',
+                 }
+                for item in response['availabilityZoneInfo']]
+
+    def ex_list_network_availability_zones_info(self):
+        response = self.network_connection.request(
+            '/v2.0/availability_zones',
+            params={'resource': 'network'}).object
+
+        return [{'name': item['name'],
+                 'available': True if item.get('state') == 'available' else False,
+                 'type': 'network',
+                 }
+                for item in response['availability_zones']]
+
+    def _to_availability_zones(self, data):
+        return [self._to_availability_zone(key, **value)
+                for key, value in data.items()]
+
+    def _to_availability_zone(self,
+                              name,
+                              compute=False,
+                              storage=False,
+                              network=False):
+        extra = {
+            'compute': compute,
+            'storage': storage,
+            'network': network,
+        }
+        return NodeLocation(id=name,
+                            name=name,
+                            country=None,
+                            driver=self,
+                            extra=extra)
+
     def ex_get_tenant_id(self):
         """Get current tenant id from the project name the driver
         was instantiated with.
@@ -3844,7 +3951,7 @@ class OpenStack_2_NodeDriver(OpenStack_1_1_NodeDriver):
 
         if tenant_id is not None:
             security_groups = [sec_group for sec_group in security_groups
-                                if sec_group.tenant_id == tenant_id]
+                               if sec_group.tenant_id == tenant_id]
 
         return security_groups
 
@@ -4289,7 +4396,7 @@ class OpenStack_2_FloatingIpPool(object):
             if port:
                 obj['port_details'] = {"device_id": port.extra["device_id"],
                                        "device_owner":
-                                           port.extra["device_owner"],
+                                       port.extra["device_owner"],
                                        "mac_address":
                                            port.extra["mac_address"]}
 
@@ -4387,7 +4494,7 @@ class OpenStack_2_FloatingIpPool(object):
             if port:
                 obj['port_details'] = {"device_id": port.extra["device_id"],
                                        "device_owner":
-                                           port.extra["device_owner"],
+                                       port.extra["device_owner"],
                                        "mac_address":
                                            port.extra["mac_address"]}
 
