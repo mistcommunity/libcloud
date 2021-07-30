@@ -44,7 +44,7 @@ class OpenShiftAuthError(LibcloudError):
         return repr(self.value)
 
 
-class OpenShiftBaseAuthConnection(ConnectionUserAndKey):
+class OpenShiftBasicAuthConnection(ConnectionUserAndKey):
     API_SUBDOMAIN_PREFIX = 'api.'
     OAUTH_SUBDOMAIN_PREFIX = 'oauth-openshift.apps.'
     OAUTH_TOKEN_ENDPOINT = ('oauth/authorize?'
