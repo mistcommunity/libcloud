@@ -1,6 +1,8 @@
 import datetime
 import base64
 import requests
+from requests.exceptions import ConnectionError
+from requests.exceptions import HTTPError
 from urllib import parse
 
 from libcloud.common.base import ConnectionUserAndKey
@@ -89,7 +91,11 @@ class OpenShiftBaseAuthConnection(ConnectionUserAndKey):
         headers['X-CSRF-Token'] = 'xxx'
         try:
             response = requests.get(endpoint, headers=headers, verify=False)
-        except Exception:
+        except ConnectionError as e:
+            raise OpenShiftAuthError(str(e))
+        try:
+            response.raise_for_status()
+        except HTTPError:
             raise OpenShiftAuthError('Invalid authorization request, please '
                                      'check your credentials or retry.')
         token_info = parse.parse_qs(parse.urlsplit(
