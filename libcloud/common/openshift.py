@@ -73,8 +73,6 @@ class OpenShiftBasicAuthConnection(ConnectionUserAndKey):
         :return:  Dictionary containing token information
         :rtype:   ``dict``
         """
-        import ipdb
-        ipdb.set_trace()
         host = self.host.strip('http://').strip('https://')
         if host.startswith(self.API_SUBDOMAIN_PREFIX):
             base_host = host[len(self.API_SUBDOMAIN_PREFIX):]
