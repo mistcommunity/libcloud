@@ -14,11 +14,20 @@
 # limitations under the License.
 
 from libcloud.common.google import GoogleOAuth2Credential
+from libcloud.container.base import ContainerCluster
 from libcloud.container.providers import Provider
 from libcloud.container.drivers.kubernetes import KubernetesContainerDriver
 from libcloud.common.google import GoogleResponse
 from libcloud.common.google import GoogleBaseConnection
 API_VERSION = 'v1'
+
+
+class GKECluster(ContainerCluster):
+    def __init__(self, id, name, node_count, location, driver, config, extra):
+        super().__init__(id, name, driver, extra)
+        self.node_count = node_count
+        self.location = location
+        self.config = config
 
 
 class GKEResponse(GoogleResponse):
@@ -100,8 +109,8 @@ class GKEContainerDriver(KubernetesContainerDriver):
     AUTH_URL = "https://container.googleapis.com/auth/"
 
     def __init__(self, user_id, key=None, datacenter=None, project=None,
-                 auth_type=None, scopes=None, credential_file=None,
-                 host=None, port=443, **kwargs):
+                 auth_type=None, scopes=None, redirect_uri=None,
+                 credential_file=None, host=None, port=443, **kwargs):
         """
         :param  user_id: The email address (for service accounts) or Client ID
                          (for installed apps) to be used for authentication.
@@ -144,6 +153,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
         self.auth_type = auth_type
         self.project = project
         self.scopes = scopes
+        self.redirect_uri = redirect_uri
         self.zone = None
         if datacenter is not None:
             self.zone = datacenter
@@ -161,34 +171,149 @@ class GKEContainerDriver(KubernetesContainerDriver):
         return {'auth_type': self.auth_type,
                 'project': self.project,
                 'scopes': self.scopes,
+                'redirect_uri': self.redirect_uri,
                 'credential_file': self.credential_file}
 
-    def list_clusters(self, ex_zone=None):
+    def ex_get_cluster(self, zone, name):
+        """
+        Return cluster information in the given zone
+
+        :keyword  zone:  Zone name
+        :type     zone:  ``str`` or :class:`GCEZone` or
+                            :class:`NodeLocation`
+
+        :keyword  name:  Cluster name
+        :type     name:  ``str``
+        """
+        request = "/zones/%s/clusters/%s" % (zone, name)
+        response = self.connection.request(request, method='GET').object
+        return response
+
+    def ex_create_cluster(self, zone, name, initial_node_count=1):
+        """
+        Create cluster in the given zone
+
+        :keyword  zone:  Zone name
+        :type     zone:  ``str`` or :class:`GCEZone` or
+                            :class:`NodeLocation`
+
+        :keyword  name:  Cluster name
+        :type     name:  ``str``
+
+        :keyword  initial_node_count:  The number of nodes to create
+        :type     initial_node_count:  ``int``
+        """
+        request = "/zones/%s/clusters" % (zone)
+        body = {
+            "cluster": {
+                "name": name,
+                "nodePools": [
+                    {
+                        "name": "default-pool",
+                        "initialNodeCount": initial_node_count
+                    }
+                ]
+            }
+        }
+        response = self.connection.request(
+            request,
+            method='POST',
+            data=body
+        ).object
+        return response
+
+    def ex_update_cluster(self, zone, name, update_dict):
+        """
+        Rename cluster in the given zone
+
+        :keyword  zone:  Zone name
+        :type     zone:  ``str`` or :class:`GCEZone` or
+                            :class:`NodeLocation`
+
+        :keyword  name:  Cluster name
+        :type     name:  ``str``
+
+        :keyword  update_dict:  Cluster update object:
+            https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/ClusterUpdate 
+        :type     update_dict:  ``str``
+        """
+        request = "/zones/%s/clusters/%s" % (zone, name)
+        body = {"update": update_dict}
+        response = self.connection.request(
+            request,
+            method='PUT',
+            data=body
+        ).object
+        return response
+
+    def ex_delete_cluster(self, zone, name):
+        """
+        Delete cluster in the given zone
+
+        :keyword  zone:  Zone name
+        :type     zone:  ``str`` or :class:`GCEZone` or
+                            :class:`NodeLocation`
+        :keyword  name:  Cluster name
+        :type     name:  ``str``
+        """
+        request = "/zones/%s/clusters/%s" % (zone, name)
+        response = self.connection.request(request, method='DELETE').object
+        return response
+
+    def list_clusters(self, ex_zone='-'):
         """
         Return a list of cluster information in the current zone or all zones.
 
-        :keyword  ex_zone:  Optional zone name or None
+        :keyword  ex_zone:  Optional zone name or '-'
         :type     ex_zone:  ``str`` or :class:`GCEZone` or
-                            :class:`NodeLocation` or ``None``
+                            :class:`NodeLocation` or '-'
         """
         request = "/zones/%s/clusters" % (ex_zone)
-        if ex_zone is None:
-            request = "/zones/clusters"
+        data = self.connection.request(request, method='GET').object
+        return self._to_clusters(data)
 
-        response = self.connection.request(request, method='GET').object
-        return response
-
-    def get_server_config(self, ex_zone=None):
+    def get_server_config(self, ex_zone):
         """
         Return configuration info about the Container Engine service.
 
-        :keyword  ex_zone:  Optional zone name or None
+        :keyword  ex_zone:  Zone name
         :type     ex_zone:  ``str`` or :class:`GCEZone` or
-                            :class:`NodeLocation` or ``None``
+                            :class:`NodeLocation`
         """
-        if ex_zone is None:
-            ex_zone = self.zone
         request = "/zones/%s/serverconfig" % (ex_zone)
-
         response = self.connection.request(request, method='GET').object
         return response
+
+    def _to_clusters(self, data):
+        return [self._to_cluster(c) for c in data['clusters']]
+
+    def _to_cluster(self, data):
+        return GKECluster(
+            id=data.pop('id'),
+            name=data.pop('name'),
+            node_count=data.pop('currentNodeCount'),
+            location=data.pop('location'),
+            driver=self.connection.driver,
+            config={k: data.pop(k)
+                    for k in list(data)
+                    if k in [
+                'initialNodeCount',
+                'nodeConfig',
+                'addonsConfig',
+                'legacyAbac',
+                'networkPolicy',
+                'ipAllocationPolicy',
+                'masterAuthorizedNetworksConfig',
+                'binaryAuthorization',
+                'autoscaling',
+                'networkConfig',
+                'resourceUsageExportConfig',
+                'authenticatorGroupsConfig',
+                'privateClusterConfig',
+                'databaseEncryption',
+                'verticalPodAutoscaling',
+                'shieldedNodes',
+                'workloadIdentityConfig',
+            ]},
+            extra=data
+        )
