@@ -37,6 +37,8 @@ DRIVERS = {
     ('libcloud.container.drivers.ecs', 'ElasticContainerDriver'),
     Provider.KUBERNETES:
     ('libcloud.container.drivers.kubernetes', 'KubernetesContainerDriver'),
+    Provider.OPENSHIFT:
+    ('libcloud.container.drivers.openshift', 'OpenShiftContainerDriver'),
     Provider.LXD:
     ('libcloud.container.drivers.lxd', 'LXDContainerDriver'),
     Provider.RANCHER:

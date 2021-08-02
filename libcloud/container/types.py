@@ -52,6 +52,7 @@ class Provider(object):
     GKE = 'GKE'
     JOYENT = 'joyent'
     KUBERNETES = 'kubernetes'
+    OPENSHIFT = 'openshift'
     LXD = 'lxd'
     RANCHER = 'rancher'
 
