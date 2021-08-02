@@ -14,9 +14,6 @@ UTC_TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 
 def _utcnow():
-    """
-    Mocked in libcloud.test.common.google.GoogleTestCase.
-    """
     return datetime.datetime.utcnow()
 
 
@@ -112,8 +109,8 @@ class OpenShiftBasicAuthConnection(ConnectionUserAndKey):
     def add_default_headers(self, headers):
         """
         Add parameters that are necessary for every request
-        If user and password are specified, include a base http auth
-        header
+        If user and password are specified, retrieve and include a bearer
+        token
         """
         if 'Content-Type' not in headers:
             headers['Content-Type'] = 'application/json'
