@@ -13,13 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
+import base64
+
 try:
     import simplejson as json
 except ImportError:
     import json
 
 from libcloud.container.base import ContainerDriver, ContainerCluster
+from libcloud.container.drivers.kubernetes import KubernetesContainerDriver
 from libcloud.common.aws import SignedAWSConnection, AWSJsonResponse
+from libcloud.utils.misc import to_memory_str
+from libcloud.utils.misc import to_n_bytes
 
 __all__ = [
     'ElasticKubernetesDriver'
@@ -28,15 +34,20 @@ __all__ = [
 
 EKS_VERSION = '2017-11-01'
 EKS_HOST = 'eks.%s.amazonaws.com'
+STS_HOST = 'sts.%s.amazonaws.com'
 ROOT = '/'
 CLUSTERS_ENDPOINT = f'{ROOT}clusters/'
 
 
 class EKSCluster(ContainerCluster):
-    def __init__(self, id, name, location, driver, config, extra):
+    def __init__(self, id, name, location, driver, config, extra,
+                 credentials=None, total_cpus=None, total_memory=None):
         super().__init__(id, name, driver, extra)
         self.location = location
         self.config = config
+        self.credentials = credentials
+        self.total_cpus = total_cpus
+        self.total_memory = total_memory
 
 
 class EKSJsonConnection(SignedAWSConnection):
@@ -56,6 +67,7 @@ class ElasticKubernetesDriver(ContainerDriver):
         super().__init__(access_id, secret, host=EKS_HOST % (region))
         self.region = region
         self.region_name = region
+        self.cluster_driver_map = {}  # cluster id -> k8s driver
 
     def _ex_connection_class_kwargs(self):
         return {'signature_version': '4'}
@@ -64,7 +76,7 @@ class ElasticKubernetesDriver(ContainerDriver):
         """
         Get a list of clusters
 
-        :rtype: ``list`` of :class:`libcloud.container.base.ContainerCluster`
+        :rtype: ``list`` of :class:`EKSCluster`
         """
         names = self.connection.request(
             CLUSTERS_ENDPOINT).object['clusters']
@@ -78,7 +90,7 @@ class ElasticKubernetesDriver(ContainerDriver):
         :param  name: The name of the cluster
         :type   name: ``str``
 
-        :rtype: ``list`` of :class:`libcloud.container.base.ContainerCluster`
+        :rtype: :class:`EKSCluster`
         """
         endpoint = f'{CLUSTERS_ENDPOINT}{name}'
         data = self.connection.request(
@@ -110,6 +122,8 @@ class ElasticKubernetesDriver(ContainerDriver):
                                    between your nodes and the Kubernetes
                                    control plane
         :type security_group_ids: ``list`` of ``str``
+
+        :rtype: :class:`EKSCluster`
         """
         request = {
             'name': name,
@@ -141,8 +155,43 @@ class ElasticKubernetesDriver(ContainerDriver):
         data = self.connection.request(endpoint, method='DELETE').object
         return data['cluster']['status'] == 'DELETING'
 
+    def get_cluster_credentials(self, cluster):
+        """
+        Return cluster kubernetes credentials
+
+        :keyword  name:  Cluster name or object
+        :type     name:  ``str`` or :class:`EKSCluster`
+
+        :rtype: ``dict``
+        """
+        if isinstance(cluster, str):
+            cluster = self.get_cluster(cluster)
+        host, port = cluster.extra['endpoint'], '443'
+        token = self._get_cluster_token(cluster.name)
+        credentials = dict(host=host, port=port, token=token)
+        return credentials
+
+    def _get_cluster_token(self, cluster_name):
+        host = STS_HOST % (self.region)
+        url = f'https://{host}/?Action=GetCallerIdentity&Version=2011-06-15'
+        params = {
+            'method': 'GET',
+            'url': url,
+            'body': {},
+            'headers': {
+                'x-k8s-aws-id': cluster_name
+            },
+            'context': {}
+        }
+        signed_url = self.connection.signer.generate_sts_presigned_url(
+            params=params,
+            host=host)
+        base64_url = base64.urlsafe_b64encode(
+            signed_url.encode('utf-8')).decode('utf-8')
+        return 'k8s-aws-v1.' + re.sub(r'=*', '', base64_url)
+
     def _to_cluster(self, data):
-        return EKSCluster(
+        cluster = EKSCluster(
             id=data.pop('arn'),
             name=data.pop('name'),
             location=self.region,
@@ -151,3 +200,17 @@ class ElasticKubernetesDriver(ContainerDriver):
                     for k in list(data) if k.endswith('Config')},
             extra=data
         )
+        cluster.credentials = self.get_cluster_credentials(cluster)
+        cluster_driver = self.cluster_driver_map.setdefault(
+            cluster.id,
+            KubernetesContainerDriver(
+                host=cluster.credentials['host'],
+                port=cluster.credentials['port'],
+                key=cluster.credentials['token'],
+                ex_token_bearer_auth=True))
+        cluster_nodes = cluster_driver.ex_list_nodes()
+        for n in cluster_nodes:
+            cluster.total_cpus += int(n.extra['cpu'])
+            cluster.total_memory += int(to_memory_str(to_n_bytes(
+                n.extra['memory']), unit='G').strip('G'))
+        return cluster

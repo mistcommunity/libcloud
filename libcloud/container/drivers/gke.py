@@ -19,15 +19,22 @@ from libcloud.container.providers import Provider
 from libcloud.container.drivers.kubernetes import KubernetesContainerDriver
 from libcloud.common.google import GoogleResponse
 from libcloud.common.google import GoogleBaseConnection
+from libcloud.utils.misc import to_memory_str
+from libcloud.utils.misc import to_n_bytes
+
 API_VERSION = 'v1'
 
 
 class GKECluster(ContainerCluster):
-    def __init__(self, id, name, node_count, location, driver, config, extra):
+    def __init__(self, id, name, node_count, location, driver, config, extra,
+                 credentials=None, total_cpus=None, total_memory=None):
         super().__init__(id, name, driver, extra)
         self.node_count = node_count
         self.location = location
         self.config = config
+        self.credentials = credentials
+        self.total_cpus = total_cpus
+        self.total_memory = total_memory
 
 
 class GKEResponse(GoogleResponse):
@@ -166,6 +173,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
 
         self.base_path = '/%s/projects/%s' % (API_VERSION, self.project)
         self.website = GKEContainerDriver.website
+        self.cluster_driver_map = {}  # cluster id -> k8s driver
 
     def _ex_connection_class_kwargs(self):
         return {'auth_type': self.auth_type,
@@ -184,10 +192,12 @@ class GKEContainerDriver(KubernetesContainerDriver):
 
         :keyword  name:  Cluster name
         :type     name:  ``str``
+
+        :rtype: :class:`GKECluster`
         """
         request = "/zones/%s/clusters/%s" % (zone, name)
-        response = self.connection.request(request, method='GET').object
-        return response
+        data = self.connection.request(request, method='GET').object
+        return self._to_cluster(data)
 
     def ex_create_cluster(self, zone, name, initial_node_count=1):
         """
@@ -202,6 +212,8 @@ class GKEContainerDriver(KubernetesContainerDriver):
 
         :keyword  initial_node_count:  The number of nodes to create
         :type     initial_node_count:  ``int``
+
+        :rtype: :class:`GKECluster`
         """
         request = "/zones/%s/clusters" % (zone)
         body = {
@@ -215,12 +227,12 @@ class GKEContainerDriver(KubernetesContainerDriver):
                 ]
             }
         }
-        response = self.connection.request(
+        data = self.connection.request(
             request,
             method='POST',
             data=body
         ).object
-        return response
+        return self._to_cluster(data)
 
     def ex_update_cluster(self, zone, name, update_dict):
         """
@@ -234,17 +246,19 @@ class GKEContainerDriver(KubernetesContainerDriver):
         :type     name:  ``str``
 
         :keyword  update_dict:  Cluster update object:
-            https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/ClusterUpdate 
+            https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/ClusterUpdate
         :type     update_dict:  ``str``
+
+        :rtype: :class:`GKECluster`
         """
         request = "/zones/%s/clusters/%s" % (zone, name)
         body = {"update": update_dict}
-        response = self.connection.request(
+        data = self.connection.request(
             request,
             method='PUT',
             data=body
         ).object
-        return response
+        return self._to_cluster(data)
 
     def ex_destroy_cluster(self, zone, name):
         """
@@ -255,10 +269,12 @@ class GKEContainerDriver(KubernetesContainerDriver):
                             :class:`NodeLocation`
         :keyword  name:  Cluster name
         :type     name:  ``str``
+
+        :rtype: :class:`GKECluster`
         """
         request = "/zones/%s/clusters/%s" % (zone, name)
-        response = self.connection.request(request, method='DELETE').object
-        return response
+        data = self.connection.request(request, method='DELETE').object
+        return self._to_cluster(data)
 
     def list_clusters(self, ex_zone='-'):
         """
@@ -267,10 +283,32 @@ class GKEContainerDriver(KubernetesContainerDriver):
         :keyword  ex_zone:  Optional zone name or '-'
         :type     ex_zone:  ``str`` or :class:`GCEZone` or
                             :class:`NodeLocation` or '-'
+
+        :rtype: ``list`` of :class:`GKECluster`
         """
         request = "/zones/%s/clusters" % (ex_zone)
         data = self.connection.request(request, method='GET').object
         return self._to_clusters(data)
+
+    def get_cluster_credentials(self, cluster, zone=None):
+        """
+        Return cluster kubernetes credentials
+
+        :keyword  zone:  Zone name (required if cluster is ``str``)
+        :type     zone:  ``str`` or :class:`GCEZone` or
+                            :class:`NodeLocation`
+
+        :keyword  name:  Cluster name or object
+        :type     name:  ``str`` or :class:`GKECluster`
+
+        :rtype: ``dict``
+        """
+        if isinstance(cluster, str):
+            cluster = self.ex_get_cluster(zone, cluster)
+        host, port = cluster.extra['endpoint'], '443'
+        token = self.connection.oauth2_credential.access_token
+        credentials = dict(host=host, port=port, token=token)
+        return credentials
 
     def get_server_config(self, ex_zone):
         """
@@ -288,10 +326,12 @@ class GKEContainerDriver(KubernetesContainerDriver):
         return [self._to_cluster(c) for c in data.get('clusters', [])]
 
     def _to_cluster(self, data):
-        return GKECluster(
+        cluster = GKECluster(
             id=data.pop('id'),
             name=data.pop('name'),
             node_count=data.pop('currentNodeCount'),
+            total_cpus=0,
+            total_memory=0,
             location=data.pop('location'),
             driver=self.connection.driver,
             config={k: data.pop(k)
@@ -315,5 +355,19 @@ class GKEContainerDriver(KubernetesContainerDriver):
                 'shieldedNodes',
                 'workloadIdentityConfig',
             ]},
-            extra=data
+            extra=data,
         )
+        cluster.credentials = self.get_cluster_credentials(cluster)
+        cluster_driver = self.cluster_driver_map.setdefault(
+            cluster.id,
+            KubernetesContainerDriver(
+                host=cluster.credentials['host'],
+                port=cluster.credentials['port'],
+                key=cluster.credentials['token'],
+                ex_token_bearer_auth=True))
+        cluster_nodes = cluster_driver.ex_list_nodes()
+        for n in cluster_nodes:
+            cluster.total_cpus += int(n.extra['cpu'])
+            cluster.total_memory += int(to_memory_str(to_n_bytes(
+                n.extra['memory']), unit='G').strip('G'))
+        return cluster
