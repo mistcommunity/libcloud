@@ -879,7 +879,7 @@ class CloudFilesStorageDriver(StorageDriver, OpenStackDriverMixin):
             name = obj['name']
             size = int(obj['bytes'])
             hash = obj['hash']
-            extra = {'content_type': obj['content_type'],
+            extra = {'content_type': obj.get('content_type'),
                      'last_modified': obj['last_modified']}
             objects.append(Object(
                 name=name, size=size, hash=hash, extra=extra,
