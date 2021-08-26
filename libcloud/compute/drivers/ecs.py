@@ -372,15 +372,14 @@ class ECSVpc(object):
     """
     Represents a Vpc
     """
-    def __init__(self, id, name, description=None, driver=None, vpc_id=None,
-                 creation_time=None, status=None):
+
+    def __init__(self, id, name, cidr_block, status, driver, extra=None):
         self.id = id
         self.name = name
-        self.description = description
-        self.driver = driver
-        self.vpc_id = vpc_id
-        self.creation_time = creation_time
+        self.cidr_block = cidr_block
         self.status = status
+        self.driver = driver
+        self.extra = extra or {}
 
     def __repr__(self):
         return ('<ECSVpc: id=%s, name=%s, driver=%s ...>' %
@@ -391,6 +390,7 @@ class ECSVSwitch(object):
     """
     Represents a VSwitch
     """
+
     def __init__(self, id, name, description=None, driver=None, vpc_id=None,
                  creation_time=None):
         self.id = id
@@ -615,12 +615,13 @@ class ECSDriver(NodeDriver):
         return locations
 
     def ex_list_networks(self, ex_filters=None):
-        params= {'Action': 'DescribeVpcs',
-                 'RegionId': self.region}
+        params = {'Action': 'DescribeVpcs',
+                  'RegionId': self.region}
 
         if ex_filters and isinstance(ex_filters, dict):
             ex_filters.update(params)
             params = ex_filters
+
         def _parse_response(resp_object):
             sg_elements = findall(resp_object, 'Vpcs/Vpc',
                                   namespace=self.namespace)
@@ -652,19 +653,34 @@ class ECSDriver(NodeDriver):
                         namespace=self.namespace)
 
     def _to_network(self, element, name=None):
-        _id = findtext(element, 'VpcId', namespace=self.namespace)
+        id_ = findtext(element, 'VpcId', namespace=self.namespace)
         name = findtext(element, 'VpcName',
                         namespace=self.namespace)
-        description = findtext(element, 'Description',
-                               namespace=self.namespace)
+        cidr_block = findtext(element, 'CidrBlock',
+                              namespace=self.namespace)
         status = findtext(element, 'Status',
                                namespace=self.namespace)
-        creation_time = findtext(element, 'CreationTime',
-                                 namespace=self.namespace)
-        return ECSVpc(_id, name, description=description,
-                                 driver=self,
-                                 creation_time=creation_time,
-                                 status=status)
+        extra = {
+            'description': findtext(element, 'Description',
+                                    namespace=self.namespace),
+            'creation_time': findtext(element, 'CreationTime',
+                                      namespace=self.namespace),
+            'is_default': findtext(element, 'IsDefault',
+                                   namespace=self.namespace),
+            'switches': findtext(element, 'VSwitchIds',
+                                 namespace=self.namespace),
+            'user_cidr_blocks': findtext(element, 'UserCidrs',
+                                         namespace=self.namespace),
+            'secondary_cidr_blocks': findtext(element, 'SecondaryCidrBlocks',
+                                              namespace=self.namespace),
+        }
+
+        return ECSVpc(id_,
+                      name,
+                      cidr_block,
+                      status,
+                      self,
+                      extra=extra)
 
     def ex_list_switches(self, ex_filters=None):
         params = {'Action': 'DescribeVSwitches', 'RegionId': self.region}
@@ -705,8 +721,8 @@ class ECSDriver(NodeDriver):
         creation_time = findtext(element, 'CreationTime',
                                  namespace=self.namespace)
         return ECSVSwitch(_id, name, description=description,
-                                 driver=self,
-                                 creation_time=creation_time)
+                          driver=self,
+                          creation_time=creation_time)
 
     def create_node(self, name, size, image, auth=None,
                     ex_security_group_id=None, ex_description=None,
@@ -817,7 +833,8 @@ class ECSDriver(NodeDriver):
                 params['Password'] = auth.password
 
         if 'ex_userdata' in kwargs:
-            params['UserData'] = base64.b64encode(kwargs.get('ex_userdata').encode()).decode()
+            params['UserData'] = base64.b64encode(
+                kwargs.get('ex_userdata').encode()).decode()
 
         if 'ex_keyname' in kwargs:
             params['KeyPairName'] = kwargs['ex_keyname']
@@ -951,7 +968,6 @@ class ECSDriver(NodeDriver):
                   'InstanceType': size}
         resp = self.connection.request(self.path, params)
         return resp.success()
-
 
     def ex_create_security_group(self, description=None, client_token=None, vpc_id=None):
         """
@@ -1867,7 +1883,8 @@ class ECSDriver(NodeDriver):
 
     def _to_size(self, element):
         _id = findtext(element, 'InstanceTypeId', namespace=self.namespace)
-        ram = float(findtext(element, 'MemorySize', namespace=self.namespace)) * 1024
+        ram = float(findtext(element, 'MemorySize',
+                    namespace=self.namespace)) * 1024
         extra = {}
         extra['cpu_core_count'] = int(findtext(element, 'CpuCoreCount',
                                                namespace=self.namespace))
@@ -2083,7 +2100,8 @@ class ECSDriver(NodeDriver):
         return key_pairs
 
     def _to_key_pair(self, elem):
-        name = findtext(element=elem, xpath='KeyPairName', namespace=self.namespace)
+        name = findtext(element=elem, xpath='KeyPairName',
+                        namespace=self.namespace)
         fingerprint = findtext(element=elem, xpath='KeyPairFingerPrint',
                                namespace=self.namespace).strip()
 
