@@ -1883,7 +1883,9 @@ class ECSDriver(NodeDriver):
 
     def _to_image(self, element):
         _id = findtext(element, 'ImageId', namespace=self.namespace)
-        name = findtext(element, 'ImageName', namespace=self.namespace)
+        name = findtext(element, 'OSNameEn', namespace=self.namespace)
+        if not name:
+            name = findtext(element, 'ImageName', namespace=self.namespace)
         extra = self._get_extra_dict(element,
                                      RESOURCE_EXTRA_ATTRIBUTES_MAP['image'])
         extra['disk_device_mappings'] = self._get_disk_device_mappings(
