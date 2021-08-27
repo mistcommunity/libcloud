@@ -659,7 +659,7 @@ class ECSDriver(NodeDriver):
         cidr_block = findtext(element, 'CidrBlock',
                               namespace=self.namespace)
         status = findtext(element, 'Status',
-                               namespace=self.namespace)
+                          namespace=self.namespace)
         extra = {
             'description': findtext(element, 'Description',
                                     namespace=self.namespace),
@@ -969,7 +969,8 @@ class ECSDriver(NodeDriver):
         resp = self.connection.request(self.path, params)
         return resp.success()
 
-    def ex_create_security_group(self, description=None, client_token=None, vpc_id=None):
+    def ex_create_security_group(self, name=None, description=None,
+                                 client_token=None, vpc_id=None):
         """
         Create a new security group.
 
@@ -982,6 +983,8 @@ class ECSDriver(NodeDriver):
         """
         params = {'Action': 'CreateSecurityGroup',
                   'RegionId': self.region}
+        if name:
+            params['SecurityGroupName'] = name
         if description:
             params['Description'] = description
         if client_token:
