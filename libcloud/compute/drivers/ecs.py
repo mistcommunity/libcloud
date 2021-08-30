@@ -619,8 +619,7 @@ class ECSDriver(NodeDriver):
                   'RegionId': self.region}
 
         if ex_filters and isinstance(ex_filters, dict):
-            ex_filters.update(params)
-            params = ex_filters
+            params.update(ex_filters)
 
         def _parse_response(resp_object):
             sg_elements = findall(resp_object, 'Vpcs/Vpc',
@@ -686,8 +685,7 @@ class ECSDriver(NodeDriver):
         params = {'Action': 'DescribeVSwitches', 'RegionId': self.region}
 
         if ex_filters and isinstance(ex_filters, dict):
-            ex_filters.update(params)
-            params = ex_filters
+            params.update(ex_filters)
 
         resp = self.connection.request(self.path, params)
         return self._to_switches(resp.object)
@@ -1134,8 +1132,7 @@ class ECSDriver(NodeDriver):
                   'RegionId': self.region}
 
         if ex_filters and isinstance(ex_filters, dict):
-            ex_filters.update(params)
-            params = ex_filters
+            params.update(ex_filters)
 
         def _parse_response(resp_object):
             sg_elements = findall(resp_object, 'SecurityGroups/SecurityGroup',
