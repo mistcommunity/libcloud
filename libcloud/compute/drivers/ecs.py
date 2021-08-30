@@ -723,8 +723,8 @@ class ECSDriver(NodeDriver):
                           creation_time=creation_time)
 
     def create_node(self, name, size, image, auth=None,
-                    ex_security_group_id=None, ex_description=None,
-                    ex_internet_charge_type=None,
+                    ex_zone_id=None, ex_security_group_id=None,
+                    ex_description=None, ex_internet_charge_type=None,
                     ex_internet_max_bandwidth_out=None,
                     ex_internet_max_bandwidth_in=None,
                     ex_hostname=None, ex_io_optimized=None,
@@ -810,6 +810,9 @@ class ECSDriver(NodeDriver):
 
         if ex_description:
             params['Description'] = ex_description
+
+        if ex_zone_id:
+            params['ZoneId'] =  ex_zone_id
 
         inet_params = self._get_internet_related_params(
             ex_internet_charge_type,
