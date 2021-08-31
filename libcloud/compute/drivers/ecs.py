@@ -400,8 +400,8 @@ class ECSVSwitch(object):
         self.extra = extra or {}
 
     def __repr__(self):
-        return ('<ECSVSwitch: id=%s, name=%s, cidr_block=%s  driver=%s...>' %
-                (self.id, self.name, self.cidr_block, self.driver.name))
+        return ('<ECSVSwitch: id=%s, name=%s, cidr_block=%s  vpc_id=%s driver=%s...>' %
+                (self.id, self.name, self.cidr_block, self.vpc_id, self.driver.name))
 
 
 class ECSSecurityGroup(object):
