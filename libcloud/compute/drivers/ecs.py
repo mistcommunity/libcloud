@@ -382,8 +382,8 @@ class ECSVpc(object):
         self.extra = extra or {}
 
     def __repr__(self):
-        return ('<ECSVpc: id=%s, name=%s, driver=%s ...>' %
-                (self.id, self.name, self.driver.name))
+        return ('<ECSVpc: id=%s, name=%s, cidr_block=%s driver=%s ...>' %
+                (self.id, self.name, self.cidr_block, self.driver.name))
 
 
 class ECSVSwitch(object):
@@ -632,27 +632,71 @@ class ECSDriver(NodeDriver):
         return self._request_multiple_pages(self.path, params,
                                             _parse_response)
 
-    def ex_create_network(self, region_id=None, ex_filters=None):
+    def ex_create_network(self,
+                          region_id=None,
+                          name=None,
+                          cidr_block=None,
+                          ex_filters=None,
+                          only_id=True):
         """
         Create a VPC.
 
         :keyword region_id: the region ID of the VPC to be created.
         :type region_id: ``str``
+
+        :keyword name: the name of the VPC to be created.
+        :type name: ``str``
+
+        :keyword cidr_block: the CIDR of the VPC to be created.
+        :type cidr_block: ``str``
+
+        :keyword ex_filters: Extra parameters.
+        :type ex_filters: ``dict``
+
+        :keyword only_id: Whether to return only the created network's id
+        or a ECSVpc object
+        :type only_id: ``bool``
         """
         params = {'Action': 'CreateVpc'}
         if region_id:
             params['RegionId'] = region_id
         else:
             params['RegionId'] = self.region
+        if name:
+            params['VpcName'] = name
+        if cidr_block:
+            params['CidrBlock'] = cidr_block
 
         if ex_filters and isinstance(ex_filters, dict):
-            ex_filters.update(params)
-            params = ex_filters
+            params.update(ex_filters)
 
         resp = self.connection.request(self.path, params)
 
-        return findtext(resp.object, 'VpcId',
-                        namespace=self.namespace)
+        id_ = findtext(resp.object, 'VpcId',
+                       namespace=self.namespace)
+        if only_id is True:
+            return id_
+        else:
+            return ECSVpc(id_, None, None, None, self)
+
+    def ex_destroy_network(self, network):
+        """
+        Destroy a VPC.
+
+        :param network: the VPC to destroy
+        :type network: :class:`ECSVpc` or ``str``
+        """
+        try:
+            network_id = network.id
+        except AttributeError:
+            network_id = network
+        params = {
+            'Action': 'DeleteVpc',
+            'VpcId': network_id,
+            'RegionId': self.region
+        }
+        resp = self.connection.request(self.path, params)
+        return resp.success()
 
     def _to_network(self, element, name=None):
         id_ = findtext(element, 'VpcId', namespace=self.namespace)
@@ -694,7 +738,7 @@ class ECSDriver(NodeDriver):
         return self._to_switches(resp.object)
 
     def ex_create_switch(self, cidr, zone, vpc, region_id=None,
-                         name=None, description=None):
+                         name=None, description=None, only_id=True):
         params = {'Action': 'CreateVSwitch',
                   'CidrBlock': cidr,
                   'VpcId': vpc,
@@ -713,16 +757,26 @@ class ECSDriver(NodeDriver):
             params['Description'] = description
 
         resp = self.connection.request(self.path, params)
-        return findtext(resp.object, 'VSwitchId',
-                        namespace=self.namespace)
 
-    def ex_destroy_switch(self, switch_id):
+        id_ = findtext(resp.object, 'VSwitchId',
+                       namespace=self.namespace)
+
+        if only_id is True:
+            return id_
+        else:
+            return ECSVSwitch(id_, None, None, None, self)
+
+    def ex_destroy_switch(self, switch):
         """
         Destroy a VSwitch
 
-        :param switch_id: the VSwitch ID to destroy.
-        :type region_id: ``str``
+        :param switch: the VSwitch to destroy.
+        :type switch: :class:`VSwitch` or ``str``
         """
+        try:
+            switch_id = switch.id
+        except AttributeError:
+            switch_id = switch
         params = {
             'Action': 'DeleteVSwitch',
             'RegionId': self.region,
