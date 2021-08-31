@@ -107,6 +107,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
     will result in additional GKE API calls.
     """
     connectionCls = GKEConnection
+    containerDriverCls = KubernetesContainerDriver
     api_name = 'google'
     name = "Google Container Engine"
     type = Provider.GKE
@@ -182,6 +183,20 @@ class GKEContainerDriver(KubernetesContainerDriver):
                 'redirect_uri': self.redirect_uri,
                 'credential_file': self.credential_file}
 
+    def list_clusters(self, ex_zone='-'):
+        """
+        Return a list of cluster information in the current zone or all zones.
+
+        :keyword  ex_zone:  Optional zone name or '-'
+        :type     ex_zone:  ``str`` or :class:`GCEZone` or
+                            :class:`NodeLocation` or '-'
+
+        :rtype: ``list`` of :class:`GKECluster`
+        """
+        request = "/zones/%s/clusters" % (ex_zone)
+        data = self.connection.request(request, method='GET').object
+        return self._to_clusters(data)
+
     def ex_get_cluster(self, zone, name):
         """
         Return cluster information in the given zone
@@ -234,32 +249,6 @@ class GKEContainerDriver(KubernetesContainerDriver):
         ).object
         return self._to_cluster(data)
 
-    def ex_update_cluster(self, zone, name, update_dict):
-        """
-        Rename cluster in the given zone
-
-        :keyword  zone:  Zone name
-        :type     zone:  ``str`` or :class:`GCEZone` or
-                            :class:`NodeLocation`
-
-        :keyword  name:  Cluster name
-        :type     name:  ``str``
-
-        :keyword  update_dict:  Cluster update object:
-            https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/ClusterUpdate
-        :type     update_dict:  ``str``
-
-        :rtype: :class:`GKECluster`
-        """
-        request = "/zones/%s/clusters/%s" % (zone, name)
-        body = {"update": update_dict}
-        data = self.connection.request(
-            request,
-            method='PUT',
-            data=body
-        ).object
-        return self._to_cluster(data)
-
     def ex_destroy_cluster(self, zone, name):
         """
         Destroy cluster in the given zone
@@ -275,20 +264,6 @@ class GKEContainerDriver(KubernetesContainerDriver):
         request = "/zones/%s/clusters/%s" % (zone, name)
         data = self.connection.request(request, method='DELETE').object
         return self._to_cluster(data)
-
-    def list_clusters(self, ex_zone='-'):
-        """
-        Return a list of cluster information in the current zone or all zones.
-
-        :keyword  ex_zone:  Optional zone name or '-'
-        :type     ex_zone:  ``str`` or :class:`GCEZone` or
-                            :class:`NodeLocation` or '-'
-
-        :rtype: ``list`` of :class:`GKECluster`
-        """
-        request = "/zones/%s/clusters" % (ex_zone)
-        data = self.connection.request(request, method='GET').object
-        return self._to_clusters(data)
 
     def get_cluster_credentials(self, cluster, zone=None):
         """
@@ -360,7 +335,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
         cluster.credentials = self.get_cluster_credentials(cluster)
         cluster_driver = self.cluster_driver_map.setdefault(
             cluster.id,
-            KubernetesContainerDriver(
+            self.containerDriverCls(
                 host=cluster.credentials['host'],
                 port=cluster.credentials['port'],
                 key=cluster.credentials['token'],
