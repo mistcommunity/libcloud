@@ -372,43 +372,43 @@ class ECSVpc(object):
     """
     Represents a Vpc
     """
-    def __init__(self, id, name, description=None, driver=None, vpc_id=None,
-                 creation_time=None, status=None):
+
+    def __init__(self, id, name, cidr_block, status, driver, extra=None):
         self.id = id
         self.name = name
-        self.description = description
-        self.driver = driver
-        self.vpc_id = vpc_id
-        self.creation_time = creation_time
+        self.cidr_block = cidr_block
         self.status = status
+        self.driver = driver
+        self.extra = extra or {}
 
     def __repr__(self):
-        return ('<ECSVpc: id=%s, name=%s, driver=%s ...>' %
-                (self.id, self.name, self.driver.name))
+        return ('<ECSVpc: id=%s, name=%s, cidr_block=%s driver=%s ...>' %
+                (self.id, self.name, self.cidr_block, self.driver.name))
 
 
 class ECSVSwitch(object):
     """
     Represents a VSwitch
     """
-    def __init__(self, id, name, description=None, driver=None, vpc_id=None,
-                 creation_time=None):
+
+    def __init__(self, id, name, cidr_block, vpc_id, driver, extra=None):
         self.id = id
         self.name = name
-        self.description = description
-        self.driver = driver
+        self.cidr_block = cidr_block
         self.vpc_id = vpc_id
-        self.creation_time = creation_time
+        self.driver = driver
+        self.extra = extra or {}
 
     def __repr__(self):
-        return ('<ECSVSwitch: id=%s, name=%s, driver=%s ...>' %
-                (self.id, self.name, self.driver.name))
+        return ('<ECSVSwitch: id=%s, name=%s, cidr_block=%s  vpc_id=%s driver=%s...>' %
+                (self.id, self.name, self.cidr_block, self.vpc_id, self.driver.name))
 
 
 class ECSSecurityGroup(object):
     """
     Security group used to control nodes internet and intranet accessibility.
     """
+
     def __init__(self, id, name, description=None, driver=None, vpc_id=None,
                  creation_time=None):
         self.id = id
@@ -428,6 +428,7 @@ class ECSSecurityGroupAttribute(object):
     """
     Security group attribute.
     """
+
     def __init__(self, ip_protocol=None, port_range=None,
                  source_group_id=None, policy=None, nic_type=None):
         self.ip_protocol = ip_protocol
@@ -445,6 +446,7 @@ class ECSZone(object):
     """
     ECSZone used to represent an availability zone in a region.
     """
+
     def __init__(self, id, name, driver=None,
                  available_resource_types=None,
                  available_instance_types=None,
@@ -483,6 +485,7 @@ class Pagination(object):
     """
     Pagination used to describe the multiple pages results.
     """
+
     def __init__(self, total, size, current):
         """
         Create a pagination.
@@ -615,12 +618,12 @@ class ECSDriver(NodeDriver):
         return locations
 
     def ex_list_networks(self, ex_filters=None):
-        params= {'Action': 'DescribeVpcs',
-                 'RegionId': self.region}
+        params = {'Action': 'DescribeVpcs',
+                  'RegionId': self.region}
 
         if ex_filters and isinstance(ex_filters, dict):
-            ex_filters.update(params)
-            params = ex_filters
+            params.update(ex_filters)
+
         def _parse_response(resp_object):
             sg_elements = findall(resp_object, 'Vpcs/Vpc',
                                   namespace=self.namespace)
@@ -629,67 +632,158 @@ class ECSDriver(NodeDriver):
         return self._request_multiple_pages(self.path, params,
                                             _parse_response)
 
-    def ex_create_network(self, region_id=None, ex_filters=None):
+    def ex_create_network(self,
+                          region_id=None,
+                          name=None,
+                          cidr_block=None,
+                          ex_filters=None,
+                          only_id=True):
         """
         Create a VPC.
 
         :keyword region_id: the region ID of the VPC to be created.
         :type region_id: ``str``
+
+        :keyword name: the name of the VPC to be created.
+        :type name: ``str``
+
+        :keyword cidr_block: the CIDR of the VPC to be created.
+        :type cidr_block: ``str``
+
+        :keyword ex_filters: Extra parameters.
+        :type ex_filters: ``dict``
+
+        :keyword only_id: Whether to return only the created network's id
+        or a ECSVpc object
+        :type only_id: ``bool``
         """
         params = {'Action': 'CreateVpc'}
         if region_id:
             params['RegionId'] = region_id
         else:
             params['RegionId'] = self.region
+        if name:
+            params['VpcName'] = name
+        if cidr_block:
+            params['CidrBlock'] = cidr_block
 
         if ex_filters and isinstance(ex_filters, dict):
-            ex_filters.update(params)
-            params = ex_filters
+            params.update(ex_filters)
 
         resp = self.connection.request(self.path, params)
 
-        return findtext(resp.object, 'VpcId',
-                        namespace=self.namespace)
+        id_ = findtext(resp.object, 'VpcId',
+                       namespace=self.namespace)
+        if only_id is True:
+            return id_
+        else:
+            return ECSVpc(id_, None, None, None, self)
+
+    def ex_destroy_network(self, network):
+        """
+        Destroy a VPC.
+
+        :param network: the VPC to destroy
+        :type network: :class:`ECSVpc` or ``str``
+        """
+        try:
+            network_id = network.id
+        except AttributeError:
+            network_id = network
+        params = {
+            'Action': 'DeleteVpc',
+            'VpcId': network_id,
+            'RegionId': self.region
+        }
+        resp = self.connection.request(self.path, params)
+        return resp.success()
 
     def _to_network(self, element, name=None):
-        _id = findtext(element, 'VpcId', namespace=self.namespace)
+        id_ = findtext(element, 'VpcId', namespace=self.namespace)
         name = findtext(element, 'VpcName',
                         namespace=self.namespace)
-        description = findtext(element, 'Description',
-                               namespace=self.namespace)
+        cidr_block = findtext(element, 'CidrBlock',
+                              namespace=self.namespace)
         status = findtext(element, 'Status',
-                               namespace=self.namespace)
-        creation_time = findtext(element, 'CreationTime',
-                                 namespace=self.namespace)
-        return ECSVpc(_id, name, description=description,
-                                 driver=self,
-                                 creation_time=creation_time,
-                                 status=status)
+                          namespace=self.namespace)
+        extra = {
+            'description': findtext(element, 'Description',
+                                    namespace=self.namespace),
+            'creation_time': findtext(element, 'CreationTime',
+                                      namespace=self.namespace),
+            'is_default': findtext(element, 'IsDefault',
+                                   namespace=self.namespace),
+            'switches': findtext(element, 'VSwitchIds',
+                                 namespace=self.namespace),
+            'user_cidr_blocks': findtext(element, 'UserCidrs',
+                                         namespace=self.namespace),
+            'secondary_cidr_blocks': findtext(element, 'SecondaryCidrBlocks',
+                                              namespace=self.namespace),
+        }
+
+        return ECSVpc(id_,
+                      name,
+                      cidr_block,
+                      status,
+                      self,
+                      extra=extra)
 
     def ex_list_switches(self, ex_filters=None):
         params = {'Action': 'DescribeVSwitches', 'RegionId': self.region}
 
         if ex_filters and isinstance(ex_filters, dict):
-            ex_filters.update(params)
-            params = ex_filters
+            params.update(ex_filters)
 
         resp = self.connection.request(self.path, params)
         return self._to_switches(resp.object)
 
-    def ex_create_switch(self, cidr, zone, vpc, region_id=None):
+    def ex_create_switch(self, cidr, zone, vpc, region_id=None,
+                         name=None, description=None, only_id=True):
         params = {'Action': 'CreateVSwitch',
                   'CidrBlock': cidr,
                   'VpcId': vpc,
                   'ZoneId': zone,
                   'RegionId': self.region}
+
         if region_id:
             params['RegionId'] = region_id
         else:
             params['RegionId'] = self.region
 
+        if name:
+            params['VSwitchName'] = name
+
+        if description:
+            params['Description'] = description
+
         resp = self.connection.request(self.path, params)
-        return findtext(resp.object, 'VSwitchId',
-                        namespace=self.namespace)
+
+        id_ = findtext(resp.object, 'VSwitchId',
+                       namespace=self.namespace)
+
+        if only_id is True:
+            return id_
+        else:
+            return ECSVSwitch(id_, None, None, None, self)
+
+    def ex_destroy_switch(self, switch):
+        """
+        Destroy a VSwitch
+
+        :param switch: the VSwitch to destroy.
+        :type switch: :class:`VSwitch` or ``str``
+        """
+        try:
+            switch_id = switch.id
+        except AttributeError:
+            switch_id = switch
+        params = {
+            'Action': 'DeleteVSwitch',
+            'RegionId': self.region,
+            'VSwitchId': switch_id
+        }
+        resp = self.connection.request(self.path, params)
+        return resp.success()
 
     def _to_switches(self, response):
         return [self._to_switch(el) for el in response.findall(
@@ -697,20 +791,30 @@ class ECSDriver(NodeDriver):
         ]
 
     def _to_switch(self, element, name=None):
-        _id = findtext(element, 'VSwitchId', namespace=self.namespace)
+        id_ = findtext(element, 'VSwitchId', namespace=self.namespace)
         name = findtext(element, 'VSwitchName',
                         namespace=self.namespace)
-        description = findtext(element, 'VSwitchDescription',
-                               namespace=self.namespace)
-        creation_time = findtext(element, 'CreationTime',
-                                 namespace=self.namespace)
-        return ECSVSwitch(_id, name, description=description,
-                                 driver=self,
-                                 creation_time=creation_time)
+        cidr_block = findtext(element, 'CidrBlock',
+                              namespace=self.namespace)
+        vpc_id = findtext(element, 'VpcId',
+                          namespace=self.namespace)
+        extra = {
+            'description': findtext(element, 'VSwitchDescription',
+                                    namespace=self.namespace),
+            'creation_time': findtext(element, 'CreationTime',
+                                      namespace=self.namespace),
+            'zone_id': findtext(element, 'ZoneId',
+                                namespace=self.namespace),
+            'available_ips': findtext(element, 'AvailableIpAddressCount',
+                                      namespace=self.namespace),
+            'default': findtext(element, 'IsDefault',
+                                namespace=self.namespace),
+        }
+        return ECSVSwitch(id_, name, cidr_block, vpc_id, self, extra=extra)
 
     def create_node(self, name, size, image, auth=None,
-                    ex_security_group_id=None, ex_description=None,
-                    ex_internet_charge_type=None,
+                    ex_zone_id=None, ex_security_group_id=None,
+                    ex_description=None, ex_internet_charge_type=None,
                     ex_internet_max_bandwidth_out=None,
                     ex_internet_max_bandwidth_in=None,
                     ex_hostname=None, ex_io_optimized=None,
@@ -797,6 +901,9 @@ class ECSDriver(NodeDriver):
         if ex_description:
             params['Description'] = ex_description
 
+        if ex_zone_id:
+            params['ZoneId'] = ex_zone_id
+
         inet_params = self._get_internet_related_params(
             ex_internet_charge_type,
             ex_internet_max_bandwidth_in,
@@ -817,7 +924,8 @@ class ECSDriver(NodeDriver):
                 params['Password'] = auth.password
 
         if 'ex_userdata' in kwargs:
-            params['UserData'] = base64.b64encode(kwargs.get('ex_userdata').encode()).decode()
+            params['UserData'] = base64.b64encode(
+                kwargs.get('ex_userdata').encode()).decode()
 
         if 'ex_keyname' in kwargs:
             params['KeyPairName'] = kwargs['ex_keyname']
@@ -952,8 +1060,8 @@ class ECSDriver(NodeDriver):
         resp = self.connection.request(self.path, params)
         return resp.success()
 
-
-    def ex_create_security_group(self, description=None, client_token=None, vpc_id=None):
+    def ex_create_security_group(self, name=None, description=None,
+                                 client_token=None, vpc_id=None):
         """
         Create a new security group.
 
@@ -966,6 +1074,8 @@ class ECSDriver(NodeDriver):
         """
         params = {'Action': 'CreateSecurityGroup',
                   'RegionId': self.region}
+        if name:
+            params['SecurityGroupName'] = name
         if description:
             params['Description'] = description
         if client_token:
@@ -1115,8 +1225,7 @@ class ECSDriver(NodeDriver):
                   'RegionId': self.region}
 
         if ex_filters and isinstance(ex_filters, dict):
-            ex_filters.update(params)
-            params = ex_filters
+            params.update(ex_filters)
 
         def _parse_response(resp_object):
             sg_elements = findall(resp_object, 'SecurityGroups/SecurityGroup',
@@ -1867,7 +1976,8 @@ class ECSDriver(NodeDriver):
 
     def _to_size(self, element):
         _id = findtext(element, 'InstanceTypeId', namespace=self.namespace)
-        ram = float(findtext(element, 'MemorySize', namespace=self.namespace)) * 1024
+        ram = float(findtext(element, 'MemorySize',
+                    namespace=self.namespace)) * 1024
         extra = {}
         extra['cpu_core_count'] = int(findtext(element, 'CpuCoreCount',
                                                namespace=self.namespace))
@@ -1883,7 +1993,9 @@ class ECSDriver(NodeDriver):
 
     def _to_image(self, element):
         _id = findtext(element, 'ImageId', namespace=self.namespace)
-        name = findtext(element, 'ImageName', namespace=self.namespace)
+        name = findtext(element, 'OSNameEn', namespace=self.namespace)
+        if not name:
+            name = findtext(element, 'ImageName', namespace=self.namespace)
         extra = self._get_extra_dict(element,
                                      RESOURCE_EXTRA_ATTRIBUTES_MAP['image'])
         extra['disk_device_mappings'] = self._get_disk_device_mappings(
@@ -2081,7 +2193,8 @@ class ECSDriver(NodeDriver):
         return key_pairs
 
     def _to_key_pair(self, elem):
-        name = findtext(element=elem, xpath='KeyPairName', namespace=self.namespace)
+        name = findtext(element=elem, xpath='KeyPairName',
+                        namespace=self.namespace)
         fingerprint = findtext(element=elem, xpath='KeyPairFingerPrint',
                                namespace=self.namespace).strip()
 
