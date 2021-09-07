@@ -72,7 +72,7 @@ class VultrDNSDriver(DNSDriver):
                 raise NotImplementedError(
                     'No Vultr driver found for API version: %s' %
                     (api_version))
-        return super(VultrDNSDriver, cls).__new__(cls)
+        return super().__new__(cls)
 
 
 class VultrDNSDriverV1(VultrDNSDriver):
