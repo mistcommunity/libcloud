@@ -734,8 +734,9 @@ class ECSDriver(NodeDriver):
         if ex_filters and isinstance(ex_filters, dict):
             params.update(ex_filters)
 
-        resp = self.connection.request(self.path, params)
-        return self._to_switches(resp.object)
+        return self._request_multiple_pages(self.path, params,
+                                            self._to_switches)
+
 
     def ex_create_switch(self, cidr, zone, vpc, region_id=None,
                          name=None, description=None, only_id=True):
@@ -809,6 +810,8 @@ class ECSDriver(NodeDriver):
                                       namespace=self.namespace),
             'default': findtext(element, 'IsDefault',
                                 namespace=self.namespace),
+            'status': findtext(element, 'Status',
+                               namespace=self.namespace),
         }
         return ECSVSwitch(id_, name, cidr_block, vpc_id, self, extra=extra)
 
