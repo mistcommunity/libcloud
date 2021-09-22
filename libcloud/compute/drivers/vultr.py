@@ -1227,13 +1227,14 @@ class VultrNodeDriverV2(VultrNodeDriver):
                 data['iso_id'] = ex_iso_id
 
             if ex_ddos_protection:
-                data['ddos_protection'] = ex_ddos_protection,
+                data['ddos_protection'] = ex_ddos_protection
 
             if ex_firewall_group_id:
                 data['firewall_group_id'] = ex_firewall_group_id
 
             if ex_backups:
-                data['backups'] = ex_backups
+                data['backups'] = ('enabled' if ex_backups is True
+                                   else 'disabled')
 
             resp = self.connection.request('/v2/instances',
                                            data=json.dumps(data),
