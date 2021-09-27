@@ -1997,6 +1997,9 @@ class ECSDriver(NodeDriver):
     def _to_image(self, element):
         _id = findtext(element, 'ImageId', namespace=self.namespace)
         name = findtext(element, 'OSNameEn', namespace=self.namespace)
+        # Remove double spaces from image name
+        if name is not None:
+            name = ' '.join(name.split())
         if not name:
             name = findtext(element, 'ImageName', namespace=self.namespace)
         extra = self._get_extra_dict(element,
