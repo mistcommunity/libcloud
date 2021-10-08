@@ -1070,7 +1070,7 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
 
     def create_node(self, name, size, image, ex_metadata=None,
                     ex_vnc_password=None, ex_avoid=None, ex_vlan=None,
-                    public_keys=None):
+                    public_keys=None, ex_boot=True):
 
         """
         Create a new server.
@@ -1109,6 +1109,9 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
 
         :param public_keys: Optional list of SSH key UUIDs
         :type public_keys: ``list`` of ``str``
+
+        :param ex_boot: Whether to start the node after creation
+        :type ex_boot: ``bool``
         """
         is_installation_cd = self._is_installation_cd(image=image)
 
@@ -1202,7 +1205,8 @@ class CloudSigma_2_0_NodeDriver(CloudSigmaNodeDriver):
         node = self._to_node(response.object['objects'][0])
 
         # 4. Start server
-        self.ex_start_node(node=node, ex_avoid=ex_avoid)
+        if ex_boot is True:
+            self.ex_start_node(node=node, ex_avoid=ex_avoid)
 
         return node
 
