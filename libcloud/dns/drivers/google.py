@@ -239,6 +239,12 @@ class GoogleDNSDriver(DNSDriver):
 
         :rtype: ``bool``
         """
+
+        records = [record for record in zone.list_records()
+                   if record.type not in (RecordType.NS, RecordType.SOA)]
+        for record in records:
+            record.delete()
+
         request = '/managedZones/%s' % (zone.id)
         response = self.connection.request(request, method='DELETE')
         return response.success()
