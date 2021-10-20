@@ -373,7 +373,9 @@ class DockerContainerDriver(ContainerDriver):
                          network_disabled=False, entrypoint=None,
                          cpu_shares=None, working_dir='', domainname=None,
                          memswap_limit=0, port_bindings=None,
-                         network_mode='bridge', labels=None):
+                         network_mode='bridge', labels=None,
+                         nano_cpus=0,
+                         ):
         """
         Deploy an installed container image
 
@@ -390,6 +392,9 @@ class DockerContainerDriver(ContainerDriver):
 
         :param start: Start the container on deployment
         :type  start: ``bool``
+
+        :param nano_cpus: CPU quota in units of 10^-9 CPUs.
+        :type  nano_cpus: ``int``
 
         :rtype: :class:`Container`
         """
@@ -427,6 +432,7 @@ class DockerContainerDriver(ContainerDriver):
             'PortBindings': port_bindings,
             'NetworkMode': network_mode,
             'Labels': labels,
+            'NanoCpus': nano_cpus,
         }
 
         data = json.dumps(payload)
