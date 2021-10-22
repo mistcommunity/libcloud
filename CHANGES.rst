@@ -4,6 +4,18 @@
 Changes in Apache Libcloud 3.3.2 (in development)
 -------------------------------------------------
 
+Common
+~~~~~~
+
+- Fix how we set HTTP request timeout on the underlying requests session
+  object. requests library has changed how timeout is set so our old
+  code had no affect.
+
+  (GITHUB-1575, GITHUB-1576)
+  [Dimitris Galanis - @dimgal1]
+
+- Update setup.py metadata and indicate we also support Python 3.10.
+
 Storage
 ~~~~~~~
 
@@ -19,6 +31,11 @@ Storage
 
   Reported by Melissa Kersh - @mkcello96
   (GITHUB-1551)
+
+- [Local Storage] Optimize ``iterate_container_objects`` method to perform
+  early filtering if ``prefix`` argument is provided.
+  (GITHUB-1584)
+  [@Ido-Levi]
 
 Compute
 ~~~~~~~
@@ -61,6 +78,27 @@ Compute
   (GITHUB-1586)
   [Miguel Caballer - @micafer]
 
+- [OpenStack] Add disabled property to OpenStack images.
+
+  (GITHUB-1615)
+  [Miguel Caballer - @micafer]
+
+- [CloudSigma] Various updates, improvements and new functionality in the 
+  driver (support for new regions, instance types, additional standard API an 
+  extension methods, etc.).
+
+  (GITHUB-1558)
+  [Dimitris Galanis - @dimgal1]
+
+- [OpenStack] Add binding:host_id value to the OpenStack port information.
+  (GITHUB-1492)
+  [Miguel Caballer - @micafer]
+
+- [EC2] Add support for ``gp3`` and ``io2`` volume types. Also add
+  ``ex_throughput`` argument to the ``create_volume`` method.
+  (GITHUB-1596)
+  [Palash Gandhi - @palashgandhi]
+
 DNS
 ~~~
 
@@ -72,6 +110,17 @@ DNS
   parameters if they are not provided as method arguments.
   (GITHUB-1570)
   [Gasper Vozel - @karantan]
+
+- [NSOne] Fix MX records and root domain handling.
+  (GITHUB-1571)
+  [Gasper Vozel - @karantan]
+
+Other
+~~~~~
+
+- Fix ``python_requires`` setup.py metadata item value.
+  (GITHUB-1606)
+  [Michał Górny - @mgorny]
 
 Changes in Apache Libcloud 3.3.1
 --------------------------------
