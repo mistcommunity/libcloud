@@ -266,43 +266,43 @@ class DockerContainerDriver(ContainerDriver):
         """
         Install a container image from a remote path.
 
+        NOTE: if no tag is given all the available tagged images will
+        be pulled and the one returned will be the one pulled last.
+
         :param path: Path to the container image
         :type  path: ``str``
 
         :rtype: :class:`libcloud.container.base.ContainerImage`
         """
+
         payload = {
         }
         data = json.dumps(payload)
 
-        result = self.connection.request('/v%s/images/create?fromImage=%s' %
-                                         (self.version, path), data=data,
-                                         method='POST')
-        if "errorDetail" in result.body:
-            raise DockerException(None, result.body)
-        image_id = None
+        response = self.connection.request('/v%s/images/create?fromImage=%s' %
+                                           (self.version, path), data=data,
+                                           method='POST').object
+
+        # The response body is a JSON array containing all the status updates.
+        # We only need to check the last status for success/failure
+        last_status = response[-1]
+        if last_status.get('errorDetail'):
+            raise DockerException(None, last_status['errorDetail'])
 
         # the response is slightly different if the image is already present
         # and it's not downloaded. both messages below indicate that the image
         # is available for use to the daemon
-        if re.search(r'Downloaded newer image', result.body) or \
-                re.search(r'"Status: Image is up to date', result.body):
-            if re.search(r'sha256:(?P<id>[a-z0-9]{64})', result.body):
-                image_id = re.findall(r'sha256:(?P<id>[a-z0-9]{64})',
-                                      result.body)[-1]
+        image = None
+        if ('Downloaded newer image' in last_status['status'] or
+                'Image is up to date' in last_status['status']):
+            images = self.list_images()
+            for img in images:
+                if path in img.name:
+                    image = img
 
-        # if there is a failure message or if there is not an image id in the
-        # response then throw an exception.
-        if image_id is None:
-            raise DockerException(None, 'failed to install image')
+        if image is None:
+            raise DockerException(None, 'Failed to pull image')
 
-        image = ContainerImage(
-            id=image_id,
-            name=path,
-            path=path,
-            version=None,
-            driver=self.connection.driver,
-            extra={})
         return image
 
     def list_images(self):
@@ -366,7 +366,7 @@ class DockerContainerDriver(ContainerDriver):
         return containers
 
     def deploy_container(self, name, image, parameters=None, start=True,
-                         command=None, hostname=None, user='',
+                         command='', hostname=None, user='',
                          stdin_open=True, tty=True,
                          mem_limit=0, ports=None, environment=None, dns=None,
                          volumes=None, volumes_from=None,
