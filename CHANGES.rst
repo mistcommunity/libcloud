@@ -20,6 +20,14 @@ Common
   errors. Previously, we would try to retry indefinitely on
   ``RateLimitReachedError`` exceptions.
 
+- [Google] Update Google authentication code so so we don't try to contact
+  GCE metadata server when determining auth credentials type when oAuth 2.0 /
+  installed app type of credentials are used.
+
+  (GITHUB-1591, GITHUB-1621)
+
+  Reported by Veith Röthlingshöfer - @RunOrVeith.
+
 - [Google] Update Google authentication code so we don't try to retry failed
   request when trying to determine if GCE metadata server is available when
   retrying is enabled globally (either via module level constant or via
@@ -29,7 +37,7 @@ Common
   metadata server is not available and different type of credentials are used
   (e.g. oAuth 2).
 
-  (GITHUB-1591)
+  (GITHUB-1591, GITHUB-1621)
 
   Reported by Veith Röthlingshöfer - @RunOrVeith.
 
