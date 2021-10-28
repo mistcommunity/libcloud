@@ -667,12 +667,10 @@ class SoftLayerNodeDriver(NodeDriver):
                             country=country, driver=self)
 
     def list_locations(self):
-        locations = self.connection.request('SoftLayer_Virtual_Guest',
-                                            'getCreateObjectOptions').object
-        locations = [self._to_loc(location)
-                     for location in locations['datacenters']]
-
-        return locations
+        res = self.connection.request(
+            'SoftLayer_Virtual_Guest', 'getCreateObjectOptions'
+        ).object
+        return [self._to_loc(loc) for loc in res['datacenters']]
 
     def list_nodes(self):
         # virtual servers

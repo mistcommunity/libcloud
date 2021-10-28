@@ -121,8 +121,8 @@ def to_n_cpus(cpu_str):
         return 0
 
 
-def find(l, predicate):
-    results = [x for x in l if predicate(x)]
+def find(value, predicate):
+    results = [x for x in value if predicate(x)]
     return results[0] if len(results) > 0 else None
 
 

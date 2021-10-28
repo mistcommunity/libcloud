@@ -2491,7 +2491,8 @@ class GCENodeDriver(NodeDriver):
         list_locations = []
         request = '/zones'
         response = self.connection.request(request, method='GET').object
-        list_locations = [self._to_node_location(l) for l in response['items']]
+        list_locations = [self._to_node_location(loc)
+                          for loc in response['items']]
         return list_locations
 
     def ex_list_accelerator_types_for_location(self, location, cached=True):
@@ -3916,7 +3917,7 @@ class GCENodeDriver(NodeDriver):
         :rtype: :class:`GCESslCertificate`
         """
 
-        request = "/global/sslCertificates" % ()
+        request = "/global/sslCertificates"
         request_data = {}
         request_data['name'] = name
         request_data['certificate'] = certificate
@@ -5346,8 +5347,7 @@ class GCENodeDriver(NodeDriver):
         :return:  `GCETargetHttpsProxy` object.
         :rtype: :class:`GCETargetHttpsProxy`
         """
-
-        request = "/global/targetHttpsProxies" % ()
+        request = "/global/targetHttpsProxies"
         request_data = {}
         request_data['name'] = name
         request_data['description'] = description
