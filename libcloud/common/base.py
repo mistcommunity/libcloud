@@ -676,9 +676,9 @@ class Connection(object):
             self.reset_context()
             raise ssl.SSLError(str(e))
 
-        if enforce_unicode_response:
+        # if enforce_unicode_response:
             # Handle problem: https://github.com/psf/requests/issues/2359
-            self.connection.response.encoding = 'utf-8'
+            # self.connection.response.encoding = 'utf-8'
 
         if raw:
             responseCls = self.rawResponseCls
