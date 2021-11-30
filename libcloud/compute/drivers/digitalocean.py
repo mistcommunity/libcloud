@@ -17,6 +17,7 @@ DigitalOcean Driver
 """
 import json
 import warnings
+from typing import List, Optional, Dict, Any
 
 from libcloud.utils.iso8601 import parse_date
 from libcloud.utils.py3 import httplib
@@ -79,6 +80,27 @@ class SSHKey(object):
     def __repr__(self):
         return (('<SSHKey: id=%s, name=%s, pub_key=%s>') %
                 (self.id, self.name, self.pub_key))
+
+
+class DigitalOceanSnapshot:
+    """
+    Represents information about a DigitalOcean snapshot.
+    """
+
+    def __init__(self,
+                 id_: str,
+                 name: str,
+                 resource_type: str,
+                 extra: Optional[Dict[str, Any]] = None
+                 ) -> None:
+        self.id = id_
+        self.name = name
+        self.resource_type = resource_type
+        self.extra = extra or {}
+
+    def __repr__(self):
+        return (('<DigitalOceanSnapshot: id=%s, name=%s, resource_type=%s>') %
+                (self.id, self.name, self.resource_type))
 
 
 class DigitalOcean_v2_NodeDriver(DigitalOcean_v2_BaseDriver,
@@ -526,6 +548,57 @@ class DigitalOcean_v2_NodeDriver(DigitalOcean_v2_BaseDriver,
                                       method='DELETE')
         return res.status == httplib.NO_CONTENT
 
+    def ex_list_snapshots(self,
+                          resource_type: Optional[str] = None
+                          ) -> List[DigitalOceanSnapshot]:
+        """
+        List snapshots. If `resource_type` is set to "droplet" or "volume" only
+        the corresponding snapshots will be listed.
+
+        :param resource_type: List only snapshots with this type.
+        :type resource_type: ``str``
+
+        :rtype: ``list`` of :class: `DigitalOceanSnapshot`
+        """
+
+        params = None
+        if resource_type:
+            params = {
+                'resource_type': resource_type
+            }
+
+        data = self._paginated_request(
+            '/v2/snapshots', 'snapshots', params=params)
+
+        return [self._to_snapshot(item) for item in data]
+
+    def ex_get_snapshot(self, snapshot_id: str) -> DigitalOceanSnapshot:
+        """
+        Retrieve a snapshot.
+
+        :param snapshot_id: ID of the snapshot to retrieve.
+        :type snapshot_id: ``str``
+
+        :rtype: :class: `DigitalOceanSnapshot`
+        """
+        res = self.connection.request(f'/v2/snapshots/{snapshot_id}')
+        return self._to_snapshot(res.object['snapshot'])
+
+    def ex_delete_snapshot(self, snapshot: DigitalOceanSnapshot) -> bool:
+        """Delete the given snapshot.
+
+        :param snapshot: The snapshot to delete.
+        :type snapshot: :class:`DigitalOceanSnapshot`
+
+        :rtype: ``bool``
+        """
+
+        resp = self.connection.request(
+            f'/v2/snapshots/{snapshot.id}', method='DELETE'
+        )
+
+        return resp.success()
+
     def ex_get_node_details(self, node_id):
         """
         Lists details of the specified server.
@@ -726,6 +799,22 @@ class DigitalOcean_v2_NodeDriver(DigitalOcean_v2_BaseDriver,
         return VolumeSnapshot(id=data['id'], name=data['name'],
                               size=data['size_gigabytes'],
                               driver=self, extra=extra)
+
+    def _to_snapshot(self, data):
+        extra = {
+            'created_at': data['created_at'],
+            'regions': data['regions'],
+            'min_disk_size': data['min_disk_size'],
+            'size_gigabytes': data['size_gigabytes'],
+            'tags': data['tags'],
+            'resource_id': data['resource_id'],
+        }
+
+        return DigitalOceanSnapshot(id_=data['id'],
+                                    name=data['name'],
+                                    resource_type=data['resource_type'],
+                                    extra=extra,
+                                    )
 
     def _to_floating_ips(self, obj):
         return [self._to_floating_ip(ip) for ip in obj]
