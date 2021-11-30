@@ -16,7 +16,7 @@
 """
 Common settings and connection objects for DigitalOcean Cloud
 """
-
+from typing import List, Any, Dict, Optional
 from libcloud.utils.py3 import httplib, parse_qs, urlparse
 
 from libcloud.common.base import BaseDriver
@@ -175,7 +175,9 @@ class DigitalOcean_v2_BaseDriver(DigitalOceanBaseDriver):
         return self.connection.request('/v2/actions/%s' % event_id,
                                        params=params).object['action']
 
-    def _paginated_request(self, url, obj):
+    def _paginated_request(
+        self, url: str, obj: str, params: Optional[Dict[str, Any]] = None
+    ) -> List[Any]:
         """
         Perform multiple calls in order to have a full list of elements when
         the API responses are paginated.
@@ -186,11 +188,15 @@ class DigitalOcean_v2_BaseDriver(DigitalOceanBaseDriver):
         :param obj: Result object key
         :type obj: ``str``
 
+        :keyword params: Optional mapping of additional parameters to send
+        :type params: ``dict``
+
         :return: ``list`` of API response objects
         :rtype: ``list``
         """
-        params = {}
-        data = self.connection.request(url)
+        params = params if params is not None else {}
+
+        data = self.connection.request(url, params=params)
         try:
             query = urlparse.urlparse(data.object['links']['pages']['last'])
             # The query[4] references the query parameters from the url
