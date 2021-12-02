@@ -779,7 +779,7 @@ class DigitalOcean_v2_NodeDriver(DigitalOcean_v2_BaseDriver,
                  'regions': data['regions'],
                  'price_monthly': data['price_monthly']}
         return NodeSize(id=data['slug'], name=data['slug'], ram=data['memory'],
-                        disk=data['disk'], bandwidth=data['transfer'],
+                        disk=data['disk'], bandwidth=int(data['transfer']),
                         price=data['price_hourly'], driver=self, extra=extra)
 
     def _to_key_pair(self, data):
