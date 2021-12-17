@@ -1193,9 +1193,19 @@ run %s
             except Exception as exc:
                 log.warn('Failed to run "%s" at %s: %r', cmd, self.host, exc)
 
-        if 'Permission denied' in error.decode() and not su:
+        try:
+            decoded_error  = error.decode()
+        except AttributeError:
+            decoded_error = error
+
+        try:
+            decoded_output = output.decode()
+        except AttributeError:
+            decoded_output = output
+
+        if 'Permission denied' in decoded_error and not su:
             return self._run_command(original_cmd, True)
-        return {'output': output.decode(), 'error': error.decode()}
+        return {'output': decoded_output, 'error': decoded_error}
 
     def disconnect(self):
         # Close the libvirt connection to the hypevisor.
