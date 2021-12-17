@@ -2482,6 +2482,7 @@ class AzureNodeDriver(NodeDriver):
     def _fetch_power_state(self, data):
         state = NodeState.UNKNOWN
         created_at = None
+        r = None
         try:
             action = "%s/InstanceView" % (data["id"])
             r = self.connection.request(action,
@@ -2523,7 +2524,7 @@ class AzureNodeDriver(NodeDriver):
         except BaseHTTPError as h:
             pass
 
-        disks = r.object.get('disks') or []
+        disks = r.object.get('disks', []) if r else []
         for disk in disks:
             # by default Azure boot drives are assigned
             # a name of "<machine_name>-osDisk"
