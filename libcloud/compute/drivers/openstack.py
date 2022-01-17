@@ -3879,7 +3879,7 @@ class OpenStack_2_NodeDriver(OpenStack_1_1_NodeDriver):
 
         :rtype: ``list`` of :class:`OpenStackVolumeType`
         """
-        resp = self.volumev2_connection.request('/types').object
+        resp = self._get_volume_connection().request('/types').object
         return [self._to_volume_type(data) for data in resp['volume_types']]
 
     def _to_volume_type(self, data):
@@ -3927,7 +3927,7 @@ class OpenStack_2_NodeDriver(OpenStack_1_1_NodeDriver):
                 for item in response['availabilityZoneInfo']]
 
     def ex_list_storage_availability_zones_info(self):
-        response = self.volumev2_connection.request(
+        response = self._get_volume_connection().request(
             '/os-availability-zone').object
 
         return [{'name': item['zoneName'],
