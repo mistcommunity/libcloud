@@ -1,0 +1,26 @@
+{
+    "data": {
+        "id": "232",
+        "type": "ssh_keys",
+        "attributes": {
+            "name": "dimgaltest222",
+            "public_key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCrfQcWmrGoU+mOz4cTgIMsiSmZH8/f3lapB5IqAKPKZqsR/R6Au9MOIvgQEndG2XS4K8Psf1wXkkV7QPuJNbWyTS+ieeUcMhH0cw35bX1eKigfE4pn5P3B4XxjDfNskGF1LIshYltiObOnYTnNM0KkVJUEBrEjgFQZVbiWYDJNc1xxxLf925JkKF3b8OhE/bJVlIRQTjnSr/3oSzYKiK6w7WHN8WKdITGiCIqKwbgEhhy6+K2TzE5kA9Pt505zTSinZXf8Ey/q/pKSU3Vp3q/akqhOmcYPFEvaZTtQlgyA8Qe9+06bkGYzCu9taq4a3ImwpGmAovB8knecQ0eaFQHJ",
+            "fingerprint": "61:4c:3f:c7:13:57:30:c6:87:34:fe:36:ee:bb:35:64",
+            "created_at": "2022-01-03T12:25:19+00:00",
+            "updated_at": "2022-01-03T12:25:19+00:00"
+        },
+        "relationships": {
+            "user": {
+                "meta": {
+                    "included": false
+                }
+            },
+            "projects": {
+                "meta": {
+                    "included": false
+                }
+            }
+        }
+    },
+    "meta": {}
+}

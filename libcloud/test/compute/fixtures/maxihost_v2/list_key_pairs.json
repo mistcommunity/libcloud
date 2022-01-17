@@ -1,0 +1,51 @@
+{
+    "data": [
+        {
+            "id": "228",
+            "type": "ssh_keys",
+            "attributes": {
+                "name": "dimgaltest",
+                "public_key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQChCDW57Ms6KMuoKpsDdBmhSULTWB9NwknZKPrPiQURZUhRf0JKETxK9+a/h9vwlfQxaMXOyHMhcYee4Rj74OGH2KyRVr2fNbk92SXJi5i6OEPpRI3C3srVgdwAAdqISPcCa9A0DxRlkkBgaB7UwpWEd/cujg1EinE8QAC0FhKwHvBDJV/hk9pTuFzoIUafivmOcino4xzTr3CDBODwx77YFBk9Ar5mNen8kcWv7T2UKLUsvVbI2QPyPLgBgzFnNMDFZHpyOddq/GOf1kDtxdl0Q+ZPGl+p0HhiZ2+qbMZp0L8IomgFoQTsuHfyAcXxP5v0H9lPy8adRlz/B7LtsHMGA/o3ddHmvHXm0yZSmgFpP00kjxUCZhNsSo55T0LSrifgD3U6w+7xQKIurURnLZgB4gjTDtjM14ljWjCyuwiYVkbcdeb7l0fxl0920q9w0cwJtQC+QOTuVxR3riV6LWsXycA4Zc9pTeE3zrL8NhazLeR1E1ZFdd8uw70u72ngw1M= dimgal@dimgal-desktop",
+                "fingerprint": "97:56:34:ff:e8:2e:64:21:18:4a:2d:e8:31:ad:aa:68",
+                "created_at": "2022-01-03T10:34:09+00:00",
+                "updated_at": "2022-01-03T10:34:09+00:00"
+            },
+            "relationships": {
+                "user": {
+                    "meta": {
+                        "included": false
+                    }
+                },
+                "projects": {
+                    "meta": {
+                        "included": false
+                    }
+                }
+            }
+        },
+        {
+            "id": "229",
+            "type": "ssh_keys",
+            "attributes": {
+                "name": "test2",
+                "public_key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCrfQcWmrGoU+mOz4cTgIMsiSmZH8/f3lapB5IqAKPKZqsR/R6Au9MOIvgQEndG2XS4K8Psf1wXkkV7QPuJNbWyTS+ieeUcMhH0cw35bX1eKigfE4pn5P3B4XxjDfNskGF1LIshYltiObOnYTnNM0KkVJUEBrEjgFQZVbiWYDJNc1xxxLf925JkKF3b8OhE/bJVlIRQTjnSr/3oSzYKiK6w7WHN8WKdITGiCIqKwbgEhhy6+K2TzE5kA9Pt505zTSinZXf8Ey/q/pKSU3Vp3q/akqhOmcYPFEvaZTtQlgyA8Qe9+06bkGYzCu9taq4a3ImwpGmAovB8knecQ0eaFQHJ",
+                "fingerprint": "61:4c:3f:c7:13:57:30:c6:87:34:fe:36:ee:bb:35:64",
+                "created_at": "2022-01-03T10:49:02+00:00",
+                "updated_at": "2022-01-03T10:49:02+00:00"
+            },
+            "relationships": {
+                "user": {
+                    "meta": {
+                        "included": false
+                    }
+                },
+                "projects": {
+                    "meta": {
+                        "included": false
+                    }
+                }
+            }
+        }
+    ],
+    "meta": {}
+}

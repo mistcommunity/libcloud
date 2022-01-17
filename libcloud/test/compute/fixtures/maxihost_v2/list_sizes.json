@@ -1,0 +1,5716 @@
+{
+    "data": [
+        {
+            "id": "39",
+            "type": "plans",
+            "attributes": {
+                "name": "c1.large.x86",
+                "slug": "c1-large-x86",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "E5-2630v4",
+                            "clock": 2.2,
+                            "cores": 20,
+                            "count": 2
+                        }
+                    ],
+                    "memory": {
+                        "total": 128
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "10Gbps"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 4,
+                                "name": "Los Angeles",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 3,
+                                "name": "Dallas",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 5,
+                                "name": "Miami",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 18,
+                                "name": "Chicago-Deft",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 2,
+                                "name": "Chicago",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 6,
+                                "name": "New York",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 197.0
+                            },
+                            "BRL": {
+                                "month": 1459.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 14,
+                            "name": "Mexico"
+                        },
+                        "sites": [
+                            {
+                                "id": 14,
+                                "name": "Mexico City",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 3,
+                            "name": "Australia"
+                        },
+                        "sites": [
+                            {
+                                "id": 9,
+                                "name": "Sydney",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 13,
+                            "name": "Japan"
+                        },
+                        "sites": [
+                            {
+                                "id": 13,
+                                "name": "Tokyo",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 12,
+                                "name": "Tokyo 2",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 7,
+                                "name": "S\u00e3o Paulo (SP1)",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 8,
+                                "name": "S\u00e3o Paulo (SP4)",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 423.0
+                            },
+                            "BRL": {
+                                "month": 3109.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 15,
+                            "name": "United Kingdom"
+                        },
+                        "sites": [
+                            {
+                                "id": 15,
+                                "name": "London",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 11,
+                            "name": "Chile"
+                        },
+                        "sites": [
+                            {
+                                "id": 11,
+                                "name": "Santiago",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "40",
+            "type": "plans",
+            "attributes": {
+                "name": "c1.medium.x86",
+                "slug": "c1-medium-x86",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "E-2176G",
+                            "clock": 3.7,
+                            "cores": 6,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "64"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 1,
+                            "type": "1Gbps"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 4,
+                                "name": "Los Angeles",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 3,
+                                "name": "Dallas",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 5,
+                                "name": "Miami",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 18,
+                                "name": "Chicago-Deft",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 2,
+                                "name": "Chicago",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 6,
+                                "name": "New York",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 137.0
+                            },
+                            "BRL": {
+                                "month": 737.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 14,
+                            "name": "Mexico"
+                        },
+                        "sites": [
+                            {
+                                "id": 14,
+                                "name": "Mexico City",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 3,
+                            "name": "Australia"
+                        },
+                        "sites": [
+                            {
+                                "id": 9,
+                                "name": "Sydney",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 257.0
+                            },
+                            "BRL": {
+                                "month": 1299.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 13,
+                            "name": "Japan"
+                        },
+                        "sites": [
+                            {
+                                "id": 13,
+                                "name": "Tokyo",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 12,
+                                "name": "Tokyo 2",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 7,
+                                "name": "S\u00e3o Paulo (SP1)",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 8,
+                                "name": "S\u00e3o Paulo (SP4)",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 277.0
+                            },
+                            "BRL": {
+                                "month": 1437.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 15,
+                            "name": "United Kingdom"
+                        },
+                        "sites": [
+                            {
+                                "id": 15,
+                                "name": "London",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 11,
+                            "name": "Chile"
+                        },
+                        "sites": [
+                            {
+                                "id": 11,
+                                "name": "Santiago",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "25",
+            "type": "plans",
+            "attributes": {
+                "name": "c1.small.x86",
+                "slug": "c1-small-x86",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "E-2176G",
+                            "clock": 3.7,
+                            "cores": 6,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 1,
+                            "type": "1Gbps"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 4,
+                                "name": "Los Angeles",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 3,
+                                "name": "Dallas",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 5,
+                                "name": "Miami",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 18,
+                                "name": "Chicago-Deft",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 2,
+                                "name": "Chicago",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 6,
+                                "name": "New York",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 87.0
+                            },
+                            "BRL": {
+                                "month": 447.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 14,
+                            "name": "Mexico"
+                        },
+                        "sites": [
+                            {
+                                "id": 14,
+                                "name": "Mexico City",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 3,
+                            "name": "Australia"
+                        },
+                        "sites": [
+                            {
+                                "id": 9,
+                                "name": "Sydney",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 203.0
+                            },
+                            "BRL": {
+                                "month": 1029.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 13,
+                            "name": "Japan"
+                        },
+                        "sites": [
+                            {
+                                "id": 13,
+                                "name": "Tokyo",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 12,
+                                "name": "Tokyo 2",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 7,
+                                "name": "S\u00e3o Paulo (SP1)",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 8,
+                                "name": "S\u00e3o Paulo (SP4)",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 177.0
+                            },
+                            "BRL": {
+                                "month": 1459.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 15,
+                            "name": "United Kingdom"
+                        },
+                        "sites": [
+                            {
+                                "id": 15,
+                                "name": "London",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 11,
+                            "name": "Chile"
+                        },
+                        "sites": [
+                            {
+                                "id": 11,
+                                "name": "Santiago",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "26",
+            "type": "plans",
+            "attributes": {
+                "name": "c1.tiny.x86",
+                "slug": "c1-tiny-x86",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "E-2134",
+                            "clock": 3.5,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "16"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 1,
+                            "type": "1Gbps"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 4,
+                                "name": "Los Angeles",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 3,
+                                "name": "Dallas",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 5,
+                                "name": "Miami",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 18,
+                                "name": "Chicago-Deft",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 2,
+                                "name": "Chicago",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 6,
+                                "name": "New York",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 77.0
+                            },
+                            "BRL": {
+                                "month": 397.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 14,
+                            "name": "Mexico"
+                        },
+                        "sites": [
+                            {
+                                "id": 14,
+                                "name": "Mexico City",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 3,
+                            "name": "Australia"
+                        },
+                        "sites": [
+                            {
+                                "id": 9,
+                                "name": "Sydney",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 187.0
+                            },
+                            "BRL": {
+                                "month": 950.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 13,
+                            "name": "Japan"
+                        },
+                        "sites": [
+                            {
+                                "id": 13,
+                                "name": "Tokyo",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 12,
+                                "name": "Tokyo 2",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 7,
+                                "name": "S\u00e3o Paulo (SP1)",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 8,
+                                "name": "S\u00e3o Paulo (SP4)",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 147.0
+                            },
+                            "BRL": {
+                                "month": 757.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 15,
+                            "name": "United Kingdom"
+                        },
+                        "sites": [
+                            {
+                                "id": 15,
+                                "name": "London",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 11,
+                            "name": "Chile"
+                        },
+                        "sites": [
+                            {
+                                "id": 11,
+                                "name": "Santiago",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "23",
+            "type": "plans",
+            "attributes": {
+                "name": "c2.large.arm",
+                "slug": "c2-large-arm",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Ampere eMAG",
+                            "clock": 3.0,
+                            "cores": 32,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "256"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "NVME"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "10Gbps"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 4,
+                                "name": "Los Angeles",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 3,
+                                "name": "Dallas",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 5,
+                                "name": "Miami",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 18,
+                                "name": "Chicago-Deft",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 2,
+                                "name": "Chicago",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 6,
+                                "name": "New York",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 247.0
+                            },
+                            "BRL": {
+                                "month": 1283.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 14,
+                            "name": "Mexico"
+                        },
+                        "sites": [
+                            {
+                                "id": 14,
+                                "name": "Mexico City",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 3,
+                            "name": "Australia"
+                        },
+                        "sites": [
+                            {
+                                "id": 9,
+                                "name": "Sydney",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 13,
+                            "name": "Japan"
+                        },
+                        "sites": [
+                            {
+                                "id": 13,
+                                "name": "Tokyo",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 12,
+                                "name": "Tokyo 2",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 397.0
+                            },
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 7,
+                                "name": "S\u00e3o Paulo (SP1)",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 8,
+                                "name": "S\u00e3o Paulo (SP4)",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 807.0
+                            },
+                            "BRL": {
+                                "month": 2403.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 15,
+                            "name": "United Kingdom"
+                        },
+                        "sites": [
+                            {
+                                "id": 15,
+                                "name": "London",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 11,
+                            "name": "Chile"
+                        },
+                        "sites": [
+                            {
+                                "id": 11,
+                                "name": "Santiago",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "22",
+            "type": "plans",
+            "attributes": {
+                "name": "c2.large.x86",
+                "slug": "c2-large-x86",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Silver 4210",
+                            "clock": 2.2,
+                            "cores": 20,
+                            "count": 2
+                        }
+                    ],
+                    "memory": {
+                        "total": "128"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "10Gbps"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 4,
+                                "name": "Los Angeles",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 3,
+                                "name": "Dallas",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 5,
+                                "name": "Miami",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 18,
+                                "name": "Chicago-Deft",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 2,
+                                "name": "Chicago",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 6,
+                                "name": "New York",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 295.0
+                            },
+                            "BRL": {
+                                "month": 1622.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 14,
+                            "name": "Mexico"
+                        },
+                        "sites": [
+                            {
+                                "id": 14,
+                                "name": "Mexico City",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 525.0
+                            },
+                            "BRL": {
+                                "month": 1987.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 3,
+                            "name": "Australia"
+                        },
+                        "sites": [
+                            {
+                                "id": 9,
+                                "name": "Sydney",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 13,
+                            "name": "Japan"
+                        },
+                        "sites": [
+                            {
+                                "id": 13,
+                                "name": "Tokyo",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 12,
+                                "name": "Tokyo 2",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 7,
+                                "name": "S\u00e3o Paulo (SP1)",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 8,
+                                "name": "S\u00e3o Paulo (SP4)",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 610.0
+                            },
+                            "BRL": {
+                                "month": 3350.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 15,
+                            "name": "United Kingdom"
+                        },
+                        "sites": [
+                            {
+                                "id": 15,
+                                "name": "London",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 11,
+                            "name": "Chile"
+                        },
+                        "sites": [
+                            {
+                                "id": 11,
+                                "name": "Santiago",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "21",
+            "type": "plans",
+            "attributes": {
+                "name": "c2.medium.x86",
+                "slug": "c2-medium-x86",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "E-2278G",
+                            "clock": 3.7,
+                            "cores": 8,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": 64
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "10Gbps"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 4,
+                                "name": "Los Angeles",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 3,
+                                "name": "Dallas",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 5,
+                                "name": "Miami",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 18,
+                                "name": "Chicago-Deft",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 2,
+                                "name": "Chicago",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 6,
+                                "name": "New York",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 153.0
+                            },
+                            "BRL": {
+                                "month": 797.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 14,
+                            "name": "Mexico"
+                        },
+                        "sites": [
+                            {
+                                "id": 14,
+                                "name": "Mexico City",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 267.0
+                            },
+                            "BRL": {
+                                "month": 1393.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 3,
+                            "name": "Australia"
+                        },
+                        "sites": [
+                            {
+                                "id": 9,
+                                "name": "Sydney",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {
+                                "month": 1343.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 13,
+                            "name": "Japan"
+                        },
+                        "sites": [
+                            {
+                                "id": 13,
+                                "name": "Tokyo",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 12,
+                                "name": "Tokyo 2",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 7,
+                                "name": "S\u00e3o Paulo (SP1)",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 8,
+                                "name": "S\u00e3o Paulo (SP4)",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 297.0
+                            },
+                            "BRL": {
+                                "month": 1533.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 15,
+                            "name": "United Kingdom"
+                        },
+                        "sites": [
+                            {
+                                "id": 15,
+                                "name": "London",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {},
+                            "BRL": {}
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 11,
+                            "name": "Chile"
+                        },
+                        "sites": [
+                            {
+                                "id": 11,
+                                "name": "Santiago",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 273.0
+                            },
+                            "BRL": {
+                                "month": 1553.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "20",
+            "type": "plans",
+            "attributes": {
+                "name": "c2.small.x86",
+                "slug": "c2-small-x86",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "E-2276G",
+                            "clock": 3.8,
+                            "cores": 6,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "10Gbps"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 4,
+                                "name": "Los Angeles",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 3,
+                                "name": "Dallas",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 5,
+                                "name": "Miami",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 18,
+                                "name": "Chicago-Deft",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 2,
+                                "name": "Chicago",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 6,
+                                "name": "New York",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 113.0
+                            },
+                            "BRL": {
+                                "month": 587.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 14,
+                            "name": "Mexico"
+                        },
+                        "sites": [
+                            {
+                                "id": 14,
+                                "name": "Mexico City",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 197.0
+                            },
+                            "BRL": {
+                                "month": 1033.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 3,
+                            "name": "Australia"
+                        },
+                        "sites": [
+                            {
+                                "id": 9,
+                                "name": "Sydney",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 197.0
+                            },
+                            "BRL": {
+                                "month": 1033.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 13,
+                            "name": "Japan"
+                        },
+                        "sites": [
+                            {
+                                "id": 13,
+                                "name": "Tokyo",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 12,
+                                "name": "Tokyo 2",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 207.0
+                            },
+                            "BRL": {
+                                "month": 1073.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 7,
+                                "name": "S\u00e3o Paulo (SP1)",
+                                "in_stock": false
+                            },
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            },
+                            {
+                                "id": 8,
+                                "name": "S\u00e3o Paulo (SP4)",
+                                "in_stock": false
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 197.0
+                            },
+                            "BRL": {
+                                "month": 1027.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 15,
+                            "name": "United Kingdom"
+                        },
+                        "sites": [
+                            {
+                                "id": 15,
+                                "name": "London",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 113.0
+                            },
+                            "BRL": {
+                                "month": 587.0
+                            }
+                        }
+                    },
+                    {
+                        "region": {
+                            "id": 11,
+                            "name": "Chile"
+                        },
+                        "sites": [
+                            {
+                                "id": 11,
+                                "name": "Santiago",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 197.0
+                            },
+                            "BRL": {
+                                "month": 1027.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19262",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19262",
+                "slug": "spot-19262",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1240 v6",
+                            "clock": 3.7,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 5,
+                                "name": "Miami",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19212",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19212",
+                "slug": "spot-19212",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E5-2680 v3",
+                            "clock": 2.5,
+                            "cores": 12,
+                            "count": 2
+                        }
+                    ],
+                    "memory": {
+                        "total": "128"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 2,
+                                "name": "Chicago",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19651",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19651",
+                "slug": "spot-19651",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E5-2630 v4",
+                            "clock": 2.2,
+                            "cores": 10,
+                            "count": 2
+                        }
+                    ],
+                    "memory": {
+                        "total": "128"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "480GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20560",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20560",
+                "slug": "spot-20560",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E5-2680 v3",
+                            "clock": 2.5,
+                            "cores": 12,
+                            "count": 2
+                        }
+                    ],
+                    "memory": {
+                        "total": "128"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 2,
+                                "name": "Chicago",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19254",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19254",
+                "slug": "spot-19254",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E5-2603 v3",
+                            "clock": 1.6,
+                            "cores": 6,
+                            "count": 2
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "1TB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 1,
+                            "type": "1Gbit/s"
+                        },
+                        {
+                            "count": 1,
+                            "type": "100Mbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20558",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20558",
+                "slug": "spot-20558",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E5-2680 v3",
+                            "clock": 2.5,
+                            "cores": 12,
+                            "count": 2
+                        }
+                    ],
+                    "memory": {
+                        "total": "128"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 2,
+                                "name": "Chicago",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20563",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20563",
+                "slug": "spot-20563",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1240 v6",
+                            "clock": 3.7,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 5,
+                                "name": "Miami",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20304",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20304",
+                "slug": "spot-20304",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1231 v3",
+                            "clock": 3.4,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "1TB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.18633",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.18633",
+                "slug": "spot-18633",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1270 v6",
+                            "clock": 3.8,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "480GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20633",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20633",
+                "slug": "spot-20633",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon E-2274G CPU",
+                            "clock": 4.0,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 14,
+                            "name": "Mexico"
+                        },
+                        "sites": [
+                            {
+                                "id": 14,
+                                "name": "Mexico City",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.18781",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.18781",
+                "slug": "spot-18781",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E5-2630 v4",
+                            "clock": 2.2,
+                            "cores": 10,
+                            "count": 2
+                        }
+                    ],
+                    "memory": {
+                        "total": "128"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 340.0
+                            },
+                            "BRL": {
+                                "month": 1760.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19738",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19738",
+                "slug": "spot-19738",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1240 v6",
+                            "clock": 3.7,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "16"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 2,
+                                "name": "Chicago",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19261",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19261",
+                "slug": "spot-19261",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1240 v6",
+                            "clock": 3.7,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "16"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 5,
+                                "name": "Miami",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20556",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20556",
+                "slug": "spot-20556",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E5-2650L v3",
+                            "clock": 1.8,
+                            "cores": 12,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "64"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "2TB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19462",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19462",
+                "slug": "spot-19462",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1220 v3",
+                            "clock": 3.1,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "1TB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19444",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19444",
+                "slug": "spot-19444",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1220 v3",
+                            "clock": 3.1,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "12"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19831",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19831",
+                "slug": "spot-19831",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1230 v3",
+                            "clock": 3.3,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19508",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19508",
+                "slug": "spot-19508",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon E-2286G CPU",
+                            "clock": 4.0,
+                            "cores": 6,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "16"
+                    },
+                    "drives": [
+                        {
+                            "count": 3,
+                            "size": "2TB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 1,
+                            "type": "10Gbit/s"
+                        },
+                        {
+                            "count": 1,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 3,
+                                "name": "Dallas",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19678",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19678",
+                "slug": "spot-19678",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1230 v5",
+                            "clock": 3.4,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 4,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19658",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19658",
+                "slug": "spot-19658",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E5-2450 0",
+                            "clock": 2.1,
+                            "cores": 8,
+                            "count": 2
+                        }
+                    ],
+                    "memory": {
+                        "total": "64"
+                    },
+                    "drives": [],
+                    "nics": [
+                        {
+                            "count": 1,
+                            "type": "1Gbit/s"
+                        },
+                        {
+                            "count": 1,
+                            "type": "100Mbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.17305",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.17305",
+                "slug": "spot-17305",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon E-2286G CPU",
+                            "clock": 4.0,
+                            "cores": 6,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "64"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 1,
+                            "type": "10Gbit/s"
+                        },
+                        {
+                            "count": 1,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 5,
+                                "name": "Miami",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19814",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19814",
+                "slug": "spot-19814",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon E-2234 CPU",
+                            "clock": 3.6,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "480GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 3,
+                            "name": "Australia"
+                        },
+                        "sites": [
+                            {
+                                "id": 9,
+                                "name": "Sydney",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19813",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19813",
+                "slug": "spot-19813",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon E-2234 CPU",
+                            "clock": 3.6,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 3,
+                            "name": "Australia"
+                        },
+                        "sites": [
+                            {
+                                "id": 9,
+                                "name": "Sydney",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20559",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20559",
+                "slug": "spot-20559",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E5-2680 v3",
+                            "clock": 2.5,
+                            "cores": 12,
+                            "count": 2
+                        }
+                    ],
+                    "memory": {
+                        "total": "128"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 2,
+                                "name": "Chicago",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19960",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19960",
+                "slug": "spot-19960",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E5-2620 v3",
+                            "clock": 2.4,
+                            "cores": 6,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "64"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "1TB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19812",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19812",
+                "slug": "spot-19812",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon E-2234 CPU",
+                            "clock": 3.6,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "480GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 3,
+                            "name": "Australia"
+                        },
+                        "sites": [
+                            {
+                                "id": 9,
+                                "name": "Sydney",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19732",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19732",
+                "slug": "spot-19732",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1240 v6",
+                            "clock": 3.7,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 2,
+                                "name": "Chicago",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20587",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20587",
+                "slug": "spot-20587",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon E-2234 CPU",
+                            "clock": 3.6,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 13,
+                            "name": "Japan"
+                        },
+                        "sites": [
+                            {
+                                "id": 13,
+                                "name": "Tokyo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19420",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19420",
+                "slug": "spot-19420",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1240 v6",
+                            "clock": 3.7,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 1,
+                            "type": "10Gbit/s"
+                        },
+                        {
+                            "count": 1,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 4,
+                                "name": "Los Angeles",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.18631",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.18631",
+                "slug": "spot-18631",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1220 v3",
+                            "clock": 3.1,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "24"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20629",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20629",
+                "slug": "spot-20629",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon E-2274G CPU",
+                            "clock": 4.0,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 14,
+                            "name": "Mexico"
+                        },
+                        "sites": [
+                            {
+                                "id": 14,
+                                "name": "Mexico City",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.18229",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.18229",
+                "slug": "spot-18229",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon E-2234 CPU",
+                            "clock": 3.6,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "480GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 3,
+                            "name": "Australia"
+                        },
+                        "sites": [
+                            {
+                                "id": 9,
+                                "name": "Sydney",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19468",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19468",
+                "slug": "spot-19468",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1240 v6",
+                            "clock": 3.7,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 5,
+                                "name": "Miami",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20280",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20280",
+                "slug": "spot-20280",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1231 v3",
+                            "clock": 3.4,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20286",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20286",
+                "slug": "spot-20286",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1241 v3",
+                            "clock": 3.5,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "2TB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20288",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20288",
+                "slug": "spot-20288",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1231 v3",
+                            "clock": 3.4,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "1TB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20291",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20291",
+                "slug": "spot-20291",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1231 v3",
+                            "clock": 3.4,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20613",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20613",
+                "slug": "spot-20613",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E5-2620 v3",
+                            "clock": 2.4,
+                            "cores": 6,
+                            "count": 2
+                        }
+                    ],
+                    "memory": {
+                        "total": "64"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "1TB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20728",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20728",
+                "slug": "spot-20728",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E5-2430 v2",
+                            "clock": 2.5,
+                            "cores": 6,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "",
+                            "type": null
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 4,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20682",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20682",
+                "slug": "spot-20682",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1231 v3",
+                            "clock": 3.4,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "8"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20628",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20628",
+                "slug": "spot-20628",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon E-2274G CPU",
+                            "clock": 4.0,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 14,
+                            "name": "Mexico"
+                        },
+                        "sites": [
+                            {
+                                "id": 14,
+                                "name": "Mexico City",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20317",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20317",
+                "slug": "spot-20317",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon E-2274G CPU",
+                            "clock": 4.0,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20277",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20277",
+                "slug": "spot-20277",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1231 v3",
+                            "clock": 3.4,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20281",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20281",
+                "slug": "spot-20281",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1270 v3",
+                            "clock": 3.5,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20276",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20276",
+                "slug": "spot-20276",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1231 v3",
+                            "clock": 3.4,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "2TB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20279",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20279",
+                "slug": "spot-20279",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1241 v3",
+                            "clock": 3.5,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20285",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20285",
+                "slug": "spot-20285",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1241 v3",
+                            "clock": 3.5,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "500GB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20283",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20283",
+                "slug": "spot-20283",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1270 v3",
+                            "clock": 3.5,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "2TB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20290",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20290",
+                "slug": "spot-20290",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1231 v3",
+                            "clock": 3.4,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20287",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20287",
+                "slug": "spot-20287",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1231 v3",
+                            "clock": 3.4,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20289",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20289",
+                "slug": "spot-20289",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1231 v3",
+                            "clock": 3.4,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20274",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20274",
+                "slug": "spot-20274",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1270 V2",
+                            "clock": 3.5,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "1TB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20562",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20562",
+                "slug": "spot-20562",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E5-2603 v3",
+                            "clock": 1.6,
+                            "cores": 6,
+                            "count": 2
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "1TB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 1,
+                            "type": "1Gbit/s"
+                        },
+                        {
+                            "count": 1,
+                            "type": "100Mbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19140",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19140",
+                "slug": "spot-19140",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1220 v3",
+                            "clock": 3.1,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "8"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.17691",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.17691",
+                "slug": "spot-17691",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1240 v6",
+                            "clock": 3.7,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "16"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 2,
+                                "name": "Chicago",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19855",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19855",
+                "slug": "spot-19855",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1240 v6",
+                            "clock": 3.7,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "16"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 2,
+                                "name": "Chicago",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19730",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19730",
+                "slug": "spot-19730",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1240 v6",
+                            "clock": 3.7,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 2,
+                                "name": "Chicago",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.17010",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.17010",
+                "slug": "spot-17010",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon E-2234 CPU",
+                            "clock": 3.6,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "16"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 1,
+                            "type": "10Gbit/s"
+                        },
+                        {
+                            "count": 1,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 5,
+                                "name": "Miami",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.17520",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.17520",
+                "slug": "spot-17520",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1230 v3",
+                            "clock": 3.3,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "HDD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19745",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19745",
+                "slug": "spot-19745",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E5-2630 v4",
+                            "clock": 2.2,
+                            "cores": 10,
+                            "count": 2
+                        }
+                    ],
+                    "memory": {
+                        "total": "128"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 150.0
+                            },
+                            "BRL": {
+                                "month": 1240.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.20533",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.20533",
+                "slug": "spot-20533",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E5-2603 v4",
+                            "clock": 1.7,
+                            "cores": 6,
+                            "count": 2
+                        }
+                    ],
+                    "memory": {
+                        "total": "64"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "1TB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 340.0
+                            },
+                            "BRL": {
+                                "month": 1760.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.18812",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.18812",
+                "slug": "spot-18812",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": false,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1231 v3",
+                            "clock": 3.4,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "16"
+                    },
+                    "drives": [
+                        {
+                            "count": 1,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 1,
+                            "name": "Brazil"
+                        },
+                        "sites": [
+                            {
+                                "id": 1,
+                                "name": "S\u00e3o Paulo",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "spot.19754",
+            "type": "plans",
+            "attributes": {
+                "name": "spot.19754",
+                "slug": "spot-19754",
+                "line": "baremetal",
+                "features": {
+                    "ssh": true,
+                    "raid": true,
+                    "custom_scripts": true
+                },
+                "specs": {
+                    "cpus": [
+                        {
+                            "type": "Intel Xeon CPU E3-1240 v6",
+                            "clock": 3.7,
+                            "cores": 4,
+                            "count": 1
+                        }
+                    ],
+                    "memory": {
+                        "total": "32"
+                    },
+                    "drives": [
+                        {
+                            "count": 2,
+                            "size": "500GB",
+                            "type": "SSD"
+                        }
+                    ],
+                    "nics": [
+                        {
+                            "count": 2,
+                            "type": "1Gbit/s"
+                        }
+                    ]
+                },
+                "available_in": [
+                    {
+                        "region": {
+                            "id": 2,
+                            "name": "United States"
+                        },
+                        "sites": [
+                            {
+                                "id": 5,
+                                "name": "Miami",
+                                "in_stock": true
+                            }
+                        ],
+                        "pricing": {
+                            "USD": {
+                                "month": 97.0
+                            },
+                            "BRL": {
+                                "month": 700.0
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "meta": {}
+}

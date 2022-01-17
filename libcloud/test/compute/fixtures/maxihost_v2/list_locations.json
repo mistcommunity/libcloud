@@ -1,0 +1,243 @@
+{
+    "data": [
+        {
+            "id": "14",
+            "type": "regions",
+            "attributes": {
+                "name": "Mexico City",
+                "slug": "MEX",
+                "facility": "KIO5",
+                "country": {
+                    "name": "Mexico",
+                    "slug": "mexico"
+                },
+                "type": "Core"
+            }
+        },
+        {
+            "id": "1",
+            "type": "regions",
+            "attributes": {
+                "name": "S\u00e3o Paulo",
+                "slug": "MH1",
+                "facility": "Maxihost MH1",
+                "country": {
+                    "name": "Brazil",
+                    "slug": "brazil"
+                },
+                "type": "Core"
+            }
+        },
+        {
+            "id": "16",
+            "type": "regions",
+            "attributes": {
+                "name": "S\u00e3o Paulo Glete",
+                "slug": "SP2",
+                "facility": "Glete",
+                "country": {
+                    "name": "Brazil",
+                    "slug": "brazil"
+                },
+                "type": "Custom"
+            }
+        },
+        {
+            "id": "15",
+            "type": "regions",
+            "attributes": {
+                "name": "London",
+                "slug": "LON",
+                "facility": "LDEX1",
+                "country": {
+                    "name": "United Kingdom",
+                    "slug": "united-kingdom"
+                },
+                "type": "Core"
+            }
+        },
+        {
+            "id": "12",
+            "type": "regions",
+            "attributes": {
+                "name": "Tokyo 2",
+                "slug": "TY6",
+                "facility": "Equinix TY6",
+                "country": {
+                    "name": "Japan",
+                    "slug": "japan"
+                },
+                "type": "Custom"
+            }
+        },
+        {
+            "id": "17",
+            "type": "regions",
+            "attributes": {
+                "name": "Buenos Aires",
+                "slug": "BUE",
+                "facility": "SYT",
+                "country": {
+                    "name": "Argentina",
+                    "slug": "argentina"
+                },
+                "type": "Custom"
+            }
+        },
+        {
+            "id": "2",
+            "type": "regions",
+            "attributes": {
+                "name": "Chicago",
+                "slug": "CH3",
+                "facility": "Equinix CH3",
+                "country": {
+                    "name": "United States",
+                    "slug": "united-states"
+                },
+                "type": "Core"
+            }
+        },
+        {
+            "id": "3",
+            "type": "regions",
+            "attributes": {
+                "name": "Dallas",
+                "slug": "DAL2",
+                "facility": "Cologix",
+                "country": {
+                    "name": "United States",
+                    "slug": "united-states"
+                },
+                "type": "Core"
+            }
+        },
+        {
+            "id": "4",
+            "type": "regions",
+            "attributes": {
+                "name": "Los Angeles",
+                "slug": "LA2",
+                "facility": "CoreSite LA2",
+                "country": {
+                    "name": "United States",
+                    "slug": "united-states"
+                },
+                "type": "Core"
+            }
+        },
+        {
+            "id": "5",
+            "type": "regions",
+            "attributes": {
+                "name": "Miami",
+                "slug": "MI1",
+                "facility": "Equinix MI1",
+                "country": {
+                    "name": "United States",
+                    "slug": "united-states"
+                },
+                "type": "Core"
+            }
+        },
+        {
+            "id": "6",
+            "type": "regions",
+            "attributes": {
+                "name": "New York",
+                "slug": "NY2",
+                "facility": "NYI NY2",
+                "country": {
+                    "name": "United States",
+                    "slug": "united-states"
+                },
+                "type": "Core"
+            }
+        },
+        {
+            "id": "11",
+            "type": "regions",
+            "attributes": {
+                "name": "Santiago",
+                "slug": "SAN",
+                "facility": "GTD",
+                "country": {
+                    "name": "Chile",
+                    "slug": "chile"
+                },
+                "type": "Core"
+            }
+        },
+        {
+            "id": "9",
+            "type": "regions",
+            "attributes": {
+                "name": "Sydney",
+                "slug": "SYD",
+                "facility": "Global Switch SYD",
+                "country": {
+                    "name": "Australia",
+                    "slug": "australia"
+                },
+                "type": "Core"
+            }
+        },
+        {
+            "id": "7",
+            "type": "regions",
+            "attributes": {
+                "name": "S\u00e3o Paulo (SP1)",
+                "slug": "SP1",
+                "facility": "S\u00e3o Paulo SP1",
+                "country": {
+                    "name": "Brazil",
+                    "slug": "brazil"
+                },
+                "type": "Custom"
+            }
+        },
+        {
+            "id": "8",
+            "type": "regions",
+            "attributes": {
+                "name": "S\u00e3o Paulo (SP4)",
+                "slug": "SP4",
+                "facility": "S\u00e3o Paulo SP4",
+                "country": {
+                    "name": "Brazil",
+                    "slug": "brazil"
+                },
+                "type": "Custom"
+            }
+        },
+        {
+            "id": "13",
+            "type": "regions",
+            "attributes": {
+                "name": "Tokyo",
+                "slug": "TY8",
+                "facility": "Equinix TY8",
+                "country": {
+                    "name": "Japan",
+                    "slug": "japan"
+                },
+                "type": "Core"
+            }
+        },
+        {
+            "id": "18",
+            "type": "regions",
+            "attributes": {
+                "name": "Chicago-Deft",
+                "slug": "CH1",
+                "facility": "Deft CH1",
+                "country": {
+                    "name": "United States",
+                    "slug": "united-states"
+                },
+                "type": "Custom"
+            }
+        }
+    ],
+    "meta": {}
+}

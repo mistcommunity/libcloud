@@ -1,0 +1,173 @@
+{
+    "data": [
+        {
+            "id": "7",
+            "type": "operating_system",
+            "attributes": {
+                "name": "CentOS 7.4",
+                "slug": "centos_7_4_x64",
+                "version": "7.4 x64",
+                "user": "centos",
+                "features": {
+                    "raid": true,
+                    "ssh_keys": true
+                }
+            }
+        },
+        {
+            "id": "6",
+            "type": "operating_system",
+            "attributes": {
+                "name": "CentOS 8",
+                "slug": "centos_8_x64",
+                "version": "8 x64",
+                "user": "cloud-user",
+                "features": {
+                    "raid": true,
+                    "ssh_keys": true
+                }
+            }
+        },
+        {
+            "id": "9",
+            "type": "operating_system",
+            "attributes": {
+                "name": "Debian 9",
+                "slug": "debian_9_4_x64",
+                "version": "9.4 x64",
+                "user": "debian",
+                "features": {
+                    "raid": false,
+                    "ssh_keys": true
+                }
+            }
+        },
+        {
+            "id": "10",
+            "type": "operating_system",
+            "attributes": {
+                "name": "ESXi 6.7",
+                "slug": "esxi_6_7",
+                "version": "6.7",
+                "user": "root",
+                "features": {
+                    "raid": false,
+                    "ssh_keys": false
+                }
+            }
+        },
+        {
+            "id": "23",
+            "type": "operating_system",
+            "attributes": {
+                "name": "Flatcar",
+                "slug": "flatcar_stable",
+                "version": "Oklo Stable",
+                "user": "core",
+                "features": {
+                    "raid": false,
+                    "ssh_keys": true
+                }
+            }
+        },
+        {
+            "id": "22",
+            "type": "operating_system",
+            "attributes": {
+                "name": "Red Hat Enterprise Linux 8.4",
+                "slug": "rhel8",
+                "version": "8.4",
+                "user": "cloud-user",
+                "features": {
+                    "raid": true,
+                    "ssh_keys": true
+                }
+            }
+        },
+        {
+            "id": "2",
+            "type": "operating_system",
+            "attributes": {
+                "name": "Ubuntu 18",
+                "slug": "ubuntu_18_04_x64_lts",
+                "version": "18.04 x64 LTS",
+                "user": "ubuntu",
+                "features": {
+                    "raid": true,
+                    "ssh_keys": true
+                }
+            }
+        },
+        {
+            "id": "1",
+            "type": "operating_system",
+            "attributes": {
+                "name": "Ubuntu 20",
+                "slug": "ubuntu_20_04_x64_lts",
+                "version": "20.04 x64 LTS",
+                "user": "ubuntu",
+                "features": {
+                    "raid": true,
+                    "ssh_keys": true
+                }
+            }
+        },
+        {
+            "id": "18",
+            "type": "operating_system",
+            "attributes": {
+                "name": "Windows Server 2016 DC",
+                "slug": "windows_server_2016_dc_v1",
+                "version": "Server 2016 DC",
+                "user": "Admin",
+                "features": {
+                    "raid": false,
+                    "ssh_keys": false
+                }
+            }
+        },
+        {
+            "id": "19",
+            "type": "operating_system",
+            "attributes": {
+                "name": "Windows Server 2016 STD",
+                "slug": "windows_server_2016_std_v1",
+                "version": "Server 2016 STD",
+                "user": "Admin",
+                "features": {
+                    "raid": false,
+                    "ssh_keys": false
+                }
+            }
+        },
+        {
+            "id": "20",
+            "type": "operating_system",
+            "attributes": {
+                "name": "Windows Server 2019 DC",
+                "slug": "windows_server_2019_dc_v1",
+                "version": "Server 2019 DC",
+                "user": "Admin",
+                "features": {
+                    "raid": false,
+                    "ssh_keys": false
+                }
+            }
+        },
+        {
+            "id": "21",
+            "type": "operating_system",
+            "attributes": {
+                "name": "Windows Server 2019 STD",
+                "slug": "windows_server_2019_std_v1",
+                "version": "Server 2019 STD",
+                "user": "Admin",
+                "features": {
+                    "raid": false,
+                    "ssh_keys": false
+                }
+            }
+        }
+    ],
+    "meta": {}
+}

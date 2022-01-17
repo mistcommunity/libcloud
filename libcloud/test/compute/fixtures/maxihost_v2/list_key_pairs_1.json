@@ -1,0 +1,28 @@
+{
+    "data": [
+        {
+            "id": "230",
+            "type": "ssh_keys",
+            "attributes": {
+                "name": "test1234567",
+                "public_key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQChm1vOKzE7FkpJduuu3x98/vErSXEevhC6+Ab3ZS3v2b79NsB5YZOc/15jOs6hqHnWVqB3gLgZSNCO09yjzW6z/UMC/NJbjO4tXPRU30rXYZxTEZOC+Eqd6rXQV3beGszUV1oOXO/1w/zpme8WiI0Qy5MKJYjLRGhzmRZGlJEShyjn4eFaIDWzk2MDwMWKJcGr9vHFVBHjnfC3YFKcIvTitpFjXuqqbr0ZRjNUjT7ckL61lGyQWvyuoN4XzBwhNgv9ZX62178s6HYwC4MQFLfuEdwWa9FFJE9dajljKToDoeesmCmPxgiyZC4H1EnofGUEDujEzMJYyhJsRJe9HUZf",
+                "fingerprint": "c8:77:66:55:d4:ca:ee:62:21:25:e8:2c:7b:0b:6c:a6",
+                "created_at": "2022-01-03T11:47:58+00:00",
+                "updated_at": "2022-01-03T11:47:58+00:00"
+            },
+            "relationships": {
+                "user": {
+                    "meta": {
+                        "included": false
+                    }
+                },
+                "projects": {
+                    "meta": {
+                        "included": false
+                    }
+                }
+            }
+        }
+    ],
+    "meta": {}
+}

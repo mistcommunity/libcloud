@@ -17,7 +17,7 @@ import sys
 import unittest
 from libcloud.utils.py3 import httplib
 
-from libcloud.compute.drivers.maxihost import MaxihostNodeDriver
+from libcloud.compute.drivers.maxihost import MaxihostNodeDriver, MaxihostNodeDriverV1
 from libcloud.compute.base import Node
 
 from libcloud.test import MockHttp
@@ -28,7 +28,10 @@ from libcloud.test.file_fixtures import ComputeFileFixtures
 class MaxihostTest(unittest.TestCase, TestCaseMixin):
     def setUp(self):
         MaxihostNodeDriver.connectionCls.conn_class = MaxihostMockHttp
-        self.driver = MaxihostNodeDriver("foo")
+        self.driver = MaxihostNodeDriver("foo", api_version="1")
+
+    def test_correct_class_is_used(self):
+        self.assertIsInstance(self.driver, MaxihostNodeDriverV1)
 
     def test_list_sizes(self):
         sizes = self.driver.list_sizes()
