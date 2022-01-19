@@ -343,14 +343,18 @@ class GKEContainerDriver(KubernetesContainerDriver):
         cluster.credentials = self.get_cluster_credentials(cluster)
         cluster_driver = self.cluster_driver_map.setdefault(
             cluster.id,
-            self.containerDriverCls(
-                host=cluster.credentials['host'],
-                port=cluster.credentials['port'],
-                key=cluster.credentials['token'],
-                ex_token_bearer_auth=True))
+            self._get_cluster_driver(cluster))
         cluster_nodes = cluster_driver.ex_list_nodes()
         for n in cluster_nodes:
             cluster.total_cpus += int(n.extra['cpu'])
             cluster.total_memory += int(to_memory_str(to_n_bytes(
                 n.extra['memory']), unit='G').strip('G'))
         return cluster
+    
+    def _get_cluster_driver(self, cluster):
+        return self.containerDriverCls(
+            host=cluster.credentials['host'],
+            port=cluster.credentials['port'],
+            key=cluster.credentials['token'],
+            ex_token_bearer_auth=True  
+        )
