@@ -267,7 +267,12 @@ class OpenStackServiceCatalog(object):
                 continue
 
             if name and entry.service_name != name:
-                continue
+                # the service catalog  entry may contain the cinder version
+                # as part of its name attribute
+                if name == 'cinderv3' and entry.service_name == 'cinder':
+                    pass
+                else:
+                    continue
 
             for endpoint in entry.endpoints:
                 if region and endpoint.region != region:
