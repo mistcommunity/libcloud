@@ -319,6 +319,12 @@ class DockerContainerDriver(ContainerDriver):
                 name = image.get('RepoTags')[0]
             except Exception:
                 name = image.get('Id')
+
+            try:
+                aliases = image.get('RepoTags', [])[1:]
+            except (AttributeError, TypeError):
+                aliases = []
+
             images.append(ContainerImage(
                 id=image.get('Id'),
                 name=name,
@@ -329,6 +335,7 @@ class DockerContainerDriver(ContainerDriver):
                     "created": image.get('Created'),
                     "size": image.get('Size'),
                     "virtual_size": image.get('VirtualSize'),
+                    'aliases': aliases,
                 },
             ))
 
