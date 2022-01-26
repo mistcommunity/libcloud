@@ -316,7 +316,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
             total_cpus=0,
             total_memory=0,
             location=data.pop('location'),
-            driver=self.connection.driver,
+            driver=None,
             config={k: data.pop(k)
                     for k in list(data)
                     if k in [
@@ -348,7 +348,10 @@ class GKEContainerDriver(KubernetesContainerDriver):
                 port=cluster.credentials['port'],
                 key=cluster.credentials['token'],
                 ex_token_bearer_auth=True))
+        cluster.driver = cluster_driver
         cluster_nodes = cluster_driver.ex_list_nodes()
+        cluster.extra['node_ids'] = [node.extra['provider_id']
+                                     for node in cluster_nodes]
         for n in cluster_nodes:
             cluster.total_cpus += int(n.extra['cpu'])
             cluster.total_memory += int(to_memory_str(to_n_bytes(
