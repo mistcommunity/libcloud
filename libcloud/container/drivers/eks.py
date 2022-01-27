@@ -21,7 +21,7 @@ try:
 except ImportError:
     import json
 
-from libcloud.container.base import ContainerDriver, ContainerCluster
+from libcloud.container.base import ContainerDriver, ContainerCluster, ClusterState
 from libcloud.container.drivers.kubernetes import KubernetesContainerDriver
 from libcloud.common.aws import SignedAWSConnection, AWSJsonResponse
 from libcloud.common.exceptions import BaseHTTPError
@@ -41,10 +41,12 @@ CLUSTERS_ENDPOINT = ROOT + 'clusters/'
 
 
 class EKSCluster(ContainerCluster):
-    def __init__(self, id, name, location, driver, config, extra,
-                 credentials=None, total_cpus=None, total_memory=None):
+    def __init__(self, id, name, location, driver, config, status,
+                 extra, credentials=None, total_cpus=None, total_memory=None):
+
         super().__init__(id, name, driver, extra)
         self.location = location
+        self.status = status
         self.config = config
         self.credentials = credentials
         self.total_cpus = total_cpus or 0
@@ -64,6 +66,15 @@ class ElasticKubernetesDriver(ContainerDriver):
     connectionCls = EKSJsonConnection
     containerDriverCls = KubernetesContainerDriver
     supports_clusters = True
+
+    CLUSTER_STATES = {
+        'CREATING': ClusterState.STARTING,
+        'ACTIVE': ClusterState.RUNNING,
+        'DELETING': ClusterState.STOPPING,
+        'FAILED': ClusterState.ERROR,
+        'UPDATING': ClusterState.UPDATING,
+        'PENDING': ClusterState.PENDING,
+    }
 
     def __init__(self, access_id, secret, region):
         super().__init__(access_id, secret, host=EKS_HOST % (region))
@@ -202,6 +213,11 @@ class ElasticKubernetesDriver(ContainerDriver):
         id_ = data['arn']
         name = data['name']
         endpoint = data['endpoint']
+        try:
+            status = self.CLUSTER_STATES[data['status']]
+        except KeyError:
+            status = ClusterState.UNKNOWN
+
         config = {
             'resourcesVpcConfig': data.get('resourcesVpcConfig'),
             'kubernetesNetworkConfig': data.get('kubernetesNetworkConfig'),
@@ -216,7 +232,6 @@ class ElasticKubernetesDriver(ContainerDriver):
             'roleArn': data['roleArn'],
             'logging': data['logging'],
             'identity': data['identity'],
-            'status': data['status'],
             'certificateAuthority': data['certificateAuthority'],
             'clientRequestToken': data['clientRequestToken'],
             'platformVersion': data['platformVersion'],
@@ -227,6 +242,7 @@ class ElasticKubernetesDriver(ContainerDriver):
             id=id_,
             name=name,
             location=self.region,
+            status=status,
             driver=None,
             config=config,
             extra=extra

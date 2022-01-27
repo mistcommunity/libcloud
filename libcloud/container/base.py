@@ -20,15 +20,41 @@ from typing import List
 
 from libcloud.common.base import ConnectionUserAndKey, BaseDriver
 from libcloud.container.types import ContainerState
-
+from libcloud.common.types import Type
 
 __all__ = [
     'Container',
     'ContainerImage',
     'ContainerCluster',
     'ClusterLocation',
+    'ClusterState',
     'ContainerDriver'
 ]
+
+
+class ClusterState(Type):
+    """
+    Standard states for a cluster
+
+    :cvar RUNNING: Cluster is running.
+    :cvar STARTING: Cluster is starting up.
+    :cvar STOPPING: Cluster is currently trying to stop.
+    :cvar TERMINATED: Cluster is terminated.
+    :cvar PENDING: Cluster is pending.
+    :cvar UNKNOWN: Cluster state is unknown.
+    :cvar ERROR: Cluster is an error state.
+    :cvar RECONFIGURING: Cluster is being reconfigured.
+    :cvar UPDATING: Cluster is being updated.
+    """
+    RUNNING = 'running'
+    STARTING = 'starting'
+    STOPPING = 'stopping'
+    TERMINATED = 'terminated'
+    PENDING = 'pending'
+    UNKNOWN = 'unknown'
+    ERROR = 'error'
+    RECONFIGURING = 'reconfiguring'
+    UPDATING = 'updating'
 
 
 class Container(object):

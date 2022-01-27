@@ -14,7 +14,7 @@
 # limitations under the License.
 
 from libcloud.common.google import GoogleOAuth2Credential
-from libcloud.container.base import ContainerCluster
+from libcloud.container.base import ContainerCluster, ClusterState
 from libcloud.container.providers import Provider
 from libcloud.container.drivers.kubernetes import KubernetesContainerDriver
 from libcloud.common.google import GoogleResponse
@@ -27,11 +27,13 @@ API_VERSION = 'v1'
 
 
 class GKECluster(ContainerCluster):
-    def __init__(self, id, name, node_count, location, driver, config, extra,
-                 credentials=None, total_cpus=None, total_memory=None):
+    def __init__(self, id, name, node_count, location, driver, config, status,
+                 extra, credentials=None, total_cpus=None, total_memory=None):
+
         super().__init__(id, name, driver, extra)
         self.node_count = node_count
         self.location = location
+        self.status = status
         self.config = config
         self.credentials = credentials
         self.total_cpus = total_cpus
@@ -116,6 +118,16 @@ class GKEContainerDriver(KubernetesContainerDriver):
     supports_clusters = True
 
     AUTH_URL = "https://container.googleapis.com/auth/"
+
+    CLUSTER_STATES = {
+        'STATUS_UNSPECIFIED': ClusterState.UNKNOWN,
+        'PROVISIONING': ClusterState.PENDING,
+        'RUNNING': ClusterState.RUNNING,
+        'RECONCILING': ClusterState.UPDATING,
+        'STOPPING': ClusterState.STOPPING,
+        'ERROR': ClusterState.ERROR,
+        'DEGRADED': ClusterState.ERROR,
+    }
 
     def __init__(self, user_id, key=None, datacenter=None, project=None,
                  auth_type=None, scopes=None, redirect_uri=None,
@@ -309,12 +321,18 @@ class GKEContainerDriver(KubernetesContainerDriver):
         return [self._to_cluster(c) for c in data.get('clusters', [])]
 
     def _to_cluster(self, data):
+        try:
+            status = self.CLUSTER_STATES[data.pop('status')]
+        except KeyError:
+            status = ClusterState.UNKNOWN
+
         cluster = GKECluster(
             id=data.pop('id'),
             name=data.pop('name'),
             node_count=data.pop('currentNodeCount'),
             total_cpus=0,
             total_memory=0,
+            status=status,
             location=data.pop('location'),
             driver=None,
             config={k: data.pop(k)
