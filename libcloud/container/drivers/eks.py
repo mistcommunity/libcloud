@@ -259,8 +259,12 @@ class ElasticKubernetesDriver(ContainerDriver):
         cluster.driver = cluster_driver
 
         cluster_nodes = cluster_driver.ex_list_nodes()
-        cluster.extra['node_ids'] = [node.extra['provider_id']
-                                     for node in cluster_nodes]
+        cluster.extra['nodes'] = [{
+            'id': node.id,
+            'name': node.name,
+            'provider_id': node.extra['provider_id'],
+        }
+            for node in cluster_nodes]
         for n in cluster_nodes:
             cluster.total_cpus += int(n.extra['cpu'])
             cluster.total_memory += int(to_memory_str(to_n_bytes(
