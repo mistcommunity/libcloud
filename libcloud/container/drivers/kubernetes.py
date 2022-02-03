@@ -58,6 +58,22 @@ def sum_resources(self, *resource_dicts):
     }
 
 
+class KubernetesDeployment:
+    def __init__(self, id, name, namespace, created_at,
+                 replicas, selector, extra=None):
+        self.id = id
+        self.name = name
+        self.namespace = namespace
+        self.created_at = created_at
+        self.replicas = replicas
+        self.selector = selector
+        self.extra = extra or {}
+
+    def __repr__(self):
+        return ('<KubernetesDeployment name=%s namespace=%s replicas=%s>' %
+                (self.name, self.namespace, self.replicas))
+
+
 class KubernetesPod(object):
     def __init__(self, id, name, containers, namespace, state, ip_addresses,
                  created_at, node_name, extra):
@@ -259,7 +275,7 @@ class KubernetesContainerDriver(KubernetesDriverMixin, ContainerDriver):
         return self.ex_destroy_pod(container.extra['namespace'],
                                    container.extra['pod'])
 
-    def ex_list_pods(self):
+    def ex_list_pods(self, fetch_metrics=False):
         """
         List available Pods
 
@@ -268,7 +284,18 @@ class KubernetesContainerDriver(KubernetesDriverMixin, ContainerDriver):
         result = self.connection.request(
             ROOT_URL + "v1/pods",
             enforce_unicode_response=True).object
-        return [self._to_pod(value) for value in result['items']]
+        metrics = None
+        if fetch_metrics:
+            try:
+                metrics = {
+                    (metric['metadata']['name'],
+                     metric['metadata']['namespace']): metric['containers']
+                    for metric in self.ex_list_pods_metrics()
+                }
+            except Exception:
+                pass
+
+        return [self._to_pod(value, metrics=metrics) for value in result['items']]
 
     def ex_destroy_pod(self, namespace, pod_name):
         """
@@ -319,6 +346,37 @@ class KubernetesContainerDriver(KubernetesDriverMixin, ContainerDriver):
             ROOT_URL + "v1/services",
             enforce_unicode_response=True).object['items']
 
+    def ex_list_deployments(self):
+        items = self.connection.request(
+            "/apis/apps/v1/deployments",
+            enforce_unicode_response=True).object['items']
+        return [self._to_deployment(item) for item in items]
+
+    def _to_deployment(self, data):
+        id_ = data['metadata']['uid']
+        name = data['metadata']['name']
+        namespace = data['metadata']['namespace']
+        created_at = data['metadata']['creationTimestamp']
+        replicas = data['spec']['replicas']
+        selector = data['spec']['selector']
+
+        extra = {
+            'labels': data['metadata']['labels'],
+            'strategy': data['spec']['strategy']['type'],
+            'total_replicas': data['status']['replicas'],
+            'updated_replicas': data['status']['updatedReplicas'],
+            'ready_replicas': data['status']['readyReplicas'],
+            'available_replicas': data['status']['availableReplicas'],
+            'conditions': data['status']['conditions'],
+        }
+        return KubernetesDeployment(id=id_,
+                                    name=name,
+                                    namespace=namespace,
+                                    created_at=created_at,
+                                    replicas=replicas,
+                                    selector=selector,
+                                    extra=extra)
+
     def _to_node(self, data):
         """
         Convert an API node data object to a `Node` object
@@ -364,13 +422,24 @@ class KubernetesContainerDriver(KubernetesDriverMixin, ContainerDriver):
                     extra=extra,
                     created_at=created_at)
 
-    def _to_pod(self, data):
+    def _to_pod(self, data, metrics=None):
         """
         Convert an API response to a Pod object
         """
+        id_ = data['metadata']['uid']
+        name = data['metadata']['name']
+        namespace = data['metadata']['namespace']
+        state = data['status']['phase'].lower()
+        node_name = data['spec'].get('nodeName')
         container_statuses = data['status'].get('containerStatuses', {})
         containers = []
         extra = {'resources': {}}
+        if metrics:
+            try:
+                extra['metrics'] = metrics[name, namespace]
+            except KeyError:
+                pass
+
         # response contains the status of the containers in a separate field
         for container in data['spec']['containers']:
             if container_statuses:
@@ -396,15 +465,16 @@ class KubernetesContainerDriver(KubernetesDriverMixin, ContainerDriver):
         created_at = datetime.datetime.strptime(
             data['metadata']['creationTimestamp'],
             '%Y-%m-%dT%H:%M:%SZ')
+
         return KubernetesPod(
-            id=data['metadata']['uid'],
-            name=data['metadata']['name'],
-            namespace=data['metadata']['namespace'],
-            state=data['status']['phase'].lower(),
+            id=id_,
+            name=name,
+            namespace=namespace,
+            state=state,
             ip_addresses=ip_addresses,
             containers=containers,
             created_at=created_at,
-            node_name=data['spec'].get('nodeName'),
+            node_name=node_name,
             extra=extra)
 
     def _to_container(self, data, container_status, pod_data):

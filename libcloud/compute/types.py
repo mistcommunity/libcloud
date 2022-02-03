@@ -283,6 +283,8 @@ class NodeState(Type):
     NORMAL = 'normal'
     UPDATING = 'updating'
     OFF = 'off'
+    SUCCEEDED = 'succeeded'
+    FAILED = 'failed'
 
 
 class StorageVolumeState(Type):
