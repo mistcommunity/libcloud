@@ -15,6 +15,7 @@
 
 import re
 import base64
+from typing import List, Optional, Union
 
 try:
     import simplejson as json
@@ -111,8 +112,17 @@ class ElasticKubernetesDriver(ContainerDriver):
             endpoint).object
         return self._to_cluster(data['cluster'])
 
-    def create_cluster(self, name, role_arn, vpc_id, subnet_ids,
-                       security_group_ids):
+    def create_cluster(self,
+                       name: str,
+                       role_arn: str,
+                       vpc_id: str,
+                       subnet_ids: List[str],
+                       security_group_ids: List[str],
+                       version: str = '1.21',
+                       endpoint_public_access: bool = True,
+                       endpoint_private_access: bool = False,
+                       ip_family: str = 'ipv4',
+                       ):
         """
         Create a cluster
 
@@ -137,16 +147,35 @@ class ElasticKubernetesDriver(ContainerDriver):
                                    control plane
         :type security_group_ids: ``list`` of ``str``
 
+        :keyword version: The desired Kubernetes version for the cluster.
+        :type version: ``str``
+
+        :keyword endpoint_public_access: Whether the Amazon EKS public API server
+                                         endpoint will be enabled.
+        :type endpoint_public_access: ``bool``
+
+        :keyword endpoint_private_access: Whether the Amazon EKS private API server
+                                          endpoint will be enabled.
+        :type endpoint_private_access: ``bool``
+
+        :keyword ip_family: The IP family used to assign Kubernetes pod and service
+                            IP addresses (ipv4 | ipv6).
+        :type ip_family: ``str``
+
         :rtype: :class:`EKSCluster`
         """
         request = {
             'name': name,
+            'version': version,
             'roleArn': role_arn,
             'resourcesVpcConfig': {
                 'vpcId': vpc_id,
                 'subnetIds': subnet_ids,
                 'securityGroudIds': security_group_ids,
-            }
+                'endpointPublicAccess': endpoint_public_access,
+                'endpointPrivateAccess': endpoint_private_access,
+            },
+            'kubernetesNetworkConfig': {'ipFamily': ip_family},
         }
         response = self.connection.request(
             CLUSTERS_ENDPOINT,
@@ -188,6 +217,94 @@ class ElasticKubernetesDriver(ContainerDriver):
         token = self._get_cluster_token(cluster.name)
         credentials = dict(host=host, port=port, token=token)
         return credentials
+
+    def ex_create_cluster_node_group(self,
+                                     cluster: Union[EKSCluster, str],
+                                     name: str,
+                                     role_arn: str,
+                                     subnet_ids: List[str],
+                                     capacity_type: str = 'ON_DEMAND',
+                                     node_group_disk_size: int = 20,
+                                     instance_types: Optional[List[str]] = None,
+                                     ami_type: str = 'AL2_x86_64',
+                                     desired_nodes: int = 2,
+                                     max_nodes: int = 2,
+                                     min_nodes: int = 2,
+                                     max_unavailable_nodes: int = 1,
+                                     ):
+        """Create a managed node group for a cluster.
+
+        :param  cluster: The cluster to create the node group for.
+        :type   cluster: :class: `EKSCluster` or ``str``
+
+        :param  name: The name to give to the node group.
+        :type   name: ``str``
+
+        :param  role_arn: The ARN of the IAM role to associate with the node group.
+        :type   role_arn: ``str``
+
+        :param  subnet_ids: The subnets to use for the auto scaling group
+                            that is created for the node group.
+        :type   subnet_ids: ``list`` of ``str``
+
+        :keyword capacity_type: The capacity type of the managed node group (ON_DEMAND | SPOT).
+        :type    capacity_type: ``str``
+
+        :keyword node_group_disk_size: The disk size for the node group.
+        :type    node_group_disk_size: ``int``
+
+        :keyword instance_types: the instance type that is associated with the node group.
+        :type    instance_types: ``list`` of ``str``
+
+        :keyword ami_type: The AMI type for your node group.
+        :type    ami_type: ``str``
+
+        :keyword desired_nodes: The current number of nodes that the managed node group
+                                should maintain.
+        :type    desired_nodes: ``int``
+
+        :keyword max_nodes: The maximum number of nodes that the managed node group
+                            can scale out to.
+        :type    max_nodes: ``int``
+
+        :keyword min_nodes: The disk size for the node group.
+        :type    min_nodes: ``int``
+
+        :keyword max_unavailable_nodes: The maximum number of nodes unavailable at once.
+        :type    max_unavailable_nodes: ``int``
+
+        """
+        try:
+            cluster_name = cluster.name
+        except AttributeError:
+            cluster_name = cluster
+
+        data = {
+            'amiType': ami_type,
+            'capacityType': capacity_type,
+            'diskSize': node_group_disk_size,
+            'nodegroupName': name,
+            'nodeRole': role_arn,
+            'subnets': subnet_ids,
+            'scalingConfig': {
+                'desiredSize': desired_nodes,
+                'maxSize': max_nodes,
+                'minSize': min_nodes,
+            },
+            'updateConfig': {
+                'maxUnavailable': max_unavailable_nodes,
+            },
+        }
+
+        if instance_types:
+            data['instanceTypes'] = list(instance_types)
+
+        response = self.connection.request(
+            f'{CLUSTERS_ENDPOINT}{cluster_name}/node-groups',
+            method='POST',
+            data=json.dumps(data)).object
+
+        return response
 
     def _get_cluster_token(self, cluster_name):
         host = STS_HOST % (self.region)
