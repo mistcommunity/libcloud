@@ -15,7 +15,7 @@
 
 import re
 import base64
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Any, Dict
 
 try:
     import simplejson as json
@@ -52,6 +52,24 @@ class EKSCluster(ContainerCluster):
         self.credentials = credentials
         self.total_cpus = total_cpus or 0
         self.total_memory = total_memory or 0
+
+
+class EKSNodeGroup:
+    def __init__(self,
+                 id_: str,
+                 name: str,
+                 state: str,
+                 cluster_name: str,
+                 extra: Optional[Dict[str, Any]] = None):
+        self.id = id_
+        self.name = name
+        self.state = state
+        self.cluster_name = cluster_name
+        self.extra = extra or {}
+
+    def __repr__(self):
+        return (('<EKSNodeGroup: id=%s, name=%s, state=%s, cluster=%s ...>')
+                % (self.id, self.name, self.state, self.cluster_name))
 
 
 class EKSJsonConnection(SignedAWSConnection):
@@ -182,7 +200,7 @@ class ElasticKubernetesDriver(ContainerDriver):
             method='POST',
             data=json.dumps(request)
         ).object
-        return self._to_cluster(response['cluster'])
+        return self._to_cluster(response['cluster'], fetch_nodes=False)
 
     def destroy_cluster(self, name):
         """
@@ -306,6 +324,38 @@ class ElasticKubernetesDriver(ContainerDriver):
 
         return response
 
+    def _to_nodegroup(self, data):
+        id_ = data['nodegroupArn']
+        name = data['nodegroupName']
+        state = data['status']
+        cluster_name = data['clusterName']
+        extra = {
+            'version': data['version'],
+            'release_version': data['releaseVersion'],
+            'created_at': data['createdAt'],
+            'modified_at': data['modified_at'],
+            'capacity_type': data['capacityType'],
+            'scaling_config': data['scalingConfig'],
+            'instance_types': data['instanceTypes'],
+            'subnets': data['subnets'],
+            'remote_access': data['remoteAccess'],
+            'ami_type': data['amiType'],
+            'node_role': data['nodeRole'],
+            'labels': data['labels'],
+            'taints': data['taints'],
+            'resources': data['resources'],
+            'disk_size': data['diskSize'],
+            'health': data['health'],
+            'update_config': data['updateConfig'],
+            'launch_template': data['launchTemplate'],
+            'tags': data['tags'],
+        }
+        return EKSNodeGroup(id_=id_,
+                            name=name,
+                            state=state,
+                            cluster_name=cluster_name,
+                            extra=extra)
+
     def _get_cluster_token(self, cluster_name):
         host = STS_HOST % (self.region)
         url = 'https://{host}'.format(host=host) + \
@@ -326,7 +376,7 @@ class ElasticKubernetesDriver(ContainerDriver):
             signed_url.encode('utf-8')).decode('utf-8')
         return 'k8s-aws-v1.' + re.sub(r'=*', '', base64_url)
 
-    def _to_cluster(self, data):
+    def _to_cluster(self, data, fetch_nodes=True):
         id_ = data['arn']
         name = data['name']
         endpoint = data['endpoint']
@@ -365,25 +415,21 @@ class ElasticKubernetesDriver(ContainerDriver):
             extra=extra
         )
         cluster.credentials = self.get_cluster_credentials(cluster)
-        cluster_driver = self.cluster_driver_map.setdefault(
-            cluster.id,
-            self.containerDriverCls(
-                host=cluster.credentials['host'],
-                port=cluster.credentials['port'],
-                key=cluster.credentials['token'],
-                ex_token_bearer_auth=True))
+        cluster.driver = self.containerDriverCls(host=cluster.credentials['host'],
+                                                 port=cluster.credentials['port'],
+                                                 key=cluster.credentials['token'],
+                                                 ex_token_bearer_auth=True)
 
-        cluster.driver = cluster_driver
-
-        cluster_nodes = cluster_driver.ex_list_nodes()
-        cluster.extra['nodes'] = [{
-            'id': node.id,
-            'name': node.name,
-            'provider_id': node.extra['provider_id'],
-        }
-            for node in cluster_nodes]
-        for n in cluster_nodes:
-            cluster.total_cpus += int(n.extra['cpu'])
-            cluster.total_memory += int(to_memory_str(to_n_bytes(
-                n.extra['memory']), unit='G').strip('G'))
+        if fetch_nodes:
+            cluster_nodes = cluster.driver.ex_list_nodes()
+            cluster.extra['nodes'] = [{
+                'id': node.id,
+                'name': node.name,
+                'provider_id': node.extra['provider_id'],
+            }
+                for node in cluster_nodes]
+            for n in cluster_nodes:
+                cluster.total_cpus += int(n.extra['cpu'])
+                cluster.total_memory += int(to_memory_str(to_n_bytes(
+                    n.extra['memory']), unit='G').strip('G'))
         return cluster
