@@ -209,16 +209,15 @@ class ElasticKubernetesDriver(ContainerDriver):
         :param  name: The name of the cluster
         :type   name: ``str``
 
-        :return: ``True`` if the destroy was successful, otherwise ``False``
+        :return: ``True`` if the destroy was successful
         :rtype: ``bool``
         """
         endpoint = '{endpoint}{name}'.format(
             endpoint=CLUSTERS_ENDPOINT, name=name)
-        try:
-            data = self.connection.request(endpoint, method='DELETE').object
-        except BaseHTTPError:
-            return False
-        return data['cluster']['status'] == 'DELETING'
+
+        response = self.connection.request(endpoint, method='DELETE')
+
+        return response.success()
 
     def get_cluster_credentials(self, cluster):
         """
