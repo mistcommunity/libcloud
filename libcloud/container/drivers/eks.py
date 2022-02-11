@@ -99,7 +99,6 @@ class ElasticKubernetesDriver(ContainerDriver):
         super().__init__(access_id, secret, host=EKS_HOST % (region))
         self.region = region
         self.region_name = region
-        self.cluster_driver_map = {}  # cluster id -> k8s driver
 
     def _ex_connection_class_kwargs(self):
         return {'signature_version': '4'}
@@ -115,7 +114,7 @@ class ElasticKubernetesDriver(ContainerDriver):
         clusters = [self.get_cluster(name) for name in names]
         return clusters
 
-    def get_cluster(self, name):
+    def get_cluster(self, name, fetch_nodes=True):
         """
         Get a cluster description
 
@@ -128,7 +127,7 @@ class ElasticKubernetesDriver(ContainerDriver):
             endpoint=CLUSTERS_ENDPOINT, name=name)
         data = self.connection.request(
             endpoint).object
-        return self._to_cluster(data['cluster'])
+        return self._to_cluster(data['cluster'], fetch_nodes=fetch_nodes)
 
     def create_cluster(self,
                        name: str,
@@ -321,7 +320,7 @@ class ElasticKubernetesDriver(ContainerDriver):
             method='POST',
             data=json.dumps(data)).object
 
-        return response
+        return self._to_nodegroup(response['nodegroup'])
 
     def _to_nodegroup(self, data):
         id_ = data['nodegroupArn']
