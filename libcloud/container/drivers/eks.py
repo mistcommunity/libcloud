@@ -419,15 +419,21 @@ class ElasticKubernetesDriver(ContainerDriver):
                                                  ex_token_bearer_auth=True)
 
         if fetch_nodes:
-            cluster_nodes = cluster.driver.ex_list_nodes()
-            cluster.extra['nodes'] = [{
-                'id': node.id,
-                'name': node.name,
-                'provider_id': node.extra['provider_id'],
-            }
-                for node in cluster_nodes]
-            for n in cluster_nodes:
-                cluster.total_cpus += int(n.extra['cpu'])
-                cluster.total_memory += int(to_memory_str(to_n_bytes(
-                    n.extra['memory']), unit='G').strip('G'))
+            try:
+                cluster_nodes = cluster.driver.ex_list_nodes()
+            except Exception:
+                cluster.extra['nodes'] = []
+                cluster.total_cpus = 0
+                cluster.total_memory = 0
+            else:
+                cluster.extra['nodes'] = [{
+                    'id': node.id,
+                    'name': node.name,
+                    'provider_id': node.extra['provider_id'],
+                }
+                    for node in cluster_nodes]
+                for n in cluster_nodes:
+                    cluster.total_cpus += int(n.extra['cpu'])
+                    cluster.total_memory += int(to_memory_str(to_n_bytes(
+                        n.extra['memory']), unit='G').strip('G'))
         return cluster
