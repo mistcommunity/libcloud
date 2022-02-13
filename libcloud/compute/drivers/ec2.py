@@ -1331,6 +1331,7 @@ class EC2PlacementGroup(object):
 
     Note: This class is EC2 specific.
     """
+
     def __init__(self, name, state, strategy='cluster', extra=None):
         self.name = name
         self.strategy = strategy
@@ -2947,9 +2948,10 @@ class BaseEC2NodeDriver(NodeDriver):
                             namespace=NAMESPACE)
             id = findtext(element=group, xpath='groupId',
                           namespace=NAMESPACE)
-            group = {'name': name, 'id': id}
+            vpc_id = findtext(element=group, xpath='vpcId',
+                              namespace=NAMESPACE)
+            group = {'name': name, 'id': id, 'vpc_id': vpc_id}
             groups.append(group)
-
         return groups
 
     def ex_get_security_groups(self, group_ids=None,
