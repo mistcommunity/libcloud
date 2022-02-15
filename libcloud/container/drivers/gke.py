@@ -187,7 +187,6 @@ class GKEContainerDriver(KubernetesContainerDriver):
 
         self.base_path = '/%s/projects/%s' % (API_VERSION, self.project)
         self.website = GKEContainerDriver.website
-        self.cluster_driver_map = {}  # cluster id -> k8s driver
 
     def _ex_connection_class_kwargs(self):
         return {'auth_type': self.auth_type,
@@ -260,7 +259,8 @@ class GKEContainerDriver(KubernetesContainerDriver):
         :keyword  preemptible:  Whether the nodes are created as preemptible VM instances
         :type     preemptible:  ``bool``
 
-        :rtype: :class:`GKECluster`
+        :return:  A GKE operation dictionary
+        :rtype: ``dict``
         """
         request = "/zones/%s/clusters" % (zone)
         body = {
@@ -271,26 +271,22 @@ class GKEContainerDriver(KubernetesContainerDriver):
                         "name": "default-pool",
                         "initialNodeCount": initial_node_count,
                         "config": {
-                            {
                                 "machineType": size,
                                 "diskSizeGb": disk_size,
                                 "preemptible": preemptible,
                                 "diskType": disk_type,
-                            }
                         }
                     },
                 ]
             }
         }
-        try:
-            self.connection.request(
-                request,
-                method='POST',
-                data=body
-            ).object
-        except GoogleBaseError:
-            return False
-        return True
+
+        response = self.connection.request(request,
+                                           method='POST',
+                                           data=body
+                                           ).object
+
+        return response
 
     def ex_destroy_cluster(self, zone, name):
         """
@@ -385,20 +381,29 @@ class GKEContainerDriver(KubernetesContainerDriver):
             ]},
             extra=data,
         )
-        cluster.credentials = self.get_cluster_credentials(cluster)
-        cluster_driver = self.cluster_driver_map.setdefault(
-            cluster.id,
-            self.containerDriverCls(
+        try:
+            cluster.credentials = self.get_cluster_credentials(cluster)
+        except Exception:
+            ...
+        else:
+            cluster.driver = self.containerDriverCls(
                 host=cluster.credentials['host'],
                 port=cluster.credentials['port'],
                 key=cluster.credentials['token'],
-                ex_token_bearer_auth=True))
-        cluster.driver = cluster_driver
-        cluster_nodes = cluster_driver.ex_list_nodes()
-        cluster.extra['node_ids'] = [node.extra['provider_id']
-                                     for node in cluster_nodes]
-        for n in cluster_nodes:
-            cluster.total_cpus += int(n.extra['cpu'])
-            cluster.total_memory += int(to_memory_str(to_n_bytes(
-                n.extra['memory']), unit='G').strip('G'))
+                ex_token_bearer_auth=True)
+
+        if cluster.driver:
+            try:
+                cluster_nodes = cluster.driver.ex_list_nodes()
+            except Exception:
+                cluster.extra['nodes'] = []
+                cluster.total_cpus = 0
+                cluster.total_memory = 0
+            else:
+                cluster.extra['node_ids'] = [node.extra['provider_id']
+                                             for node in cluster_nodes]
+                for n in cluster_nodes:
+                    cluster.total_cpus += int(n.extra['cpu'])
+                    cluster.total_memory += int(to_memory_str(to_n_bytes(
+                        n.extra['memory']), unit='G').strip('G'))
         return cluster
