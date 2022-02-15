@@ -227,19 +227,38 @@ class GKEContainerDriver(KubernetesContainerDriver):
         data = self.connection.request(request, method='GET').object
         return self._to_cluster(data)
 
-    def ex_create_cluster(self, zone, name, initial_node_count=1):
+    def create_cluster(self,
+                       zone: str,
+                       name: str,
+                       initial_node_count: int = 3,
+                       size: str = 'e2-medium',
+                       disk_size: int = 100,
+                       disk_type: str = 'pd-standard',
+                       preemptible: bool = False,
+                       ):
         """
         Create cluster in the given zone
 
         :keyword  zone:  Zone name
-        :type     zone:  ``str`` or :class:`GCEZone` or
-                            :class:`NodeLocation`
+        :type     zone:  ``str``
 
         :keyword  name:  Cluster name
         :type     name:  ``str``
 
         :keyword  initial_node_count:  The number of nodes to create
         :type     initial_node_count:  ``int``
+
+        :keyword  size:  The name of a Google Compute Engine machine type
+        :type     size:  ``str``
+
+        :keyword  disk_size:  Size of the disk attached to each node, specified in GB
+        :type     disk_size:  ``int``
+
+        :keyword  disk_type:  Type of the disk attached to each node
+        :type     disk_type:  ``str``
+
+        :keyword  preemptible:  Whether the nodes are created as preemptible VM instances
+        :type     preemptible:  ``bool``
 
         :rtype: :class:`GKECluster`
         """
@@ -250,8 +269,16 @@ class GKEContainerDriver(KubernetesContainerDriver):
                 "nodePools": [
                     {
                         "name": "default-pool",
-                        "initialNodeCount": initial_node_count
-                    }
+                        "initialNodeCount": initial_node_count,
+                        "config": {
+                            {
+                                "machineType": size,
+                                "diskSizeGb": disk_size,
+                                "preemptible": preemptible,
+                                "diskType": disk_type,
+                            }
+                        }
+                    },
                 ]
             }
         }
