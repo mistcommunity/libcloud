@@ -288,7 +288,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
 
         return response
 
-    def ex_destroy_cluster(self, zone, name):
+    def destroy_cluster(self, zone, name):
         """
         Destroy cluster in the given zone
 
