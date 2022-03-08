@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import List, Dict
+
 from libcloud.common.google import GoogleOAuth2Credential
 from libcloud.container.base import ContainerCluster, ClusterState
 from libcloud.container.providers import Provider
@@ -226,14 +228,31 @@ class GKEContainerDriver(KubernetesContainerDriver):
         data = self.connection.request(request, method='GET').object
         return self._to_cluster(data)
 
+    def _build_nodepools_list(self, nodepools, cluster_name):
+        """Helper method to convert a list of Nodepool dictionaries
+        to the format expected by the GKE API.
+        """
+        gke_nodepools = []
+        for index, nodepool in enumerate(nodepools):
+            disk_size = nodepool.get('disk_size', 100)
+            disk_type = nodepool.get('disk_type', 'pd-standard')
+            preemptible = nodepool.get('preemptible', False)
+            gke_nodepools.append({
+                "name": f"{cluster_name}-pool-{index}",
+                "initialNodeCount": nodepool["node_count"],
+                "config": {
+                        "machineType": nodepool["size"],
+                        "diskSizeGb": disk_size,
+                        "preemptible": preemptible,
+                        "diskType": disk_type,
+                }
+            })
+        return gke_nodepools
+
     def create_cluster(self,
                        zone: str,
                        name: str,
-                       initial_node_count: int = 3,
-                       size: str = 'e2-medium',
-                       disk_size: int = 100,
-                       disk_type: str = 'pd-standard',
-                       preemptible: bool = False,
+                       nodepools: List[Dict],
                        ):
         """
         Create cluster in the given zone
@@ -244,20 +263,17 @@ class GKEContainerDriver(KubernetesContainerDriver):
         :keyword  name:  Cluster name
         :type     name:  ``str``
 
-        :keyword  initial_node_count:  The number of nodes to create
-        :type     initial_node_count:  ``int``
-
-        :keyword  size:  The name of a Google Compute Engine machine type
-        :type     size:  ``str``
-
-        :keyword  disk_size:  Size of the disk attached to each node, specified in GB
-        :type     disk_size:  ``int``
-
-        :keyword  disk_type:  Type of the disk attached to each node
-        :type     disk_type:  ``str``
-
-        :keyword  preemptible:  Whether the nodes are created as preemptible VM instances
-        :type     preemptible:  ``bool``
+        :keyword  nodepools:  The cluster's node pools.
+                              The format is a list of dictionaries with the 
+                              following structure:
+                              [{
+                                  node_count: int, The number of nodes
+                                  size: str, The name of a GCE machine type
+                                  disk_size: int, (optional)Size of the disk attached to nodes
+                                  disk_type: str, (optional)Type of the disk attached to nodes
+                                  preemptible: bool, (optional)preemptible VM instances
+                              }]
+        :type     nodepools:  ``list`` of ``dict``
 
         :return:  A GKE operation dictionary
         :rtype: ``dict``
@@ -266,18 +282,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
         body = {
             "cluster": {
                 "name": name,
-                "nodePools": [
-                    {
-                        "name": "default-pool",
-                        "initialNodeCount": initial_node_count,
-                        "config": {
-                                "machineType": size,
-                                "diskSizeGb": disk_size,
-                                "preemptible": preemptible,
-                                "diskType": disk_type,
-                        }
-                    },
-                ]
+                "nodePools": self._build_nodepools_list(nodepools, name)
             }
         }
 
