@@ -25,12 +25,24 @@ from libcloud.common.google import GoogleBaseError
 from libcloud.utils.misc import to_memory_str
 from libcloud.utils.misc import to_n_bytes
 
-API_VERSION = 'v1'
+API_VERSION = "v1"
 
 
 class GKECluster(ContainerCluster):
-    def __init__(self, id, name, node_count, location, driver, config, status,
-                 extra, credentials=None, total_cpus=None, total_memory=None):
+    def __init__(
+        self,
+        id,
+        name,
+        node_count,
+        location,
+        driver,
+        config,
+        status,
+        extra,
+        credentials=None,
+        total_cpus=None,
+        total_memory=None,
+    ):
 
         super().__init__(id, name, driver, extra)
         self.node_count = node_count
@@ -56,15 +68,29 @@ class GKEConnection(GoogleBaseConnection):
       3. Add request_aggregated_items method for making aggregated API calls.
 
     """
-    host = 'container.googleapis.com'
+
+    host = "container.googleapis.com"
     responseCls = GKEResponse
 
-    def __init__(self, user_id, key, secure, auth_type=None,
-                 credential_file=None, project=None, **kwargs):
+    def __init__(
+        self,
+        user_id,
+        key,
+        secure,
+        auth_type=None,
+        credential_file=None,
+        project=None,
+        **kwargs,
+    ):
         super(GKEConnection, self).__init__(
-            user_id, key, secure=secure, auth_type=auth_type,
-            credential_file=credential_file, **kwargs)
-        self.request_path = '/%s/projects/%s' % (API_VERSION, project)
+            user_id,
+            key,
+            secure=secure,
+            auth_type=auth_type,
+            credential_file=credential_file,
+            **kwargs,
+        )
+        self.request_path = "/%s/projects/%s" % (API_VERSION, project)
         self.gke_params = None
 
     def pre_connect_hook(self, params, headers):
@@ -73,8 +99,7 @@ class GKEConnection(GoogleBaseConnection):
 
         @inherits: :class:`GoogleBaseConnection.pre_connect_hook`
         """
-        params, headers = super(GKEConnection, self).pre_connect_hook(params,
-                                                                      headers)
+        params, headers = super(GKEConnection, self).pre_connect_hook(params, headers)
         if self.gke_params:
             params.update(self.gke_params)
         return params, headers
@@ -90,10 +115,10 @@ class GKEConnection(GoogleBaseConnection):
         # If gce_params has been set, then update the pageToken with the
         # nextPageToken so it can be used in the next request.
         if self.gke_params:
-            if 'nextPageToken' in response.object:
-                self.gke_params['pageToken'] = response.object['nextPageToken']
-            elif 'pageToken' in self.gke_params:
-                del self.gke_params['pageToken']
+            if "nextPageToken" in response.object:
+                self.gke_params["pageToken"] = response.object["nextPageToken"]
+            elif "pageToken" in self.gke_params:
+                del self.gke_params["pageToken"]
             self.gke_params = None
 
         return response
@@ -111,29 +136,41 @@ class GKEContainerDriver(KubernetesContainerDriver):
     objects/strings).  In most cases, passing strings instead of objects
     will result in additional GKE API calls.
     """
+
     connectionCls = GKEConnection
     containerDriverCls = KubernetesContainerDriver
-    api_name = 'google'
+    api_name = "google"
     name = "Google Container Engine"
     type = Provider.GKE
-    website = 'https://container.googleapis.com'
+    website = "https://container.googleapis.com"
     supports_clusters = True
 
     AUTH_URL = "https://container.googleapis.com/auth/"
 
     CLUSTER_STATES = {
-        'STATUS_UNSPECIFIED': ClusterState.UNKNOWN,
-        'PROVISIONING': ClusterState.PENDING,
-        'RUNNING': ClusterState.RUNNING,
-        'RECONCILING': ClusterState.UPDATING,
-        'STOPPING': ClusterState.STOPPING,
-        'ERROR': ClusterState.ERROR,
-        'DEGRADED': ClusterState.ERROR,
+        "STATUS_UNSPECIFIED": ClusterState.UNKNOWN,
+        "PROVISIONING": ClusterState.PENDING,
+        "RUNNING": ClusterState.RUNNING,
+        "RECONCILING": ClusterState.UPDATING,
+        "STOPPING": ClusterState.STOPPING,
+        "ERROR": ClusterState.ERROR,
+        "DEGRADED": ClusterState.ERROR,
     }
 
-    def __init__(self, user_id, key=None, datacenter=None, project=None,
-                 auth_type=None, scopes=None, redirect_uri=None,
-                 credential_file=None, host=None, port=443, **kwargs):
+    def __init__(
+        self,
+        user_id,
+        key=None,
+        datacenter=None,
+        project=None,
+        auth_type=None,
+        scopes=None,
+        redirect_uri=None,
+        credential_file=None,
+        host=None,
+        port=443,
+        **kwargs,
+    ):
         """
         :param  user_id: The email address (for service accounts) or Client ID
                          (for installed apps) to be used for authentication.
@@ -169,8 +206,9 @@ class GKEContainerDriver(KubernetesContainerDriver):
         :type     credential_file: ``str``
         """
         if not project:
-            raise ValueError('Project name must be specified using '
-                             '"project" keyword.')
+            raise ValueError(
+                "Project name must be specified using " '"project" keyword.'
+            )
         if host is None:
             host = GKEContainerDriver.website
         self.auth_type = auth_type
@@ -180,24 +218,28 @@ class GKEContainerDriver(KubernetesContainerDriver):
         self.zone = None
         if datacenter is not None:
             self.zone = datacenter
-        self.credential_file = credential_file or \
-            GoogleOAuth2Credential.default_credential_file + '.' + self.project
+        self.credential_file = (
+            credential_file
+            or GoogleOAuth2Credential.default_credential_file + "." + self.project
+        )
 
-        super(GKEContainerDriver, self).__init__(user_id, key,
-                                                 secure=True, host=None,
-                                                 port=None, **kwargs)
+        super(GKEContainerDriver, self).__init__(
+            user_id, key, secure=True, host=None, port=None, **kwargs
+        )
 
-        self.base_path = '/%s/projects/%s' % (API_VERSION, self.project)
+        self.base_path = "/%s/projects/%s" % (API_VERSION, self.project)
         self.website = GKEContainerDriver.website
 
     def _ex_connection_class_kwargs(self):
-        return {'auth_type': self.auth_type,
-                'project': self.project,
-                'scopes': self.scopes,
-                'redirect_uri': self.redirect_uri,
-                'credential_file': self.credential_file}
+        return {
+            "auth_type": self.auth_type,
+            "project": self.project,
+            "scopes": self.scopes,
+            "redirect_uri": self.redirect_uri,
+            "credential_file": self.credential_file,
+        }
 
-    def list_clusters(self, ex_zone='-'):
+    def list_clusters(self, ex_zone="-"):
         """
         Return a list of cluster information in the current zone or all zones.
 
@@ -208,7 +250,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
         :rtype: ``list`` of :class:`GKECluster`
         """
         request = "/zones/%s/clusters" % (ex_zone)
-        data = self.connection.request(request, method='GET').object
+        data = self.connection.request(request, method="GET").object
         return self._to_clusters(data)
 
     def ex_get_cluster(self, zone, name):
@@ -225,7 +267,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
         :rtype: :class:`GKECluster`
         """
         request = "/zones/%s/clusters/%s" % (zone, name)
-        data = self.connection.request(request, method='GET').object
+        data = self.connection.request(request, method="GET").object
         return self._to_cluster(data)
 
     def _build_nodepools_list(self, nodepools, cluster_name):
@@ -234,26 +276,29 @@ class GKEContainerDriver(KubernetesContainerDriver):
         """
         gke_nodepools = []
         for index, nodepool in enumerate(nodepools):
-            disk_size = nodepool.get('disk_size', 100)
-            disk_type = nodepool.get('disk_type', 'pd-standard')
-            preemptible = nodepool.get('preemptible', False)
-            gke_nodepools.append({
-                "name": f"{cluster_name}-pool-{index}",
-                "initialNodeCount": nodepool["node_count"],
-                "config": {
+            disk_size = nodepool.get("disk_size", 100)
+            disk_type = nodepool.get("disk_type", "pd-standard")
+            preemptible = nodepool.get("preemptible", False)
+            gke_nodepools.append(
+                {
+                    "name": f"{cluster_name}-pool-{index}",
+                    "initialNodeCount": nodepool["node_count"],
+                    "config": {
                         "machineType": nodepool["size"],
                         "diskSizeGb": disk_size,
                         "preemptible": preemptible,
                         "diskType": disk_type,
+                    },
                 }
-            })
+            )
         return gke_nodepools
 
-    def create_cluster(self,
-                       zone: str,
-                       name: str,
-                       nodepools: List[Dict],
-                       ):
+    def create_cluster(
+        self,
+        zone: str,
+        name: str,
+        nodepools: List[Dict],
+    ):
         """
         Create cluster in the given zone
 
@@ -264,7 +309,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
         :type     name:  ``str``
 
         :keyword  nodepools:  The cluster's node pools.
-                              The format is a list of dictionaries with the 
+                              The format is a list of dictionaries with the
                               following structure:
                               [{
                                   node_count: int, The number of nodes
@@ -282,14 +327,11 @@ class GKEContainerDriver(KubernetesContainerDriver):
         body = {
             "cluster": {
                 "name": name,
-                "nodePools": self._build_nodepools_list(nodepools, name)
+                "nodePools": self._build_nodepools_list(nodepools, name),
             }
         }
 
-        response = self.connection.request(request,
-                                           method='POST',
-                                           data=body
-                                           ).object
+        response = self.connection.request(request, method="POST", data=body).object
 
         return response
 
@@ -307,7 +349,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
         """
         request = "/zones/%s/clusters/%s" % (zone, name)
 
-        response=self.connection.request(request, method='DELETE')
+        response = self.connection.request(request, method="DELETE")
 
         return response.success()
 
@@ -326,7 +368,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
         """
         if isinstance(cluster, str):
             cluster = self.ex_get_cluster(zone, cluster)
-        host, port = cluster.extra['endpoint'], '443'
+        host, port = cluster.extra["endpoint"], "443"
         # pylint: disable=maybe-no-member
         token = self.connection.oauth2_credential.access_token
         credentials = dict(host=host, port=port, token=token)
@@ -341,48 +383,51 @@ class GKEContainerDriver(KubernetesContainerDriver):
                             :class:`NodeLocation`
         """
         request = "/zones/%s/serverconfig" % (ex_zone)
-        response = self.connection.request(request, method='GET').object
+        response = self.connection.request(request, method="GET").object
         return response
 
     def _to_clusters(self, data):
-        return [self._to_cluster(c) for c in data.get('clusters', [])]
+        return [self._to_cluster(c) for c in data.get("clusters", [])]
 
     def _to_cluster(self, data):
         try:
-            status = self.CLUSTER_STATES[data.pop('status')]
+            status = self.CLUSTER_STATES[data.pop("status")]
         except KeyError:
             status = ClusterState.UNKNOWN
 
         cluster = GKECluster(
-            id=data.pop('id'),
-            name=data.pop('name'),
-            node_count=data.pop('currentNodeCount'),
+            id=data.pop("id"),
+            name=data.pop("name"),
+            node_count=data.pop("currentNodeCount"),
             total_cpus=0,
             total_memory=0,
             status=status,
-            location=data.pop('location'),
+            location=data.pop("location"),
             driver=None,
-            config={k: data.pop(k)
-                    for k in list(data)
-                    if k in [
-                'initialNodeCount',
-                'nodeConfig',
-                'addonsConfig',
-                'legacyAbac',
-                'networkPolicy',
-                'ipAllocationPolicy',
-                'masterAuthorizedNetworksConfig',
-                'binaryAuthorization',
-                'autoscaling',
-                'networkConfig',
-                'resourceUsageExportConfig',
-                'authenticatorGroupsConfig',
-                'privateClusterConfig',
-                'databaseEncryption',
-                'verticalPodAutoscaling',
-                'shieldedNodes',
-                'workloadIdentityConfig',
-            ]},
+            config={
+                k: data.pop(k)
+                for k in list(data)
+                if k
+                in [
+                    "initialNodeCount",
+                    "nodeConfig",
+                    "addonsConfig",
+                    "legacyAbac",
+                    "networkPolicy",
+                    "ipAllocationPolicy",
+                    "masterAuthorizedNetworksConfig",
+                    "binaryAuthorization",
+                    "autoscaling",
+                    "networkConfig",
+                    "resourceUsageExportConfig",
+                    "authenticatorGroupsConfig",
+                    "privateClusterConfig",
+                    "databaseEncryption",
+                    "verticalPodAutoscaling",
+                    "shieldedNodes",
+                    "workloadIdentityConfig",
+                ]
+            },
             extra=data,
         )
         try:
@@ -391,23 +436,28 @@ class GKEContainerDriver(KubernetesContainerDriver):
             ...
         else:
             cluster.driver = self.containerDriverCls(
-                host=cluster.credentials['host'],
-                port=cluster.credentials['port'],
-                key=cluster.credentials['token'],
-                ex_token_bearer_auth=True)
+                host=cluster.credentials["host"],
+                port=cluster.credentials["port"],
+                key=cluster.credentials["token"],
+                ex_token_bearer_auth=True,
+            )
 
         if cluster.driver:
             try:
                 cluster_nodes = cluster.driver.ex_list_nodes()
             except Exception:
-                cluster.extra['nodes'] = []
+                cluster.extra["nodes"] = []
                 cluster.total_cpus = 0
                 cluster.total_memory = 0
             else:
-                cluster.extra['node_ids'] = [node.extra['provider_id']
-                                             for node in cluster_nodes]
+                cluster.extra["node_ids"] = [
+                    node.extra["provider_id"] for node in cluster_nodes
+                ]
                 for n in cluster_nodes:
-                    cluster.total_cpus += int(n.extra['cpu'])
-                    cluster.total_memory += int(to_memory_str(to_n_bytes(
-                        n.extra['memory']), unit='G').strip('G'))
+                    cluster.total_cpus += int(n.extra["cpu"])
+                    cluster.total_memory += int(
+                        to_memory_str(to_n_bytes(n.extra["memory"]), unit="G").strip(
+                            "G"
+                        )
+                    )
         return cluster

@@ -26,14 +26,14 @@ class SolusVMResponse(JsonResponse):
     def parse_error(self):
         if self.status == httplib.UNAUTHORIZED:
             body = self.parse_body()
-            error = body.get('errors', {})
+            error = body.get("errors", {})
             if error and isinstance(error, list):
                 error = error[0]
             raise InvalidCredsError(error)
         else:
             body = self.parse_body()
-            if 'message' in body:
-                error = '%s (code: %s)' % (body['message'], self.status)
+            if "message" in body:
+                error = "%s (code: %s)" % (body["message"], self.status)
             else:
                 error = body
             raise Exception(error)

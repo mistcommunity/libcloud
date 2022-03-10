@@ -27,8 +27,10 @@ try:
     import lockfile
     from lockfile import LockTimeout, mkdirlockfile
 except ImportError:
-    raise ImportError('Missing lockfile dependency, you can install it '
-                      'using pip: pip install lockfile')
+    raise ImportError(
+        "Missing lockfile dependency, you can install it "
+        "using pip: pip install lockfile"
+    )
 
 from libcloud.utils.files import read_in_chunks
 from libcloud.utils.files import exhaust_iterator
@@ -44,13 +46,14 @@ from libcloud.storage.types import ObjectError
 from libcloud.storage.types import ObjectDoesNotExistError
 from libcloud.storage.types import InvalidContainerNameError
 
-IGNORE_FOLDERS = ['.lock', '.hash']
+IGNORE_FOLDERS = [".lock", ".hash"]
 
 
 class LockLocalStorage(object):
     """
     A class to help in locking a local path before being updated
     """
+
     def __init__(self, path):
         self.path = path
         self.lock = mkdirlockfile.MkdirLockFile(self.path, threaded=True)
@@ -59,7 +62,7 @@ class LockLocalStorage(object):
         try:
             self.lock.acquire(timeout=0.1)
         except LockTimeout:
-            raise LibcloudError('Lock timeout')
+            raise LibcloudError("Lock timeout")
 
     def __exit__(self, type, value, traceback):
         if self.lock.is_locked():
@@ -77,22 +80,21 @@ class LocalStorageDriver(StorageDriver):
     """
 
     connectionCls = Connection
-    name = 'Local Storage'
-    website = 'http://example.com'
-    hash_type = 'md5'
+    name = "Local Storage"
+    website = "http://example.com"
+    hash_type = "md5"
 
-    def __init__(self, key, secret=None, secure=True, host=None, port=None,
-                 **kwargs):
+    def __init__(self, key, secret=None, secure=True, host=None, port=None, **kwargs):
 
         # Use the key as the path to the storage
         self.base_path = key
 
         if not os.path.isdir(self.base_path):
-            raise LibcloudError('The base path is not a directory')
+            raise LibcloudError("The base path is not a directory")
 
-        super(LocalStorageDriver, self).__init__(key=key, secret=secret,
-                                                 secure=secure, host=host,
-                                                 port=port, **kwargs)
+        super(LocalStorageDriver, self).__init__(
+            key=key, secret=secret, secure=secure, host=host, port=port, **kwargs
+        )
 
     def _make_path(self, path, ignore_existing=True):
         """
@@ -113,9 +115,10 @@ class LocalStorageDriver(StorageDriver):
         :type container_name: ``str``
         """
 
-        if '/' in container_name or '\\' in container_name:
-            raise InvalidContainerNameError(value=None, driver=self,
-                                            container_name=container_name)
+        if "/" in container_name or "\\" in container_name:
+            raise InvalidContainerNameError(
+                value=None, driver=self, container_name=container_name
+            )
 
     def _make_container(self, container_name):
         """
@@ -135,15 +138,16 @@ class LocalStorageDriver(StorageDriver):
         try:
             stat = os.stat(full_path)
             if not os.path.isdir(full_path):
-                raise OSError('Target path is not a directory')
+                raise OSError("Target path is not a directory")
         except OSError:
-            raise ContainerDoesNotExistError(value=None, driver=self,
-                                             container_name=container_name)
+            raise ContainerDoesNotExistError(
+                value=None, driver=self, container_name=container_name
+            )
 
         extra = {}
-        extra['creation_time'] = stat.st_ctime
-        extra['access_time'] = stat.st_atime
-        extra['modify_time'] = stat.st_mtime
+        extra["creation_time"] = stat.st_ctime
+        extra["access_time"] = stat.st_atime
+        extra["modify_time"] = stat.st_mtime
 
         return Container(name=container_name, extra=extra, driver=self)
 
@@ -169,24 +173,31 @@ class LocalStorageDriver(StorageDriver):
         try:
             stat = os.stat(full_path)
         except Exception:
-            raise ObjectDoesNotExistError(value=None, driver=self,
-                                          object_name=object_name)
+            raise ObjectDoesNotExistError(
+                value=None, driver=self, object_name=object_name
+            )
 
         # Make a hash for the file based on the metadata. We can safely
         # use only the mtime attribute here. If the file contents change,
         # the underlying file-system will change mtime
         data_hash = self._get_hash_function()
-        data_hash.update(u(stat.st_mtime).encode('ascii'))
+        data_hash.update(u(stat.st_mtime).encode("ascii"))
         data_hash = data_hash.hexdigest()
 
         extra = {}
-        extra['creation_time'] = stat.st_ctime
-        extra['access_time'] = stat.st_atime
-        extra['modify_time'] = stat.st_mtime
+        extra["creation_time"] = stat.st_ctime
+        extra["access_time"] = stat.st_atime
+        extra["modify_time"] = stat.st_mtime
 
-        return Object(name=object_name, size=stat.st_size, extra=extra,
-                      driver=self, container=container, hash=data_hash,
-                      meta_data=None)
+        return Object(
+            name=object_name,
+            size=stat.st_size,
+            extra=extra,
+            driver=self,
+            container=container,
+            hash=data_hash,
+            meta_data=None,
+        )
 
     def iterate_containers(self):
         """
@@ -220,8 +231,7 @@ class LocalStorageDriver(StorageDriver):
                 object_name = relpath(full_path, start=cpath)
                 yield self._make_object(container, object_name)
 
-    def iterate_container_objects(self, container, prefix=None,
-                                  ex_prefix=None):
+    def iterate_container_objects(self, container, prefix=None, ex_prefix=None):
         """
         Returns a generator of objects for the given container.
 
@@ -270,8 +280,9 @@ class LocalStorageDriver(StorageDriver):
         path = os.path.join(self.base_path, container.name)
 
         if check and not os.path.isdir(path):
-            raise ContainerDoesNotExistError(value=None, driver=self,
-                                             container_name=container.name)
+            raise ContainerDoesNotExistError(
+                value=None, driver=self, container_name=container.name
+            )
 
         return path
 
@@ -336,15 +347,16 @@ class LocalStorageDriver(StorageDriver):
             if os.path.exists(path):
                 return False
             try:
-                obj_file = open(path, 'w')
+                obj_file = open(path, "w")
                 obj_file.close()
             except Exception:
                 return False
 
         return True
 
-    def download_object(self, obj, destination_path, overwrite_existing=False,
-                        delete_on_failure=True):
+    def download_object(
+        self, obj, destination_path, overwrite_existing=False, delete_on_failure=True
+    ):
         """
         Download an object to the specified destination path.
 
@@ -372,7 +384,8 @@ class LocalStorageDriver(StorageDriver):
         file_path = self._get_obj_file_path(
             obj=obj,
             destination_path=destination_path,
-            overwrite_existing=overwrite_existing)
+            overwrite_existing=overwrite_existing,
+        )
 
         try:
             shutil.copy(obj_path, file_path)
@@ -400,54 +413,66 @@ class LocalStorageDriver(StorageDriver):
         :rtype: ``object``
         """
         path = self.get_object_cdn_url(obj)
-        with open(path, 'rb') as obj_file:
+        with open(path, "rb") as obj_file:
             for data in read_in_chunks(obj_file, chunk_size=chunk_size):
                 yield data
 
-    def download_object_range(self, obj, destination_path, start_bytes,
-                              end_bytes=None, overwrite_existing=False,
-                              delete_on_failure=True):
-        self._validate_start_and_end_bytes(start_bytes=start_bytes,
-                                           end_bytes=end_bytes)
+    def download_object_range(
+        self,
+        obj,
+        destination_path,
+        start_bytes,
+        end_bytes=None,
+        overwrite_existing=False,
+        delete_on_failure=True,
+    ):
+        self._validate_start_and_end_bytes(start_bytes=start_bytes, end_bytes=end_bytes)
 
         file_path = self._get_obj_file_path(
             obj=obj,
             destination_path=destination_path,
-            overwrite_existing=overwrite_existing)
+            overwrite_existing=overwrite_existing,
+        )
 
         iterator = self.download_object_range_as_stream(
-            obj=obj,
-            start_bytes=start_bytes,
-            end_bytes=end_bytes)
+            obj=obj, start_bytes=start_bytes, end_bytes=end_bytes
+        )
 
-        with open(file_path, 'wb') as fp:
+        with open(file_path, "wb") as fp:
             fp.write(exhaust_iterator(iterator))
 
         return True
 
-    def download_object_range_as_stream(self, obj, start_bytes, end_bytes=None,
-                                        chunk_size=None):
-        self._validate_start_and_end_bytes(start_bytes=start_bytes,
-                                           end_bytes=end_bytes)
+    def download_object_range_as_stream(
+        self, obj, start_bytes, end_bytes=None, chunk_size=None
+    ):
+        self._validate_start_and_end_bytes(start_bytes=start_bytes, end_bytes=end_bytes)
 
         path = self.get_object_cdn_url(obj)
-        with open(path, 'rb') as obj_file:
+        with open(path, "rb") as obj_file:
             file_size = len(obj_file.read())
 
             if end_bytes and end_bytes > file_size:
-                raise ValueError('end_bytes is larger than file size')
+                raise ValueError("end_bytes is larger than file size")
 
             if end_bytes is None:
                 read_bytes = (file_size - start_bytes) + 1
             else:
-                read_bytes = (end_bytes - start_bytes)
+                read_bytes = end_bytes - start_bytes
 
             obj_file.seek(start_bytes)
             data = obj_file.read(read_bytes)
             yield data
 
-    def upload_object(self, file_path, container, object_name, extra=None,
-                      verify_hash=True, headers=None):
+    def upload_object(
+        self,
+        file_path,
+        container,
+        object_name,
+        extra=None,
+        verify_hash=True,
+        headers=None,
+    ):
         """
         Upload an object currently located on a disk.
 
@@ -481,13 +506,13 @@ class LocalStorageDriver(StorageDriver):
         with LockLocalStorage(obj_path):
             shutil.copy(file_path, obj_path)
 
-        os.chmod(obj_path, int('664', 8))
+        os.chmod(obj_path, int("664", 8))
 
         return self._make_object(container, object_name)
 
-    def upload_object_via_stream(self, iterator, container,
-                                 object_name,
-                                 extra=None, headers=None):
+    def upload_object_via_stream(
+        self, iterator, container, object_name, extra=None, headers=None
+    ):
         """
         Upload an object using an iterator.
 
@@ -530,10 +555,10 @@ class LocalStorageDriver(StorageDriver):
         base_path = os.path.dirname(obj_path)
         self._make_path(base_path)
         with LockLocalStorage(obj_path):
-            with open(obj_path, 'wb') as obj_file:
+            with open(obj_path, "wb") as obj_file:
                 for data in iterator:
                     obj_file.write(data)
-        os.chmod(obj_path, int('664', 8))
+        os.chmod(obj_path, int("664", 8))
         return self._make_object(container, object_name)
 
     def delete_object(self, obj):
@@ -592,17 +617,20 @@ class LocalStorageDriver(StorageDriver):
         except OSError as exp:
             if exp.errno == errno.EEXIST:
                 raise ContainerAlreadyExistsError(
-                    value='Container with this name already exists. The name '
-                          'must be unique among all the containers in the '
-                          'system',
-                    container_name=container_name, driver=self)
+                    value="Container with this name already exists. The name "
+                    "must be unique among all the containers in the "
+                    "system",
+                    container_name=container_name,
+                    driver=self,
+                )
             else:
                 raise LibcloudError(
-                    'Error creating container %s' % container_name,
-                    driver=self)
+                    "Error creating container %s" % container_name, driver=self
+                )
         except Exception:
             raise LibcloudError(
-                'Error creating container %s' % container_name, driver=self)
+                "Error creating container %s" % container_name, driver=self
+            )
 
         return self._make_container(container_name)
 
@@ -619,9 +647,11 @@ class LocalStorageDriver(StorageDriver):
 
         # Check if there are any objects inside this
         for obj in self._get_objects(container):
-            raise ContainerIsNotEmptyError(value='Container is not empty',
-                                           container_name=container.name,
-                                           driver=self)
+            raise ContainerIsNotEmptyError(
+                value="Container is not empty",
+                container_name=container.name,
+                driver=self,
+            )
 
         path = self.get_container_cdn_url(container, check=True)
 
@@ -633,15 +663,14 @@ class LocalStorageDriver(StorageDriver):
 
         return True
 
-    def _get_obj_file_path(self, obj, destination_path,
-                           overwrite_existing=False):
+    def _get_obj_file_path(self, obj, destination_path, overwrite_existing=False):
         # type: (Object, str, bool) -> str
         base_name = os.path.basename(destination_path)
 
         if not base_name and not os.path.exists(destination_path):
             raise LibcloudError(
-                value='Path %s does not exist' % (destination_path),
-                driver=self)
+                value="Path %s does not exist" % (destination_path), driver=self
+            )
 
         if not base_name:
             file_path = os.path.join(destination_path, obj.name)
@@ -650,8 +679,9 @@ class LocalStorageDriver(StorageDriver):
 
         if os.path.exists(file_path) and not overwrite_existing:
             raise LibcloudError(
-                value='File %s already exists, but ' % (file_path) +
-                'overwrite_existing=False',
-                driver=self)
+                value="File %s already exists, but " % (file_path)
+                + "overwrite_existing=False",
+                driver=self,
+            )
 
         return file_path

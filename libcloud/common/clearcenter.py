@@ -3,12 +3,17 @@ import socket
 
 from libcloud.utils.py3 import b
 from libcloud.utils.py3 import httplib
-from libcloud.compute.base import (Node, NodeDriver, NodeState,
-                                   KeyPair, NodeLocation, NodeImage)
+from libcloud.compute.base import (
+    Node,
+    NodeDriver,
+    NodeState,
+    KeyPair,
+    NodeLocation,
+    NodeImage,
+)
 from libcloud.common.types import InvalidCredsError
 from libcloud.common.base import JsonResponse
 from libcloud.common.base import ConnectionKey
-
 
 
 class ClearCenterResponse(JsonResponse):
@@ -38,14 +43,14 @@ class ClearCenterResponse(JsonResponse):
 
         if self.status == httplib.UNAUTHORIZED:
             body = self.parse_body()
-            error = body.get('errors', {}).get('base')
+            error = body.get("errors", {}).get("base")
             if error and isinstance(error, list):
                 error = error[0]
             raise InvalidCredsError(error)
         else:
             body = self.parse_body()
-            if 'message' in body:
-                error = '%s (code: %s)' % (body['message'], self.status)
+            if "message" in body:
+                error = "%s (code: %s)" % (body["message"], self.status)
             else:
                 error = body
             raise Exception(error)
@@ -65,8 +70,8 @@ class ClearCenterConnection(ConnectionKey):
         This method adds ``apikey`` to the request.
         """
 
-        headers['Authorization'] = 'Bearer %s' % (self.key)
-        headers['Content-Type'] = 'application/json'
+        headers["Authorization"] = "Bearer %s" % (self.key)
+        headers["Content-Type"] = "application/json"
         return headers
 
     # def add_default_params(self, params):

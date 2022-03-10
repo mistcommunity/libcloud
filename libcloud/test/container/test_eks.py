@@ -39,69 +39,75 @@ class ElasticKubernetesDriverTestCase(unittest.TestCase):
     def setUp(self):
         ElasticKubernetesDriver.connectionCls.conn_class = EKSMockHttp
         EKSMockHttp.type = None
-        EKSMockHttp.use_param = 'a'
+        EKSMockHttp.use_param = "a"
         ElasticKubernetesDriver.containerDriverCls = MagicMock()
         self.driver = ElasticKubernetesDriver(*CONTAINER_PARAMS_EKS)
 
     def test_list_clusters(self):
         clusters = self.driver.list_clusters()
-        self.assertEqual(clusters[0].name, 'default')
-        self.assertEqual(clusters[0].id,
-                         'arn:aws:eks:us-east-2:532769602413:cluster/default')
+        self.assertEqual(clusters[0].name, "default")
+        self.assertEqual(
+            clusters[0].id, "arn:aws:eks:us-east-2:532769602413:cluster/default"
+        )
 
     def test_get_cluster(self):
-        cluster = self.driver.get_cluster('default')
-        self.assertEqual(cluster.name, 'default')
-        self.assertEqual(cluster.id,
-                         'arn:aws:eks:us-east-2:532769602413:cluster/default')
+        cluster = self.driver.get_cluster("default")
+        self.assertEqual(cluster.name, "default")
+        self.assertEqual(
+            cluster.id, "arn:aws:eks:us-east-2:532769602413:cluster/default"
+        )
 
     def test_create_cluster(self):
         cluster = self.driver.create_cluster(
-            name='default',
-            role_arn='arn:aws:iam::532769602413:role/AmazonEKSClusterRole',
-            vpc_id='vpc-e6782c8e',
+            name="default",
+            role_arn="arn:aws:iam::532769602413:role/AmazonEKSClusterRole",
+            vpc_id="vpc-e6782c8e",
             subnet_ids=[
-                'subnet-0f4c23bae0d4f6b77',
-                'subnet-044e2bb5e0c457418',
-                'subnet-0d300601beef852af'
+                "subnet-0f4c23bae0d4f6b77",
+                "subnet-044e2bb5e0c457418",
+                "subnet-0d300601beef852af",
             ],
-            security_group_ids=['sg-030fd1d39c9195c33'])
-        self.assertEqual(cluster.name, 'default')
-        self.assertEqual(cluster.id,
-                         'arn:aws:eks:us-east-2:532769602413:cluster/default')
+            security_group_ids=["sg-030fd1d39c9195c33"],
+        )
+        self.assertEqual(cluster.name, "default")
+        self.assertEqual(
+            cluster.id, "arn:aws:eks:us-east-2:532769602413:cluster/default"
+        )
 
     def test_destroy_cluster(self):
-        result = self.driver.destroy_cluster('default')
+        result = self.driver.destroy_cluster("default")
         self.assertTrue(result)
 
     def test_get_cluster_credentials(self):
-        cluster = cluster = self.driver.get_cluster('default')
-        self.driver._get_cluster_token = MagicMock(return_value='12345')
+        cluster = cluster = self.driver.get_cluster("default")
+        self.driver._get_cluster_token = MagicMock(return_value="12345")
         credentials = self.driver.get_cluster_credentials(cluster)
-        self.assertEqual(credentials['host'],
-                         'https://35775E0FC8373FF2DD1902FAD2BD6674.gr7.'
-                         'us-east-2.eks.amazonaws.com')
-        self.assertEqual(credentials['port'], '443')
-        self.assertEqual(credentials['token'], '12345')
+        self.assertEqual(
+            credentials["host"],
+            "https://35775E0FC8373FF2DD1902FAD2BD6674.gr7."
+            "us-east-2.eks.amazonaws.com",
+        )
+        self.assertEqual(credentials["port"], "443")
+        self.assertEqual(credentials["token"], "12345")
 
 
 class EKSMockHttp(MockHttp):
-    fixtures = ContainerFileFixtures('eks')
+    fixtures = ContainerFileFixtures("eks")
 
     def _clusters(self, method, url, body, headers):
-        if method == 'GET':
-            body = self.fixtures.load('clusters.json')
-        elif method == 'POST':
-            body = self.fixtures.load('clusters_default.json')
+        if method == "GET":
+            body = self.fixtures.load("clusters.json")
+        elif method == "POST":
+            body = self.fixtures.load("clusters_default.json")
         return (httplib.OK, body, {}, httplib.responses[httplib.OK])
 
     def _clusters_default(self, method, url, body, headers):
-        if method == 'GET':
-            body = self.fixtures.load('clusters_default.json')
-        if method == 'DELETE':
-            body = self.fixtures.load('clusters_default_DELETE.json')
+        if method == "GET":
+            body = self.fixtures.load("clusters_default.json")
+        if method == "DELETE":
+            body = self.fixtures.load("clusters_default_DELETE.json")
         return (httplib.OK, body, {}, httplib.responses[httplib.OK])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(unittest.main())

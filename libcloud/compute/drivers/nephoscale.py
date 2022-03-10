@@ -30,22 +30,24 @@ from libcloud.utils.py3 import urlencode
 
 from libcloud.compute.providers import Provider
 from libcloud.common.base import JsonResponse, ConnectionUserAndKey
-from libcloud.compute.types import (NodeState, InvalidCredsError,
-                                    LibcloudError)
-from libcloud.compute.base import (Node, NodeDriver, NodeImage, NodeSize,
-                                   NodeLocation)
+from libcloud.compute.types import NodeState, InvalidCredsError, LibcloudError
+from libcloud.compute.base import Node, NodeDriver, NodeImage, NodeSize, NodeLocation
 from libcloud.utils.networking import is_private_subnet
 
-API_HOST = 'api.nephoscale.com'
+API_HOST = "api.nephoscale.com"
 
 NODE_STATE_MAP = {
-    'on': NodeState.RUNNING,
-    'off': NodeState.STOPPED,
-    'unknown': NodeState.UNKNOWN,
+    "on": NodeState.RUNNING,
+    "off": NodeState.STOPPED,
+    "unknown": NodeState.UNKNOWN,
 }
 
-VALID_RESPONSE_CODES = [httplib.OK, httplib.ACCEPTED, httplib.CREATED,
-                        httplib.NO_CONTENT]
+VALID_RESPONSE_CODES = [
+    httplib.OK,
+    httplib.ACCEPTED,
+    httplib.CREATED,
+    httplib.NO_CONTENT,
+]
 
 # used in create_node and specifies how many times to get the list of nodes and
 # check if the newly created node is there. This is because when a request is
@@ -55,8 +57,7 @@ CONNECT_ATTEMPTS = 10
 
 
 class NodeKey(object):
-    def __init__(self, id, name, public_key=None, key_group=None,
-                 password=None):
+    def __init__(self, id, name, public_key=None, key_group=None, password=None):
         self.id = id
         self.name = name
         self.key_group = key_group
@@ -64,8 +65,7 @@ class NodeKey(object):
         self.public_key = public_key
 
     def __repr__(self):
-        return (('<NodeKey: id=%s, name=%s>') %
-                (self.id, self.name))
+        return ("<NodeKey: id=%s, name=%s>") % (self.id, self.name)
 
 
 class NephoScaleNetwork(object):
@@ -73,8 +73,9 @@ class NephoScaleNetwork(object):
     A Virtual Network.
     """
 
-    def __init__(self, id, name, subnets, is_default, zone, domain_type,
-                 driver, extra=None):
+    def __init__(
+        self, id, name, subnets, is_default, zone, domain_type, driver, extra=None
+    ):
         self.id = str(id)
         self.name = name
         self.subnets = subnets
@@ -85,7 +86,10 @@ class NephoScaleNetwork(object):
         self.extra = extra or {}
 
     def __repr__(self):
-        return '<NephoScaleNetwork id="%s" name="%s">' % (self.id, self.name,)
+        return '<NephoScaleNetwork id="%s" name="%s">' % (
+            self.id,
+            self.name,
+        )
 
 
 class NephoScaleDomain(object):
@@ -111,7 +115,7 @@ class NephoscaleResponse(JsonResponse):
 
     def parse_error(self):
         if self.status == httplib.UNAUTHORIZED:
-            raise InvalidCredsError('Authorization Failed')
+            raise InvalidCredsError("Authorization Failed")
         if self.status == httplib.NOT_FOUND:
             raise Exception("The resource you are looking for is not found.")
 
@@ -127,6 +131,7 @@ class NephoscaleConnection(ConnectionUserAndKey):
     Authenticates to the API through Basic Authentication
     with username/password
     """
+
     host = API_HOST
     responseCls = NephoscaleResponse
 
@@ -139,8 +144,8 @@ class NephoscaleConnection(ConnectionUserAndKey):
         """
         Add parameters that are necessary for every request
         """
-        user_b64 = base64.b64encode(b('%s:%s' % (self.user_id, self.key)))
-        headers['Authorization'] = 'Basic %s' % (user_b64.decode('utf-8'))
+        user_b64 = base64.b64encode(b("%s:%s" % (self.user_id, self.key)))
+        headers["Authorization"] = "Basic %s" % (user_b64.decode("utf-8"))
         return headers
 
 
@@ -155,11 +160,11 @@ class NephoscaleNodeDriver(NodeDriver):
     """
 
     type = Provider.NEPHOSCALE
-    api_name = 'nephoscale'
-    name = 'NephoScale'
-    website = 'http://www.nephoscale.com'
+    api_name = "nephoscale"
+    name = "NephoScale"
+    website = "http://www.nephoscale.com"
     connectionCls = NephoscaleConnection
-    features = {'create_node': ['ssh_key']}
+    features = {"create_node": ["ssh_key"]}
 
     def list_locations(self, active=True):
         """
@@ -167,16 +172,15 @@ class NephoscaleNodeDriver(NodeDriver):
 
         :rtype: ``list`` of :class:`NodeLocation`
         """
-        result = self.connection.request('/datacenter/zone/').object
+        result = self.connection.request("/datacenter/zone/").object
         locations = []
-        for value in result.get('data', []):
-            location = NodeLocation(id=value.get('id'),
-                                    name=value.get('name'),
-                                    country='US',
-                                    driver=self)
+        for value in result.get("data", []):
+            location = NodeLocation(
+                id=value.get("id"), name=value.get("name"), country="US", driver=self
+            )
             if active:
                 # return only active locations
-                if value.get('activated', True) is True:
+                if value.get("activated", True) is True:
                     locations.append(location)
             else:
                 locations.append(location)
@@ -190,24 +194,26 @@ class NephoscaleNodeDriver(NodeDriver):
         :rtype: ``list`` of :class:`NodeImage`
         """
         if region:
-            result = self.connection.request('/image/server/?region=%s' %
-                                             region).object
+            result = self.connection.request("/image/server/?region=%s" % region).object
         else:
-            result = self.connection.request('/image/server/').object
+            result = self.connection.request("/image/server/").object
         images = []
-        for value in result.get('data', []):
-            extra = {'architecture': value.get('architecture'),
-                     'disks': value.get('disks'),
-                     'billable_type': value.get('billable_type'),
-                     'pcpus': value.get('pcpus'),
-                     'cores': value.get('cores'),
-                     'uri': value.get('uri'),
-                     'storage': value.get('storage'),
-                     }
-            image = NodeImage(id=value.get('id'),
-                              name=value.get('friendly_name'),
-                              driver=self,
-                              extra=extra)
+        for value in result.get("data", []):
+            extra = {
+                "architecture": value.get("architecture"),
+                "disks": value.get("disks"),
+                "billable_type": value.get("billable_type"),
+                "pcpus": value.get("pcpus"),
+                "cores": value.get("cores"),
+                "uri": value.get("uri"),
+                "storage": value.get("storage"),
+            }
+            image = NodeImage(
+                id=value.get("id"),
+                name=value.get("friendly_name"),
+                driver=self,
+                extra=extra,
+            )
             images.append(image)
         return images
 
@@ -219,25 +225,30 @@ class NephoscaleNodeDriver(NodeDriver):
         """
         # cloudlet or baremetal
         if baremetal:
-            element_uri = 'dedicated'
+            element_uri = "dedicated"
         else:
-            element_uri = 'cloud'
+            element_uri = "cloud"
 
-        result = self.connection.request('/server/type/%s/?sort=ram'
-                                         % element_uri).object
+        result = self.connection.request(
+            "/server/type/%s/?sort=ram" % element_uri
+        ).object
         sizes = []
-        for value in result.get('data', []):
-            value_id = value.get('id')
-            name = "%s - %s" % (value.get('sku').get('name'),
-                   value.get('sku').get('description'))
-            size = NodeSize(id=value_id,
-                            name=name,
-                            ram=value.get('ram'),
-                            disk=value.get('storage'),
-                            extra={'cpus': value.get('vcpus')},
-                            bandwidth=None,
-                            price=self._get_size_price(size_id=str(value_id)),
-                            driver=self)
+        for value in result.get("data", []):
+            value_id = value.get("id")
+            name = "%s - %s" % (
+                value.get("sku").get("name"),
+                value.get("sku").get("description"),
+            )
+            size = NodeSize(
+                id=value_id,
+                name=name,
+                ram=value.get("ram"),
+                disk=value.get("storage"),
+                extra={"cpus": value.get("vcpus")},
+                bandwidth=None,
+                price=self._get_size_price(size_id=str(value_id)),
+                driver=self,
+            )
             sizes.append(size)
         return sorted(sizes, key=lambda k: k.price or 0)
 
@@ -249,10 +260,10 @@ class NephoscaleNodeDriver(NodeDriver):
         """
         if baremetal:
             # show cloud servers and dedicated servers as well
-            result = self.connection.request('/server/').object
+            result = self.connection.request("/server/").object
         else:
-            result = self.connection.request('/server/cloud/').object
-        nodes = [self._to_node(value) for value in result.get('data', [])]
+            result = self.connection.request("/server/cloud/").object
+        nodes = [self._to_node(value) for value in result.get("data", [])]
         return nodes
 
     def ex_list_networks(self):
@@ -260,32 +271,31 @@ class NephoscaleNodeDriver(NodeDriver):
         List available networks
 
         """
-        networks = self.connection.request('/network/domain/').object
+        networks = self.connection.request("/network/domain/").object
 
-        subnets = self.connection.request('/network/cidr/ipv4/').object
+        subnets = self.connection.request("/network/cidr/ipv4/").object
         ret = []
-        for value in networks.get('data', []):
+        for value in networks.get("data", []):
             network_subnets = []
             # Skip duplicate results
-            if value.get('id') in [n.get('id') for n in network_subnets]:
+            if value.get("id") in [n.get("id") for n in network_subnets]:
                 continue
-            for s1 in value.get('cidr', []):
-                for s2 in subnets.get('data', []):
-                    if s1.get('id') == s2.get('id'):
-                        s1['ipaddress_list_status'] = \
-                            s2['ipaddress_list_status']
-                        s1['name'] = s1['cidr_str']
+            for s1 in value.get("cidr", []):
+                for s2 in subnets.get("data", []):
+                    if s1.get("id") == s2.get("id"):
+                        s1["ipaddress_list_status"] = s2["ipaddress_list_status"]
+                        s1["name"] = s1["cidr_str"]
                         network_subnets.append(s1)
 
-            network = NephoScaleNetwork(id=value.get('id'),
-                                        name=value.get('name'),
-                                        subnets=network_subnets,
-                                        is_default=value.get('is_default',
-                                                             False),
-                                        zone=value.get('zone'),
-                                        domain_type=value.get('domain_type'),
-                                        driver=self,
-                                        )
+            network = NephoScaleNetwork(
+                id=value.get("id"),
+                name=value.get("name"),
+                subnets=network_subnets,
+                is_default=value.get("is_default", False),
+                zone=value.get("zone"),
+                domain_type=value.get("domain_type"),
+                driver=self,
+            )
 
             # Nephoscale's response might contain duplicate
             # network information
@@ -298,16 +308,18 @@ class NephoscaleNodeDriver(NodeDriver):
         List available domains
 
         """
-        result = self.connection.request('/network/domain/').object
+        result = self.connection.request("/network/domain/").object
         domains = []
-        for value in result.get('data', []):
+        for value in result.get("data", []):
             extra = {}
-            cidr = value.get('cidr')
-            domain = NephoScaleDomain(id=value.get('id'),
-                                      name=value.get('id'),
-                                      driver=self,
-                                      extra=extra,
-                                      cidr=cidr)
+            cidr = value.get("cidr")
+            domain = NephoScaleDomain(
+                id=value.get("id"),
+                name=value.get("id"),
+                driver=self,
+                extra=extra,
+                cidr=cidr,
+            )
             domains.append(domain)
         return domains
 
@@ -321,12 +333,14 @@ class NephoscaleNodeDriver(NodeDriver):
             ip_type = 0
         else:
             ip_type = 1
-        url = '/network/cidr/ipv4/?ip_type=%s&fields=' \
-              'ipaddress_list_unassigned' % ip_type
+        url = (
+            "/network/cidr/ipv4/?ip_type=%s&fields="
+            "ipaddress_list_unassigned" % ip_type
+        )
         result = self.connection.request(url).object
         ips = []
-        for value in result.get('data', []):
-            ips.extend(value.get('ipaddress_list_unassigned', []))
+        for value in result.get("data", []):
+            ips.extend(value.get("ipaddress_list_unassigned", []))
         return ips
 
     def ex_associate_ip(self, ip, server=None, assign=True):
@@ -352,70 +366,69 @@ class NephoscaleNodeDriver(NodeDriver):
 
         for network in networks:
             for subnet in network.subnets:
-                if ip in subnet.get('ipaddress_list'):
-                    subnet_id = subnet.get('id')
+                if ip in subnet.get("ipaddress_list"):
+                    subnet_id = subnet.get("id")
                     break
             if subnet_id:
                 break
 
         if not subnet_id:
-            raise Exception("The ip address %s cannot "
-                            "be found on any of the available subnets" % ip)
-        url = '/network/cidr/ipv4/%s/' % subnet_id
+            raise Exception(
+                "The ip address %s cannot "
+                "be found on any of the available subnets" % ip
+            )
+        url = "/network/cidr/ipv4/%s/" % subnet_id
 
-        payload = '_method=PUT&ipaddress=%s&reserved=%s' % \
-                  (ip, str(assign).lower())
+        payload = "_method=PUT&ipaddress=%s&reserved=%s" % (ip, str(assign).lower())
 
         if server:
-            payload += '&server=%s' % server
+            payload += "&server=%s" % server
 
         try:
-            result = self.connection.request(url,
-                                             data=payload,
-                                             method='POST').object
+            result = self.connection.request(url, data=payload, method="POST").object
         except Exception:
             e = sys.exc_info()[1]
             raise Exception("Failed to associate ip: %s" % e)
-        return result.get('response') in VALID_RESPONSE_CODES
+        return result.get("response") in VALID_RESPONSE_CODES
 
     def ex_rename_node(self, node, name, hostname=None):
         """rename a cloud server, optionally specify hostname too"""
-        data = {'name': name}
+        data = {"name": name}
         if hostname:
-            data['hostname'] = hostname
+            data["hostname"] = hostname
         params = urlencode(data)
-        result = self.connection.request('/server/cloud/%s/'
-                                         % node.extra.get('id'),
-                                         data=params, method='PUT').object
-        return result.get('response') in VALID_RESPONSE_CODES
+        result = self.connection.request(
+            "/server/cloud/%s/" % node.extra.get("id"), data=params, method="PUT"
+        ).object
+        return result.get("response") in VALID_RESPONSE_CODES
 
     def reboot_node(self, node):
         """reboot a running node"""
-        result = self.connection.request('/server/cloud/%s/initiator/restart/'
-                                         % node.extra.get('id'),
-                                         method='POST').object
-        return result.get('response') in VALID_RESPONSE_CODES
+        result = self.connection.request(
+            "/server/cloud/%s/initiator/restart/" % node.extra.get("id"), method="POST"
+        ).object
+        return result.get("response") in VALID_RESPONSE_CODES
 
     def start_node(self, node):
         """start a stopped node"""
-        result = self.connection.request('/server/cloud/%s/initiator/start/'
-                                         % node.extra.get('id'),
-                                         method='POST').object
-        return result.get('response') in VALID_RESPONSE_CODES
+        result = self.connection.request(
+            "/server/cloud/%s/initiator/start/" % node.extra.get("id"), method="POST"
+        ).object
+        return result.get("response") in VALID_RESPONSE_CODES
 
     def stop_node(self, node):
         """stop a running node"""
-        result = self.connection.request('/server/cloud/%s/initiator/stop/'
-                                         % node.extra.get('id'),
-                                         method='POST').object
-        return result.get('response') in VALID_RESPONSE_CODES
+        result = self.connection.request(
+            "/server/cloud/%s/initiator/stop/" % node.extra.get("id"), method="POST"
+        ).object
+        return result.get("response") in VALID_RESPONSE_CODES
 
     def destroy_node(self, node):
         """destroy a node"""
-        result = self.connection.request('/server/cloud/%s/'
-                                         % node.extra.get('id'),
-                                         method='DELETE').object
-        return result.get('response') in VALID_RESPONSE_CODES
+        result = self.connection.request(
+            "/server/cloud/%s/" % node.extra.get("id"), method="DELETE"
+        ).object
+        return result.get("response") in VALID_RESPONSE_CODES
 
     def ex_start_node(self, node):
         # NOTE: This method is here for backward compatibility reasons after
@@ -451,69 +464,72 @@ class NephoscaleNodeDriver(NodeDriver):
 
         :rtype: ``list`` of :class:`NodeKey`
         """
-        if (ssh and password):
-            raise LibcloudError('You can only supply ssh or password. To \
-get all keys call with no arguments')
+        if ssh and password:
+            raise LibcloudError(
+                "You can only supply ssh or password. To \
+get all keys call with no arguments"
+            )
         if ssh:
-            result = self.connection.request('/key/sshrsa/').object
+            result = self.connection.request("/key/sshrsa/").object
         elif password:
-            result = self.connection.request('/key/password/').object
+            result = self.connection.request("/key/password/").object
         else:
-            result = self.connection.request('/key/').object
-        keys = [self._to_key(value) for value in result.get('data', [])]
+            result = self.connection.request("/key/").object
+        keys = [self._to_key(value) for value in result.get("data", [])]
 
         if key_group:
-            keys = [key for key in keys if
-                    key.key_group == key_group]
+            keys = [key for key in keys if key.key_group == key_group]
         return keys
 
-    def ex_create_keypair(self, name, public_key=None, password=None,
-                          key_group=None):
+    def ex_create_keypair(self, name, public_key=None, password=None, key_group=None):
         """Creates a key, ssh or password, for server or console
-           The group for the key (key_group) is 1 for Server and 4 for Console
-           Returns the id of the created key
+        The group for the key (key_group) is 1 for Server and 4 for Console
+        Returns the id of the created key
         """
         if public_key:
             if not key_group:
                 key_group = 1
-            data = {
-                'name': name,
-                'public_key': public_key,
-                'key_group': key_group
-
-            }
+            data = {"name": name, "public_key": public_key, "key_group": key_group}
             params = urlencode(data)
-            result = self.connection.request('/key/sshrsa/', data=params,
-                                             method='POST').object
+            result = self.connection.request(
+                "/key/sshrsa/", data=params, method="POST"
+            ).object
         else:
             if not key_group:
                 key_group = 4
             if not password:
                 password = self.random_password()
-                data = {
-                    'name': name,
-                    'password': password,
-                    'key_group': key_group
-                }
+                data = {"name": name, "password": password, "key_group": key_group}
             params = urlencode(data)
-            result = self.connection.request('/key/password/', data=params,
-                                             method='POST').object
-        return result.get('data', {}).get('id', '')
+            result = self.connection.request(
+                "/key/password/", data=params, method="POST"
+            ).object
+        return result.get("data", {}).get("id", "")
 
     def ex_delete_keypair(self, key_id, ssh=False):
-        """Delete an ssh key or password given it's id
-        """
+        """Delete an ssh key or password given it's id"""
         if ssh:
-            result = self.connection.request('/key/sshrsa/%s/' % key_id,
-                                             method='DELETE').object
+            result = self.connection.request(
+                "/key/sshrsa/%s/" % key_id, method="DELETE"
+            ).object
         else:
-            result = self.connection.request('/key/password/%s/' % key_id,
-                                             method='DELETE').object
-        return result.get('response') in VALID_RESPONSE_CODES
+            result = self.connection.request(
+                "/key/password/%s/" % key_id, method="DELETE"
+            ).object
+        return result.get("response") in VALID_RESPONSE_CODES
 
-    def create_node(self, name, size, image, server_key=None,
-                    console_key=None, zone=None, baremetal=False,
-                    ips=None, **kwargs):
+    def create_node(
+        self,
+        name,
+        size,
+        image,
+        server_key=None,
+        console_key=None,
+        zone=None,
+        baremetal=False,
+        ips=None,
+        **kwargs,
+    ):
         """Creates the node, and sets the ssh key, console key
         NephoScale will respond with a 200-200 response after sending a valid
         request. If ex_wait=True is specified in the args, we then ask a few
@@ -561,27 +577,27 @@ get all keys call with no arguments')
             ...                     ex_wait=True,
             ...                     zone=location.id)
         """
-        hostname = kwargs.get('hostname', name)
+        hostname = kwargs.get("hostname", name)
         service_type = size.id
         image = image.id
-        connect_attempts = int(kwargs.get('connect_attempts',
-                               CONNECT_ATTEMPTS))
+        connect_attempts = int(kwargs.get("connect_attempts", CONNECT_ATTEMPTS))
 
-        data = {'name': name,
-                'hostname': hostname,
-                'service_type': service_type,
-                'image': image,
-                'server_key': server_key,
-                'console_key': console_key,
-                'zone': zone
-                }
+        data = {
+            "name": name,
+            "hostname": hostname,
+            "service_type": service_type,
+            "image": image,
+            "server_key": server_key,
+            "console_key": console_key,
+            "zone": zone,
+        }
         # cloudlet or baremetal
         if baremetal:
-            element_uri = 'dedicated'
+            element_uri = "dedicated"
             # not required
-            data.pop('console_key')
+            data.pop("console_key")
         else:
-            element_uri = 'cloud'
+            element_uri = "cloud"
         # Comma delimited list of IP addresses to associate with the server
         # eg "ips": "208.166.64.4, 10.128.0.4".
         # If ips are set, NephoScale need to have the network specified as well
@@ -589,28 +605,34 @@ get all keys call with no arguments')
 
         if ips:
             if isinstance(ips, list):
-                ips = ','.join(ips)
-            data['ips'] = ips
+                ips = ",".join(ips)
+            data["ips"] = ips
 
             networks = []
             domains = self.ex_list_domains()
-            for ip in ips.split(','):
-                ip = ip.replace(' ', '')
+            for ip in ips.split(","):
+                ip = ip.replace(" ", "")
                 network = self.get_network_domain_from_ip(domains, ip)
                 networks.append(network)
-            data['networks'] = ','.join(networks)
+            data["networks"] = ",".join(networks)
 
         params = urlencode(data)
         try:
-            node = self.connection.request('/server/%s/'
-                                           % element_uri, data=params,
-                                           method='POST')
+            node = self.connection.request(
+                "/server/%s/" % element_uri, data=params, method="POST"
+            )
         except Exception as e:
             raise Exception("Failed to create node %s" % e)
-        node = Node(id=name, name=name, state=NodeState.UNKNOWN, public_ips=[],
-                    private_ips=[], driver=self)
+        node = Node(
+            id=name,
+            name=name,
+            state=NodeState.UNKNOWN,
+            public_ips=[],
+            private_ips=[],
+            driver=self,
+        )
 
-        nowait = kwargs.get('ex_wait', False)
+        nowait = kwargs.get("ex_wait", False)
         if not nowait:
             return node
         else:
@@ -620,8 +642,7 @@ get all keys call with no arguments')
             created_node = False
             while connect_attempts > 0:
                 nodes = self.list_nodes()
-                created_node = [c_node for c_node in nodes if
-                                c_node.name == name]
+                created_node = [c_node for c_node in nodes if c_node.name == name]
                 if created_node:
                     return created_node[0]
                 else:
@@ -630,64 +651,71 @@ get all keys call with no arguments')
             return node
 
     def _to_node(self, data):
-        """Convert node in Node instances
-        """
+        """Convert node in Node instances"""
 
-        state = NODE_STATE_MAP.get(data.get('power_status'), '4')
+        state = NODE_STATE_MAP.get(data.get("power_status"), "4")
         public_ips = []
         private_ips = []
-        ip_addresses = data.get('ipaddresses', '')
+        ip_addresses = data.get("ipaddresses", "")
         # E.g. "ipaddresses": "198.120.14.6, 10.132.60.1"
         if ip_addresses:
-            for ip in ip_addresses.split(','):
-                ip = ip.replace(' ', '')
+            for ip in ip_addresses.split(","):
+                ip = ip.replace(" ", "")
                 if is_private_subnet(ip):
                     private_ips.append(ip)
                 else:
                     public_ips.append(ip)
         extra = {
-            'id': data.get('id'),
-            'zone_data': data.get('zone'),
-            'zone': data.get('zone', {}).get('name'),
-            'image': data.get('image', {}).get('friendly_name'),
-            'create_time': data.get('create_time'),
-            'network_ports': data.get('network_ports'),
-            'is_console_enabled': data.get('is_console_enabled'),
-            'service_type': data.get('service_type', {}).get('friendly_name'),
-            'size_id': data.get('service_type', {}).get('id'),
-            'hostname': data.get('hostname')
+            "id": data.get("id"),
+            "zone_data": data.get("zone"),
+            "zone": data.get("zone", {}).get("name"),
+            "image": data.get("image", {}).get("friendly_name"),
+            "create_time": data.get("create_time"),
+            "network_ports": data.get("network_ports"),
+            "is_console_enabled": data.get("is_console_enabled"),
+            "service_type": data.get("service_type", {}).get("friendly_name"),
+            "size_id": data.get("service_type", {}).get("id"),
+            "hostname": data.get("hostname"),
         }
-        billable_type = data.get('service_type', {}).get('billable_type')
+        billable_type = data.get("service_type", {}).get("billable_type")
         # 1 for cloud servers, 2 for dedicated
         if billable_type == 1:
-            extra['tags'] = {'type': 'Cloudlet'}
+            extra["tags"] = {"type": "Cloudlet"}
         elif billable_type == 2:
-            extra['tags'] = {'type': 'BareMetal'}
+            extra["tags"] = {"type": "BareMetal"}
 
-        node = Node(id=data.get('name'), name=data.get('name'), state=state,
-                    public_ips=public_ips, private_ips=private_ips,
-                    driver=self, extra=extra)
+        node = Node(
+            id=data.get("name"),
+            name=data.get("name"),
+            state=state,
+            public_ips=public_ips,
+            private_ips=private_ips,
+            driver=self,
+            extra=extra,
+        )
         return node
 
     def _to_key(self, data):
-        return NodeKey(id=data.get('id'),
-                       name=data.get('name'),
-                       password=data.get('password'),
-                       key_group=data.get('key_group'),
-                       public_key=data.get('public_key'))
+        return NodeKey(
+            id=data.get("id"),
+            name=data.get("name"),
+            password=data.get("password"),
+            key_group=data.get("key_group"),
+            public_key=data.get("public_key"),
+        )
 
     def get_network_domain_from_ip(self, domains, ip):
         """Returns the network domain id an ip belongs to
         Used in create_node, if ips are specified
         """
-        network_domain = ''
+        network_domain = ""
         for domain in domains:
             for cidr in domain.cidr:
-                if ip in cidr.get('ipaddress_list', []):
+                if ip in cidr.get("ipaddress_list", []):
                     network_domain = domain.id
         return network_domain
 
     def random_password(self, size=8):
         value = os.urandom(size)
-        password = binascii.hexlify(value).decode('ascii')
+        password = binascii.hexlify(value).decode("ascii")
         return password[:size]

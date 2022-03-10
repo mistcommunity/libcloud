@@ -34,7 +34,7 @@ __all__ = [
     "ProviderError",
     "InvalidCredsError",
     "InvalidCredsException",
-    "LazyList"
+    "LazyList",
 ]
 
 
@@ -105,10 +105,7 @@ class LibcloudError(Exception):
         return self.__repr__()
 
     def __repr__(self):
-        return ("<LibcloudError in " +
-                repr(self.driver) +
-                " " +
-                repr(self.value) + ">")
+        return "<LibcloudError in " + repr(self.driver) + " " + repr(self.value) + ">"
 
 
 class MalformedResponseError(LibcloudError):
@@ -126,12 +123,14 @@ class MalformedResponseError(LibcloudError):
         return self.__repr__()
 
     def __repr__(self):
-        return ("<MalformedResponseException in " +
-                repr(self.driver) +
-                " " +
-                repr(self.value) +
-                ">: " +
-                repr(self.body))
+        return (
+            "<MalformedResponseException in "
+            + repr(self.driver)
+            + " "
+            + repr(self.value)
+            + ">: "
+            + repr(self.body)
+        )
 
 
 class ProviderError(LibcloudError):
@@ -159,12 +158,11 @@ class ProviderError(LibcloudError):
 class InvalidCredsError(ProviderError):
     """Exception used when invalid credentials are used on a provider."""
 
-    def __init__(self, value='Invalid credentials with the provider',
-                 driver=None):
+    def __init__(self, value="Invalid credentials with the provider", driver=None):
         # type: (str, Optional[BaseDriver]) -> None
-        super(InvalidCredsError, self).__init__(value,
-                                                http_code=httplib.UNAUTHORIZED,
-                                                driver=driver)
+        super(InvalidCredsError, self).__init__(
+            value, http_code=httplib.UNAUTHORIZED, driver=driver
+        )
 
 
 # Deprecated alias of :class:`InvalidCredsError`
@@ -174,17 +172,14 @@ InvalidCredsException = InvalidCredsError
 class ServiceUnavailableError(ProviderError):
     """Exception used when a provider returns 503 Service Unavailable."""
 
-    def __init__(self, value='Service unavailable at provider', driver=None):
+    def __init__(self, value="Service unavailable at provider", driver=None):
         # type: (str, Optional[BaseDriver]) -> None
         super(ServiceUnavailableError, self).__init__(
-            value,
-            http_code=httplib.SERVICE_UNAVAILABLE,
-            driver=driver
+            value, http_code=httplib.SERVICE_UNAVAILABLE, driver=driver
         )
 
 
 class LazyList(object):
-
     def __init__(self, get_more, value_dict=None):
         # type: (Callable, Optional[dict]) -> None
         self._data = []  # type: list
@@ -214,14 +209,14 @@ class LazyList(object):
 
     def __repr__(self):
         self._load_all()
-        repr_string = ', ' .join([repr(item) for item in self._data])
-        repr_string = '[%s]' % (repr_string)
+        repr_string = ", ".join([repr(item) for item in self._data])
+        repr_string = "[%s]" % (repr_string)
         return repr_string
 
     def _load_all(self):
         while not self._exhausted:
-            newdata, self._last_key, self._exhausted = \
-                self._get_more(last_key=self._last_key,
-                               value_dict=self._value_dict)
+            newdata, self._last_key, self._exhausted = self._get_more(
+                last_key=self._last_key, value_dict=self._value_dict
+            )
             self._data.extend(newdata)
         self._all_loaded = True

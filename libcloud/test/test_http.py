@@ -30,37 +30,35 @@ ORIGINAL_CA_CERTS_PATH = libcloud.security.CA_CERTS_PATH
 
 
 class TestHttpLibSSLTests(unittest.TestCase):
-
     def setUp(self):
         libcloud.security.VERIFY_SSL_CERT = False
         libcloud.security.CA_CERTS_PATH = ORIGINAL_CA_CERTS_PATH
-        self.httplib_object = LibcloudConnection('foo.bar', port=80)
+        self.httplib_object = LibcloudConnection("foo.bar", port=80)
 
     def test_custom_ca_path_using_env_var_doesnt_exist(self):
-        os.environ['SSL_CERT_FILE'] = '/foo/doesnt/exist'
+        os.environ["SSL_CERT_FILE"] = "/foo/doesnt/exist"
 
         try:
             reload(libcloud.security)
         except ValueError as e:
-            msg = 'Certificate file /foo/doesnt/exist doesn\'t exist'
+            msg = "Certificate file /foo/doesnt/exist doesn't exist"
             self.assertEqual(str(e), msg)
         else:
-            self.fail('Exception was not thrown')
+            self.fail("Exception was not thrown")
 
     def test_custom_ca_path_using_env_var_is_directory(self):
         file_path = os.path.dirname(os.path.abspath(__file__))
-        os.environ['SSL_CERT_FILE'] = file_path
+        os.environ["SSL_CERT_FILE"] = file_path
 
-        expected_msg = 'Certificate file can\'t be a directory'
-        assertRaisesRegex(self, ValueError, expected_msg,
-                          reload, libcloud.security)
+        expected_msg = "Certificate file can't be a directory"
+        assertRaisesRegex(self, ValueError, expected_msg, reload, libcloud.security)
 
     def test_custom_ca_path_using_env_var_exist(self):
         # When setting a path we don't actually check that a valid CA file is
         # provided.
         # This happens later in the code in http.connect method
         file_path = os.path.abspath(__file__)
-        os.environ['SSL_CERT_FILE'] = file_path
+        os.environ["SSL_CERT_FILE"] = file_path
 
         reload(libcloud.security)
 
@@ -69,10 +67,8 @@ class TestHttpLibSSLTests(unittest.TestCase):
     def test_ca_cert_list_warning(self):
         with warnings.catch_warnings(record=True) as w:
             self.httplib_object.verify = True
-            self.httplib_object._setup_ca_cert(
-                ca_cert=[ORIGINAL_CA_CERTS_PATH])
-            self.assertEqual(self.httplib_object.ca_cert,
-                             ORIGINAL_CA_CERTS_PATH)
+            self.httplib_object._setup_ca_cert(ca_cert=[ORIGINAL_CA_CERTS_PATH])
+            self.assertEqual(self.httplib_object.ca_cert, ORIGINAL_CA_CERTS_PATH)
             self.assertEqual(w[0].category, DeprecationWarning)
 
     def test_setup_ca_cert(self):
@@ -91,5 +87,6 @@ class TestHttpLibSSLTests(unittest.TestCase):
 
         self.assertTrue(self.httplib_object.ca_cert is not None)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     sys.exit(unittest.main())

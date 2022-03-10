@@ -29,21 +29,30 @@ from libcloud.common.exceptions import BaseHTTPError
 from libcloud.utils.misc import to_memory_str
 from libcloud.utils.misc import to_n_bytes
 
-__all__ = [
-    'ElasticKubernetesDriver'
-]
+__all__ = ["ElasticKubernetesDriver"]
 
 
-EKS_VERSION = '2017-11-01'
-EKS_HOST = 'eks.%s.amazonaws.com'
-STS_HOST = 'sts.%s.amazonaws.com'
-ROOT = '/'
-CLUSTERS_ENDPOINT = ROOT + 'clusters/'
+EKS_VERSION = "2017-11-01"
+EKS_HOST = "eks.%s.amazonaws.com"
+STS_HOST = "sts.%s.amazonaws.com"
+ROOT = "/"
+CLUSTERS_ENDPOINT = ROOT + "clusters/"
 
 
 class EKSCluster(ContainerCluster):
-    def __init__(self, id, name, location, driver, config, status,
-                 extra, credentials=None, total_cpus=None, total_memory=None):
+    def __init__(
+        self,
+        id,
+        name,
+        location,
+        driver,
+        config,
+        status,
+        extra,
+        credentials=None,
+        total_cpus=None,
+        total_memory=None,
+    ):
 
         super().__init__(id, name, driver, extra)
         self.location = location
@@ -55,12 +64,14 @@ class EKSCluster(ContainerCluster):
 
 
 class EKSNodeGroup:
-    def __init__(self,
-                 id_: str,
-                 name: str,
-                 state: str,
-                 cluster_name: str,
-                 extra: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        id_: str,
+        name: str,
+        state: str,
+        cluster_name: str,
+        extra: Optional[Dict[str, Any]] = None,
+    ):
         self.id = id_
         self.name = name
         self.state = state
@@ -68,31 +79,35 @@ class EKSNodeGroup:
         self.extra = extra or {}
 
     def __repr__(self):
-        return (('<EKSNodeGroup: id=%s, name=%s, state=%s, cluster=%s ...>')
-                % (self.id, self.name, self.state, self.cluster_name))
+        return ("<EKSNodeGroup: id=%s, name=%s, state=%s, cluster=%s ...>") % (
+            self.id,
+            self.name,
+            self.state,
+            self.cluster_name,
+        )
 
 
 class EKSJsonConnection(SignedAWSConnection):
     version = EKS_VERSION
     host = EKS_HOST
     responseCls = AWSJsonResponse
-    service_name = 'eks'
+    service_name = "eks"
 
 
 class ElasticKubernetesDriver(ContainerDriver):
-    name = 'Amazon Elastic Kubernetes Service'
-    website = 'https://aws.amazon.com/eks/'
+    name = "Amazon Elastic Kubernetes Service"
+    website = "https://aws.amazon.com/eks/"
     connectionCls = EKSJsonConnection
     containerDriverCls = KubernetesContainerDriver
     supports_clusters = True
 
     CLUSTER_STATES = {
-        'CREATING': ClusterState.STARTING,
-        'ACTIVE': ClusterState.RUNNING,
-        'DELETING': ClusterState.STOPPING,
-        'FAILED': ClusterState.ERROR,
-        'UPDATING': ClusterState.UPDATING,
-        'PENDING': ClusterState.PENDING,
+        "CREATING": ClusterState.STARTING,
+        "ACTIVE": ClusterState.RUNNING,
+        "DELETING": ClusterState.STOPPING,
+        "FAILED": ClusterState.ERROR,
+        "UPDATING": ClusterState.UPDATING,
+        "PENDING": ClusterState.PENDING,
     }
 
     def __init__(self, access_id, secret, region):
@@ -101,7 +116,7 @@ class ElasticKubernetesDriver(ContainerDriver):
         self.region_name = region
 
     def _ex_connection_class_kwargs(self):
-        return {'signature_version': '4'}
+        return {"signature_version": "4"}
 
     def list_clusters(self):
         """
@@ -109,8 +124,7 @@ class ElasticKubernetesDriver(ContainerDriver):
 
         :rtype: ``list`` of :class:`EKSCluster`
         """
-        names = self.connection.request(
-            CLUSTERS_ENDPOINT).object['clusters']
+        names = self.connection.request(CLUSTERS_ENDPOINT).object["clusters"]
         clusters = [self.get_cluster(name) for name in names]
         return clusters
 
@@ -123,23 +137,22 @@ class ElasticKubernetesDriver(ContainerDriver):
 
         :rtype: :class:`EKSCluster`
         """
-        endpoint = '{endpoint}{name}'.format(
-            endpoint=CLUSTERS_ENDPOINT, name=name)
-        data = self.connection.request(
-            endpoint).object
-        return self._to_cluster(data['cluster'], fetch_nodes=fetch_nodes)
+        endpoint = "{endpoint}{name}".format(endpoint=CLUSTERS_ENDPOINT, name=name)
+        data = self.connection.request(endpoint).object
+        return self._to_cluster(data["cluster"], fetch_nodes=fetch_nodes)
 
-    def create_cluster(self,
-                       name: str,
-                       role_arn: str,
-                       vpc_id: str,
-                       subnet_ids: List[str],
-                       security_group_ids: List[str],
-                       version: str = '1.21',
-                       endpoint_public_access: bool = True,
-                       endpoint_private_access: bool = False,
-                       ip_family: str = 'ipv4',
-                       ):
+    def create_cluster(
+        self,
+        name: str,
+        role_arn: str,
+        vpc_id: str,
+        subnet_ids: List[str],
+        security_group_ids: List[str],
+        version: str = "1.21",
+        endpoint_public_access: bool = True,
+        endpoint_private_access: bool = False,
+        ip_family: str = "ipv4",
+    ):
         """
         Create a cluster
 
@@ -182,24 +195,22 @@ class ElasticKubernetesDriver(ContainerDriver):
         :rtype: :class:`EKSCluster`
         """
         request = {
-            'name': name,
-            'version': version,
-            'roleArn': role_arn,
-            'resourcesVpcConfig': {
-                'vpcId': vpc_id,
-                'subnetIds': subnet_ids,
-                'securityGroudIds': security_group_ids,
-                'endpointPublicAccess': endpoint_public_access,
-                'endpointPrivateAccess': endpoint_private_access,
+            "name": name,
+            "version": version,
+            "roleArn": role_arn,
+            "resourcesVpcConfig": {
+                "vpcId": vpc_id,
+                "subnetIds": subnet_ids,
+                "securityGroudIds": security_group_ids,
+                "endpointPublicAccess": endpoint_public_access,
+                "endpointPrivateAccess": endpoint_private_access,
             },
-            'kubernetesNetworkConfig': {'ipFamily': ip_family},
+            "kubernetesNetworkConfig": {"ipFamily": ip_family},
         }
         response = self.connection.request(
-            CLUSTERS_ENDPOINT,
-            method='POST',
-            data=json.dumps(request)
+            CLUSTERS_ENDPOINT, method="POST", data=json.dumps(request)
         ).object
-        return self._to_cluster(response['cluster'], fetch_nodes=False)
+        return self._to_cluster(response["cluster"], fetch_nodes=False)
 
     def destroy_cluster(self, name):
         """
@@ -211,10 +222,9 @@ class ElasticKubernetesDriver(ContainerDriver):
         :return: ``True`` if the destroy was successful
         :rtype: ``bool``
         """
-        endpoint = '{endpoint}{name}'.format(
-            endpoint=CLUSTERS_ENDPOINT, name=name)
+        endpoint = "{endpoint}{name}".format(endpoint=CLUSTERS_ENDPOINT, name=name)
 
-        response = self.connection.request(endpoint, method='DELETE')
+        response = self.connection.request(endpoint, method="DELETE")
 
         return response.success()
 
@@ -229,25 +239,26 @@ class ElasticKubernetesDriver(ContainerDriver):
         """
         if isinstance(cluster, str):
             cluster = self.get_cluster(cluster)
-        host, port = cluster.extra['endpoint'], '443'
+        host, port = cluster.extra["endpoint"], "443"
         token = self._get_cluster_token(cluster.name)
         credentials = dict(host=host, port=port, token=token)
         return credentials
 
-    def ex_create_cluster_node_group(self,
-                                     cluster: Union[EKSCluster, str],
-                                     name: str,
-                                     role_arn: str,
-                                     subnet_ids: List[str],
-                                     capacity_type: str = 'ON_DEMAND',
-                                     node_group_disk_size: int = 20,
-                                     instance_types: Optional[List[str]] = None,
-                                     ami_type: str = 'AL2_x86_64',
-                                     desired_nodes: int = 2,
-                                     max_nodes: int = 2,
-                                     min_nodes: int = 2,
-                                     max_unavailable_nodes: int = 1,
-                                     ):
+    def ex_create_cluster_node_group(
+        self,
+        cluster: Union[EKSCluster, str],
+        name: str,
+        role_arn: str,
+        subnet_ids: List[str],
+        capacity_type: str = "ON_DEMAND",
+        node_group_disk_size: int = 20,
+        instance_types: Optional[List[str]] = None,
+        ami_type: str = "AL2_x86_64",
+        desired_nodes: int = 2,
+        max_nodes: int = 2,
+        min_nodes: int = 2,
+        max_unavailable_nodes: int = 1,
+    ):
         """Create a managed node group for a cluster.
 
         :param  cluster: The cluster to create the node group for.
@@ -296,111 +307,111 @@ class ElasticKubernetesDriver(ContainerDriver):
             cluster_name = cluster
 
         data = {
-            'amiType': ami_type,
-            'capacityType': capacity_type,
-            'diskSize': node_group_disk_size,
-            'nodegroupName': name,
-            'nodeRole': role_arn,
-            'subnets': subnet_ids,
-            'scalingConfig': {
-                'desiredSize': desired_nodes,
-                'maxSize': max_nodes,
-                'minSize': min_nodes,
+            "amiType": ami_type,
+            "capacityType": capacity_type,
+            "diskSize": node_group_disk_size,
+            "nodegroupName": name,
+            "nodeRole": role_arn,
+            "subnets": subnet_ids,
+            "scalingConfig": {
+                "desiredSize": desired_nodes,
+                "maxSize": max_nodes,
+                "minSize": min_nodes,
             },
-            'updateConfig': {
-                'maxUnavailable': max_unavailable_nodes,
+            "updateConfig": {
+                "maxUnavailable": max_unavailable_nodes,
             },
         }
 
         if instance_types:
-            data['instanceTypes'] = list(instance_types)
+            data["instanceTypes"] = list(instance_types)
 
         response = self.connection.request(
-            f'{CLUSTERS_ENDPOINT}{cluster_name}/node-groups',
-            method='POST',
-            data=json.dumps(data)).object
+            f"{CLUSTERS_ENDPOINT}{cluster_name}/node-groups",
+            method="POST",
+            data=json.dumps(data),
+        ).object
 
-        return self._to_nodegroup(response['nodegroup'])
+        return self._to_nodegroup(response["nodegroup"])
 
     def _to_nodegroup(self, data):
-        id_ = data['nodegroupArn']
-        name = data['nodegroupName']
-        state = data['status']
-        cluster_name = data['clusterName']
+        id_ = data["nodegroupArn"]
+        name = data["nodegroupName"]
+        state = data["status"]
+        cluster_name = data["clusterName"]
         extra = {
-            'version': data.get('version'),
-            'release_version': data.get('releaseVersion'),
-            'created_at': data.get('createdAt'),
-            'modified_at': data.get('modified_at'),
-            'capacity_type': data.get('capacityType'),
-            'scaling_config': data.get('scalingConfig'),
-            'instance_types': data.get('instanceTypes'),
-            'subnets': data.get('subnets'),
-            'remote_access': data.get('remoteAccess'),
-            'ami_type': data.get('amiType'),
-            'node_role': data.get('nodeRole'),
-            'labels': data.get('labels'),
-            'taints': data.get('taints'),
-            'resources': data.get('resources'),
-            'disk_size': data.get('diskSize'),
-            'health': data.get('health'),
-            'update_config': data.get('updateConfig'),
-            'launch_template': data.get('launchTemplate'),
-            'tags': data.get('tags'),
+            "version": data.get("version"),
+            "release_version": data.get("releaseVersion"),
+            "created_at": data.get("createdAt"),
+            "modified_at": data.get("modified_at"),
+            "capacity_type": data.get("capacityType"),
+            "scaling_config": data.get("scalingConfig"),
+            "instance_types": data.get("instanceTypes"),
+            "subnets": data.get("subnets"),
+            "remote_access": data.get("remoteAccess"),
+            "ami_type": data.get("amiType"),
+            "node_role": data.get("nodeRole"),
+            "labels": data.get("labels"),
+            "taints": data.get("taints"),
+            "resources": data.get("resources"),
+            "disk_size": data.get("diskSize"),
+            "health": data.get("health"),
+            "update_config": data.get("updateConfig"),
+            "launch_template": data.get("launchTemplate"),
+            "tags": data.get("tags"),
         }
-        return EKSNodeGroup(id_=id_,
-                            name=name,
-                            state=state,
-                            cluster_name=cluster_name,
-                            extra=extra)
+        return EKSNodeGroup(
+            id_=id_, name=name, state=state, cluster_name=cluster_name, extra=extra
+        )
 
     def _get_cluster_token(self, cluster_name):
         host = STS_HOST % (self.region)
-        url = 'https://{host}'.format(host=host) + \
-            '/?Action=GetCallerIdentity&Version=2011-06-15'
+        url = (
+            "https://{host}".format(host=host)
+            + "/?Action=GetCallerIdentity&Version=2011-06-15"
+        )
         params = {
-            'method': 'GET',
-            'url': url,
-            'body': {},
-            'headers': {
-                'x-k8s-aws-id': cluster_name
-            },
-            'context': {}
+            "method": "GET",
+            "url": url,
+            "body": {},
+            "headers": {"x-k8s-aws-id": cluster_name},
+            "context": {},
         }
         signed_url = self.connection.signer.generate_sts_presigned_url(
-            params=params,
-            host=host)
-        base64_url = base64.urlsafe_b64encode(
-            signed_url.encode('utf-8')).decode('utf-8')
-        return 'k8s-aws-v1.' + re.sub(r'=*', '', base64_url)
+            params=params, host=host
+        )
+        base64_url = base64.urlsafe_b64encode(signed_url.encode("utf-8")).decode(
+            "utf-8"
+        )
+        return "k8s-aws-v1." + re.sub(r"=*", "", base64_url)
 
     def _to_cluster(self, data, fetch_nodes=True):
-        id_ = data['arn']
-        name = data['name']
-        endpoint = data['endpoint']
+        id_ = data["arn"]
+        name = data["name"]
+        endpoint = data["endpoint"]
         try:
-            status = self.CLUSTER_STATES[data['status']]
+            status = self.CLUSTER_STATES[data["status"]]
         except KeyError:
             status = ClusterState.UNKNOWN
 
         config = {
-            'resourcesVpcConfig': data.get('resourcesVpcConfig'),
-            'kubernetesNetworkConfig': data.get('kubernetesNetworkConfig'),
-            'encryptionConfig': data.get('encryptionConfig'),
-            'connectorConfig': data.get('connectorConfig'),
+            "resourcesVpcConfig": data.get("resourcesVpcConfig"),
+            "kubernetesNetworkConfig": data.get("kubernetesNetworkConfig"),
+            "encryptionConfig": data.get("encryptionConfig"),
+            "connectorConfig": data.get("connectorConfig"),
         }
 
         extra = {
-            'createdAt': data['createdAt'],
-            'version': data['version'],
-            'endpoint': endpoint,
-            'roleArn': data['roleArn'],
-            'logging': data['logging'],
-            'identity': data['identity'],
-            'certificateAuthority': data['certificateAuthority'],
-            'clientRequestToken': data['clientRequestToken'],
-            'platformVersion': data['platformVersion'],
-            'tags': data['platformVersion'],
+            "createdAt": data["createdAt"],
+            "version": data["version"],
+            "endpoint": endpoint,
+            "roleArn": data["roleArn"],
+            "logging": data["logging"],
+            "identity": data["identity"],
+            "certificateAuthority": data["certificateAuthority"],
+            "clientRequestToken": data["clientRequestToken"],
+            "platformVersion": data["platformVersion"],
+            "tags": data["platformVersion"],
         }
 
         cluster = EKSCluster(
@@ -410,30 +421,37 @@ class ElasticKubernetesDriver(ContainerDriver):
             status=status,
             driver=None,
             config=config,
-            extra=extra
+            extra=extra,
         )
         cluster.credentials = self.get_cluster_credentials(cluster)
-        cluster.driver = self.containerDriverCls(host=cluster.credentials['host'],
-                                                 port=cluster.credentials['port'],
-                                                 key=cluster.credentials['token'],
-                                                 ex_token_bearer_auth=True)
+        cluster.driver = self.containerDriverCls(
+            host=cluster.credentials["host"],
+            port=cluster.credentials["port"],
+            key=cluster.credentials["token"],
+            ex_token_bearer_auth=True,
+        )
 
         if fetch_nodes:
             try:
                 cluster_nodes = cluster.driver.ex_list_nodes()
             except Exception:
-                cluster.extra['nodes'] = []
+                cluster.extra["nodes"] = []
                 cluster.total_cpus = 0
                 cluster.total_memory = 0
             else:
-                cluster.extra['nodes'] = [{
-                    'id': node.id,
-                    'name': node.name,
-                    'provider_id': node.extra['provider_id'],
-                }
-                    for node in cluster_nodes]
+                cluster.extra["nodes"] = [
+                    {
+                        "id": node.id,
+                        "name": node.name,
+                        "provider_id": node.extra["provider_id"],
+                    }
+                    for node in cluster_nodes
+                ]
                 for n in cluster_nodes:
-                    cluster.total_cpus += int(n.extra['cpu'])
-                    cluster.total_memory += int(to_memory_str(to_n_bytes(
-                        n.extra['memory']), unit='G').strip('G'))
+                    cluster.total_cpus += int(n.extra["cpu"])
+                    cluster.total_memory += int(
+                        to_memory_str(to_n_bytes(n.extra["memory"]), unit="G").strip(
+                            "G"
+                        )
+                    )
         return cluster
