@@ -306,11 +306,10 @@ class GKEContainerDriver(KubernetesContainerDriver):
         :rtype: :class:`GKECluster`
         """
         request = "/zones/%s/clusters/%s" % (zone, name)
-        try:
-            self.connection.request(request, method='DELETE').object
-        except GoogleBaseError:
-            return False
-        return True
+
+        response=self.connection.request(request, method='DELETE')
+
+        return response.success()
 
     def get_cluster_credentials(self, cluster, zone=None):
         """
