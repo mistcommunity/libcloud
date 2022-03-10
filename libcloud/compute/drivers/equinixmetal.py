@@ -264,7 +264,7 @@ def _list_async(driver):
                 size.get('line') == 'baremetal']
 
     def ex_get_node(self, node_id):
-        data= self.connection.request(f'/metal/v1/devices/{node_id}').object
+        data = self.connection.request(f'/metal/v1/devices/{node_id}').object
         return self._to_node(data)
 
     def create_node(self, name, size, image, location,
@@ -490,8 +490,9 @@ def _list_async(driver):
         extra = {'description': data['description'], 'line': data['line'],
                  'cpus': cpus, 'regions': regions, 'cpu_cores': total_cores}
         try:
-            ram = int(data['specs']['memory']['total'].replace('GB', '')) * 1024
-        except KeyError:
+            ram = int(data['specs']['memory']
+                      ['total'].replace('GB', '')) * 1024
+        except (KeyError, ValueError):
             ram = None
         disk = None
         if data['specs'].get('drives', ''):
@@ -500,7 +501,10 @@ def _list_async(driver):
                 disk_size = disks['size'].replace('GB', '')
                 if 'TB' in disk_size:
                     disk_size = float(disks['size'].replace('TB', '')) * 1000
-                disk += disks['count'] * int(disk_size)
+                try:
+                    disk += disks['count'] * int(disk_size)
+                except ValueError:
+                    continue
         name = "%s - %s RAM" % (data.get('name'), ram)
         price = data['pricing'].get('hour')
         return NodeSize(id=data['slug'], name=name,
