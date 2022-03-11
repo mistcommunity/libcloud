@@ -10,7 +10,7 @@ from libcloud.common.kubernetes import KubernetesResponse
 from libcloud.common.types import LibcloudError
 
 
-UTC_TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+UTC_TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 
 def _utcnow():
@@ -42,11 +42,13 @@ class OpenShiftAuthError(LibcloudError):
 
 
 class OpenShiftBasicAuthConnection(ConnectionUserAndKey):
-    API_SUBDOMAIN_PREFIX = 'api.'
-    OAUTH_SUBDOMAIN_PREFIX = 'oauth-openshift.apps.'
-    OAUTH_TOKEN_ENDPOINT = ('oauth/authorize?'
-                            'client_id=openshift-challenging-client'
-                            '&response_type=token')
+    API_SUBDOMAIN_PREFIX = "api."
+    OAUTH_SUBDOMAIN_PREFIX = "oauth-openshift.apps."
+    OAUTH_TOKEN_ENDPOINT = (
+        "oauth/authorize?"
+        "client_id=openshift-challenging-client"
+        "&response_type=token"
+    )
 
     responseCls = KubernetesResponse
     timeout = 60
@@ -59,11 +61,11 @@ class OpenShiftBasicAuthConnection(ConnectionUserAndKey):
     def _access_token(self):
         if self._token is None or self._token_expire_utc_datetime < _utcnow():
             self._refresh_token()
-        return self._token['access_token']
+        return self._token["access_token"]
 
     @property
     def _token_expire_utc_datetime(self):
-        return _from_utc_timestamp(self._token['expire_time'])
+        return _from_utc_timestamp(self._token["expire_time"])
 
     def _refresh_token(self):
         """
@@ -73,17 +75,17 @@ class OpenShiftBasicAuthConnection(ConnectionUserAndKey):
         :return:  Dictionary containing token information
         :rtype:   ``dict``
         """
-        host = self.host.strip('http://').strip('https://')
+        host = self.host.strip("http://").strip("https://")
         if host.startswith(self.API_SUBDOMAIN_PREFIX):
-            base_host = host[len(self.API_SUBDOMAIN_PREFIX):]
+            base_host = host[len(self.API_SUBDOMAIN_PREFIX) :]
         else:
             base_host = host
-        base_endpoint = 'https://' + self.OAUTH_SUBDOMAIN_PREFIX + base_host
+        base_endpoint = "https://" + self.OAUTH_SUBDOMAIN_PREFIX + base_host
         endpoint = parse.urljoin(base_endpoint, self.OAUTH_TOKEN_ENDPOINT)
-        auth_string = f'{self.user_id}:{self.key}'.encode()
+        auth_string = f"{self.user_id}:{self.key}".encode()
         user_b64 = base64.b64encode(auth_string)
         headers = dict(Authorization=f"Basic {user_b64.decode('utf-8')}")
-        headers['X-CSRF-Token'] = 'xxx'
+        headers["X-CSRF-Token"] = "xxx"
         try:
             response = requests.get(endpoint, headers=headers, verify=False)
         except ConnectionError as e:
@@ -91,17 +93,17 @@ class OpenShiftBasicAuthConnection(ConnectionUserAndKey):
         try:
             response.raise_for_status()
         except HTTPError:
-            raise OpenShiftAuthError('Invalid authorization request, please '
-                                     'check your credentials or retry.')
-        token_info = parse.parse_qs(parse.urlsplit(
-            response.url).fragment)
-        access_token = token_info['access_token'][0]
-        expires_in = int(token_info['expires_in'][0])
-        expire_time = _utcnow() + datetime.timedelta(
-            seconds=expires_in)
+            raise OpenShiftAuthError(
+                "Invalid authorization request, please "
+                "check your credentials or retry."
+            )
+        token_info = parse.parse_qs(parse.urlsplit(response.url).fragment)
+        access_token = token_info["access_token"][0]
+        expires_in = int(token_info["expires_in"][0])
+        expire_time = _utcnow() + datetime.timedelta(seconds=expires_in)
         self._token = {
-            'access_token': access_token,
-            'expire_time': _utc_timestamp(expire_time)
+            "access_token": access_token,
+            "expire_time": _utc_timestamp(expire_time),
         }
 
     def add_default_headers(self, headers):
@@ -110,8 +112,8 @@ class OpenShiftBasicAuthConnection(ConnectionUserAndKey):
         If user and password are specified, retrieve and include a bearer
         token
         """
-        if 'Content-Type' not in headers:
-            headers['Content-Type'] = 'application/json'
+        if "Content-Type" not in headers:
+            headers["Content-Type"] = "application/json"
         if self.user_id and self.key:
-            headers['Authorization'] = 'Bearer ' + self._access_token
+            headers["Authorization"] = "Bearer " + self._access_token
         return headers

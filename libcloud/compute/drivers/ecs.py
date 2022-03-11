@@ -28,10 +28,17 @@ import hashlib
 from libcloud.utils.xml import fixxpath, findtext, findattr, findall
 from libcloud.common.aliyun import AliyunXmlResponse, SignedAliyunConnection
 from libcloud.common.types import LibcloudError
-from libcloud.compute.base import Node, NodeDriver, NodeImage, NodeSize, \
-    StorageVolume, VolumeSnapshot, NodeLocation, KeyPair
-from libcloud.compute.types import NodeState, StorageVolumeState, \
-    VolumeSnapshotState
+from libcloud.compute.base import (
+    Node,
+    NodeDriver,
+    NodeImage,
+    NodeSize,
+    StorageVolume,
+    VolumeSnapshot,
+    NodeLocation,
+    KeyPair,
+)
+from libcloud.compute.types import NodeState, StorageVolumeState, VolumeSnapshotState
 from libcloud.utils.py3 import _real_unicode as u
 from libcloud.utils.py3 import ensure_string, b
 from libcloud.utils.xml import findall, findattr, findtext
@@ -39,25 +46,25 @@ from libcloud.utils.publickey import get_pubkey_ssh2_fingerprint
 from libcloud.utils.publickey import get_pubkey_comment
 
 __all__ = [
-    'DiskCategory',
-    'InternetChargeType',
-    'ECS_API_VERSION',
-    'ECSDriver',
-    'ECSSecurityGroup',
-    'ECSZone',
-    'ECSVpc',
-    'ECSVSwitch'
+    "DiskCategory",
+    "InternetChargeType",
+    "ECS_API_VERSION",
+    "ECSDriver",
+    "ECSSecurityGroup",
+    "ECSZone",
+    "ECSVpc",
+    "ECSVSwitch",
 ]
 
-ECS_API_VERSION = '2014-05-26'
-ECS_API_ENDPOINT = 'ecs.aliyuncs.com'
-DEFAULT_SIGNATURE_VERSION = '1.0'
+ECS_API_VERSION = "2014-05-26"
+ECS_API_ENDPOINT = "ecs.aliyuncs.com"
+DEFAULT_SIGNATURE_VERSION = "1.0"
 
 
 def _parse_bool(value):
     if isinstance(value, bool):
         return value
-    if u(value).lower() == 'true':
+    if u(value).lower() == "true":
         return True
     return False
 
@@ -66,294 +73,97 @@ def _parse_bool(value):
 Define the extra dictionary for specific resources
 """
 RESOURCE_EXTRA_ATTRIBUTES_MAP = {
-    'node': {
-        'description': {
-            'xpath': 'Description',
-            'transform_func': u
-        },
-        'image_id': {
-            'xpath': 'ImageId',
-            'transform_func': u
-        },
-        'zone_id': {
-            'xpath': 'ZoneId',
-            'transform_func': u
-        },
-        'instance_type': {
-            'xpath': 'InstanceType',
-            'transform_func': u
-        },
-        'instance_type_family': {
-            'xpath': 'InstanceTypeFamily',
-            'transform_func': u
-        },
-        'hostname': {
-            'xpath': 'HostName',
-            'transform_func': u
-        },
-        'serial_number': {
-            'xpath': 'SerialNumber',
-            'transform_func': u
-        },
-        'internet_charge_type': {
-            'xpath': 'InternetChargeType',
-            'transform_func': u
-        },
-        'creation_time': {
-            'xpath': 'CreationTime',
-            'transform_func': u
-        },
-        'instance_network_type': {
-            'xpath': 'InstanceNetworkType',
-            'transform_func': u
-        },
-        'instance_charge_type': {
-            'xpath': 'InstanceChargeType',
-            'transform_func': u
-        },
-        'device_available': {
-            'xpath': 'DeviceAvailable',
-            'transform_func': u
-        },
-        'io_optimized': {
-            'xpath': 'IoOptimized',
-            'transform_func': u
-        },
-        'expired_time': {
-            'xpath': 'ExpiredTime',
-            'transform_func': u
-        }
+    "node": {
+        "description": {"xpath": "Description", "transform_func": u},
+        "image_id": {"xpath": "ImageId", "transform_func": u},
+        "zone_id": {"xpath": "ZoneId", "transform_func": u},
+        "instance_type": {"xpath": "InstanceType", "transform_func": u},
+        "instance_type_family": {"xpath": "InstanceTypeFamily", "transform_func": u},
+        "hostname": {"xpath": "HostName", "transform_func": u},
+        "serial_number": {"xpath": "SerialNumber", "transform_func": u},
+        "internet_charge_type": {"xpath": "InternetChargeType", "transform_func": u},
+        "creation_time": {"xpath": "CreationTime", "transform_func": u},
+        "instance_network_type": {"xpath": "InstanceNetworkType", "transform_func": u},
+        "instance_charge_type": {"xpath": "InstanceChargeType", "transform_func": u},
+        "device_available": {"xpath": "DeviceAvailable", "transform_func": u},
+        "io_optimized": {"xpath": "IoOptimized", "transform_func": u},
+        "expired_time": {"xpath": "ExpiredTime", "transform_func": u},
     },
-    'vpc_attributes': {
-        'vpc_id': {
-            'xpath': 'VpcId',
-            'transform_func': u
+    "vpc_attributes": {
+        "vpc_id": {"xpath": "VpcId", "transform_func": u},
+        "vswitch_id": {"xpath": "VSwitchId", "transform_func": u},
+        "private_ip_address": {
+            "xpath": "PrivateIpAddress/IpAddress",
+            "transform_func": u,
         },
-        'vswitch_id': {
-            'xpath': 'VSwitchId',
-            'transform_func': u
-        },
-        'private_ip_address': {
-            'xpath': 'PrivateIpAddress/IpAddress',
-            'transform_func': u
-        },
-        'nat_ip_address': {
-            'xpath': 'NatIpAddress',
-            'transform_func': u
-        }
+        "nat_ip_address": {"xpath": "NatIpAddress", "transform_func": u},
     },
-    'eip_address_associate': {
-        'allocation_id': {
-            'xpath': 'AllocationId',
-            'transform_func': u
-        },
-        'ip_address': {
-            'xpath': 'IpAddress',
-            'transform_func': u
-        },
-        'bandwidth': {
-            'xpath': 'Bandwidth',
-            'transform_func': int
-        },
-        'internet_charge_type': {
-            'xpath': 'InternetChargeType',
-            'transform_func': u
-        }
+    "eip_address_associate": {
+        "allocation_id": {"xpath": "AllocationId", "transform_func": u},
+        "ip_address": {"xpath": "IpAddress", "transform_func": u},
+        "bandwidth": {"xpath": "Bandwidth", "transform_func": int},
+        "internet_charge_type": {"xpath": "InternetChargeType", "transform_func": u},
     },
-    'operation_locks': {
-        'lock_reason': {
-            'xpath': 'LockReason',
-            'transform_func': u
-        }
+    "operation_locks": {"lock_reason": {"xpath": "LockReason", "transform_func": u}},
+    "volume": {
+        "region_id": {"xpath": "RegionId", "transform_func": u},
+        "zone_id": {"xpath": "ZoneId", "transform_func": u},
+        "description": {"xpath": "Description", "transform_func": u},
+        "type": {"xpath": "Type", "transform_func": u},
+        "category": {"xpath": "Category", "transform_func": u},
+        "image_id": {"xpath": "ImageId", "transform_func": u},
+        "source_snapshot_id": {"xpath": "SourceSnapshotId", "transform_func": u},
+        "product_code": {"xpath": "ProductCode", "transform_func": u},
+        "portable": {"xpath": "Portable", "transform_func": _parse_bool},
+        "instance_id": {"xpath": "InstanceId", "transform_func": u},
+        "device": {"xpath": "Device", "transform_func": u},
+        "delete_with_instance": {
+            "xpath": "DeleteWithInstance",
+            "transform_func": _parse_bool,
+        },
+        "enable_auto_snapshot": {
+            "xpath": "EnableAutoSnapshot",
+            "transform_func": _parse_bool,
+        },
+        "creation_time": {"xpath": "CreationTime", "transform_func": u},
+        "attached_time": {"xpath": "AttachedTime", "transform_func": u},
+        "detached_time": {"xpath": "DetachedTime", "transform_func": u},
+        "disk_charge_type": {"xpath": "DiskChargeType", "transform_func": u},
     },
-    'volume': {
-        'region_id': {
-            'xpath': 'RegionId',
-            'transform_func': u
-        },
-        'zone_id': {
-            'xpath': 'ZoneId',
-            'transform_func': u
-        },
-        'description': {
-            'xpath': 'Description',
-            'transform_func': u
-        },
-        'type': {
-            'xpath': 'Type',
-            'transform_func': u
-        },
-        'category': {
-            'xpath': 'Category',
-            'transform_func': u
-        },
-        'image_id': {
-            'xpath': 'ImageId',
-            'transform_func': u
-        },
-        'source_snapshot_id': {
-            'xpath': 'SourceSnapshotId',
-            'transform_func': u
-        },
-        'product_code': {
-            'xpath': 'ProductCode',
-            'transform_func': u
-        },
-        'portable': {
-            'xpath': 'Portable',
-            'transform_func': _parse_bool
-        },
-        'instance_id': {
-            'xpath': 'InstanceId',
-            'transform_func': u
-        },
-        'device': {
-            'xpath': 'Device',
-            'transform_func': u
-        },
-        'delete_with_instance': {
-            'xpath': 'DeleteWithInstance',
-            'transform_func': _parse_bool
-        },
-        'enable_auto_snapshot': {
-            'xpath': 'EnableAutoSnapshot',
-            'transform_func': _parse_bool
-        },
-        'creation_time': {
-            'xpath': 'CreationTime',
-            'transform_func': u
-        },
-        'attached_time': {
-            'xpath': 'AttachedTime',
-            'transform_func': u
-        },
-        'detached_time': {
-            'xpath': 'DetachedTime',
-            'transform_func': u
-        },
-        'disk_charge_type': {
-            'xpath': 'DiskChargeType',
-            'transform_func': u
-        }
+    "snapshot": {
+        "snapshot_name": {"xpath": "SnapshotName", "transform_func": u},
+        "description": {"xpath": "Description", "transform_func": u},
+        "progress": {"xpath": "Progress", "transform_func": u},
+        "source_disk_id": {"xpath": "SourceDiskId", "transform_func": u},
+        "source_disk_size": {"xpath": "SourceDiskSize", "transform_func": int},
+        "source_disk_type": {"xpath": "SourceDiskType", "transform_func": u},
+        "product_code": {"xpath": "ProductCode", "transform_func": u},
+        "usage": {"xpath": "Usage", "transform_func": u},
     },
-    'snapshot': {
-        'snapshot_name': {
-            'xpath': 'SnapshotName',
-            'transform_func': u
-        },
-        'description': {
-            'xpath': 'Description',
-            'transform_func': u
-        },
-        'progress': {
-            'xpath': 'Progress',
-            'transform_func': u
-        },
-        'source_disk_id': {
-            'xpath': 'SourceDiskId',
-            'transform_func': u
-        },
-        'source_disk_size': {
-            'xpath': 'SourceDiskSize',
-            'transform_func': int
-        },
-        'source_disk_type': {
-            'xpath': 'SourceDiskType',
-            'transform_func': u
-        },
-        'product_code': {
-            'xpath': 'ProductCode',
-            'transform_func': u
-        },
-        'usage': {
-            'xpath': 'Usage',
-            'transform_func': u
-        }
+    "image": {
+        "image_version": {"xpath": "ImageVersion", "transform_func": u},
+        "os_type": {"xpath": "OSType", "transform_func": u},
+        "platform": {"xpath": "Platform", "transform_func": u},
+        "architecture": {"xpath": "Architecture", "transform_func": u},
+        "description": {"xpath": "Description", "transform_func": u},
+        "size": {"xpath": "Size", "transform_func": int},
+        "image_owner_alias": {"xpath": "ImageOwnerAlias", "transform_func": u},
+        "os_name": {"xpath": "OSName", "transform_func": u},
+        "product_code": {"xpath": "ProductCode", "transform_func": u},
+        "is_subscribed": {"xpath": "IsSubscribed", "transform_func": _parse_bool},
+        "progress": {"xpath": "Progress", "transform_func": u},
+        "creation_time": {"xpath": "CreationTime", "transform_func": u},
+        "usage": {"xpath": "Usage", "transform_func": u},
+        "is_copied": {"xpath": "IsCopied", "transform_func": _parse_bool},
     },
-    'image': {
-        'image_version': {
-            'xpath': 'ImageVersion',
-            'transform_func': u
-        },
-        'os_type': {
-            'xpath': 'OSType',
-            'transform_func': u
-        },
-        'platform': {
-            'xpath': 'Platform',
-            'transform_func': u
-        },
-        'architecture': {
-            'xpath': 'Architecture',
-            'transform_func': u
-        },
-        'description': {
-            'xpath': 'Description',
-            'transform_func': u
-        },
-        'size': {
-            'xpath': 'Size',
-            'transform_func': int
-        },
-        'image_owner_alias': {
-            'xpath': 'ImageOwnerAlias',
-            'transform_func': u
-        },
-        'os_name': {
-            'xpath': 'OSName',
-            'transform_func': u
-        },
-        'product_code': {
-            'xpath': 'ProductCode',
-            'transform_func': u
-        },
-        'is_subscribed': {
-            'xpath': 'IsSubscribed',
-            'transform_func': _parse_bool
-        },
-        'progress': {
-            'xpath': 'Progress',
-            'transform_func': u
-        },
-        'creation_time': {
-            'xpath': 'CreationTime',
-            'transform_func': u
-        },
-        'usage': {
-            'xpath': 'Usage',
-            'transform_func': u
-        },
-        'is_copied': {
-            'xpath': 'IsCopied',
-            'transform_func': _parse_bool
-        }
+    "disk_device_mapping": {
+        "snapshot_id": {"xpath": "SnapshotId", "transform_func": u},
+        "size": {"xpath": "Size", "transform_func": int},
+        "device": {"xpath": "Device", "transform_func": u},
+        "format": {"xpath": "Format", "transform_func": u},
+        "import_oss_bucket": {"xpath": "ImportOSSBucket", "transform_func": u},
+        "import_oss_object": {"xpath": "ImportOSSObject", "transform_func": u},
     },
-    'disk_device_mapping': {
-        'snapshot_id': {
-            'xpath': 'SnapshotId',
-            'transform_func': u
-        },
-        'size': {
-            'xpath': 'Size',
-            'transform_func': int
-        },
-        'device': {
-            'xpath': 'Device',
-            'transform_func': u
-        },
-        'format': {
-            'xpath': 'Format',
-            'transform_func': u
-        },
-        'import_oss_bucket': {
-            'xpath': 'ImportOSSBucket',
-            'transform_func': u
-        },
-        'import_oss_object': {
-            'xpath': 'ImportOSSObject',
-            'transform_func': u
-        }
-    }
 }
 
 
@@ -365,7 +175,7 @@ class ECSConnection(SignedAliyunConnection):
     api_version = ECS_API_VERSION
     host = ECS_API_ENDPOINT
     responseCls = AliyunXmlResponse
-    service_name = 'ecs'
+    service_name = "ecs"
 
 
 class ECSVpc(object):
@@ -382,8 +192,12 @@ class ECSVpc(object):
         self.extra = extra or {}
 
     def __repr__(self):
-        return ('<ECSVpc: id=%s, name=%s, cidr_block=%s driver=%s ...>' %
-                (self.id, self.name, self.cidr_block, self.driver.name))
+        return "<ECSVpc: id=%s, name=%s, cidr_block=%s driver=%s ...>" % (
+            self.id,
+            self.name,
+            self.cidr_block,
+            self.driver.name,
+        )
 
 
 class ECSVSwitch(object):
@@ -400,8 +214,13 @@ class ECSVSwitch(object):
         self.extra = extra or {}
 
     def __repr__(self):
-        return ('<ECSVSwitch: id=%s, name=%s, cidr_block=%s  vpc_id=%s driver=%s...>' %
-                (self.id, self.name, self.cidr_block, self.vpc_id, self.driver.name))
+        return "<ECSVSwitch: id=%s, name=%s, cidr_block=%s  vpc_id=%s driver=%s...>" % (
+            self.id,
+            self.name,
+            self.cidr_block,
+            self.vpc_id,
+            self.driver.name,
+        )
 
 
 class ECSSecurityGroup(object):
@@ -409,8 +228,9 @@ class ECSSecurityGroup(object):
     Security group used to control nodes internet and intranet accessibility.
     """
 
-    def __init__(self, id, name, description=None, driver=None, vpc_id=None,
-                 creation_time=None):
+    def __init__(
+        self, id, name, description=None, driver=None, vpc_id=None, creation_time=None
+    ):
         self.id = id
         self.name = name
         self.description = description
@@ -419,8 +239,11 @@ class ECSSecurityGroup(object):
         self.creation_time = creation_time
 
     def __repr__(self):
-        return ('<ECSSecurityGroup: id=%s, name=%s, driver=%s ...>' %
-                (self.id, self.name, self.driver.name))
+        return "<ECSSecurityGroup: id=%s, name=%s, driver=%s ...>" % (
+            self.id,
+            self.name,
+            self.driver.name,
+        )
 
 
 class ECSSecurityGroupAttribute(object):
@@ -429,8 +252,14 @@ class ECSSecurityGroupAttribute(object):
     Security group attribute.
     """
 
-    def __init__(self, ip_protocol=None, port_range=None,
-                 source_group_id=None, policy=None, nic_type=None):
+    def __init__(
+        self,
+        ip_protocol=None,
+        port_range=None,
+        source_group_id=None,
+        policy=None,
+        nic_type=None,
+    ):
         self.ip_protocol = ip_protocol
         self.port_range = port_range
         self.source_group_id = source_group_id
@@ -438,8 +267,7 @@ class ECSSecurityGroupAttribute(object):
         self.nic_type = nic_type
 
     def __repr__(self):
-        return ('<ECSSecurityGroupAttribute: ip_protocol=%s ...>' %
-                (self.ip_protocol))
+        return "<ECSSecurityGroupAttribute: ip_protocol=%s ...>" % (self.ip_protocol)
 
 
 class ECSZone(object):
@@ -447,10 +275,15 @@ class ECSZone(object):
     ECSZone used to represent an availability zone in a region.
     """
 
-    def __init__(self, id, name, driver=None,
-                 available_resource_types=None,
-                 available_instance_types=None,
-                 available_disk_categories=None):
+    def __init__(
+        self,
+        id,
+        name,
+        driver=None,
+        available_resource_types=None,
+        available_instance_types=None,
+        available_disk_categories=None,
+    ):
         self.id = id
         self.name = name
         self.driver = driver
@@ -459,26 +292,31 @@ class ECSZone(object):
         self.available_disk_categories = available_disk_categories
 
     def __repr__(self):
-        return ('<ECSZone: id=%s, name=%s, driver=%s>' %
-                (self.id, self.name, self.driver))
+        return "<ECSZone: id=%s, name=%s, driver=%s>" % (
+            self.id,
+            self.name,
+            self.driver,
+        )
 
 
 class InternetChargeType(object):
     """
     Internet connection billing types for Aliyun Nodes.
     """
-    BY_BANDWIDTH = 'PayByBandwidth'
-    BY_TRAFFIC = 'PayByTraffic'
+
+    BY_BANDWIDTH = "PayByBandwidth"
+    BY_TRAFFIC = "PayByTraffic"
 
 
 class DiskCategory(object):
     """
     Enum defined disk types supported by Aliyun system and data disks.
     """
-    CLOUD = 'cloud'
-    CLOUD_EFFICIENCY = 'cloud_efficiency'
-    CLOUD_SSD = 'cloud_ssd'
-    EPHEMERAL_SSD = 'ephemeral_ssd'
+
+    CLOUD = "cloud"
+    CLOUD_EFFICIENCY = "cloud_efficiency"
+    CLOUD_SSD = "cloud_ssd"
+    EPHEMERAL_SSD = "ephemeral_ssd"
 
 
 class Pagination(object):
@@ -510,12 +348,14 @@ class Pagination(object):
         return self
 
     def to_dict(self):
-        return {'PageNumber': self.current,
-                'PageSize': self.size}
+        return {"PageNumber": self.current, "PageSize": self.size}
 
     def __repr__(self):
-        return ('<Pagination total=%d, size=%d, current page=%d>' %
-                (self.total, self.size, self.current))
+        return "<Pagination total=%d, size=%d, current page=%d>" % (
+            self.total,
+            self.size,
+            self.current,
+        )
 
 
 class ECSDriver(NodeDriver):
@@ -530,35 +370,37 @@ class ECSDriver(NodeDriver):
     Manage security groups and rules
     """
 
-    name = 'Aliyun ECS'
-    website = 'https://www.aliyun.com/product/ecs'
+    name = "Aliyun ECS"
+    website = "https://www.aliyun.com/product/ecs"
     connectionCls = ECSConnection
-    features = {'create_node': ['password', 'ssh_key']}
+    features = {"create_node": ["password", "ssh_key"]}
     namespace = None
-    path = '/'
+    path = "/"
 
     internet_charge_types = InternetChargeType
     disk_categories = DiskCategory
 
     NODE_STATE_MAPPING = {
-        'Starting': NodeState.PENDING,
-        'Running': NodeState.RUNNING,
-        'Stopping': NodeState.PENDING,
-        'Stopped': NodeState.STOPPED
+        "Starting": NodeState.PENDING,
+        "Running": NodeState.RUNNING,
+        "Stopping": NodeState.PENDING,
+        "Stopped": NodeState.STOPPED,
     }
 
     VOLUME_STATE_MAPPING = {
-        'In_use': StorageVolumeState.INUSE,
-        'Available': StorageVolumeState.AVAILABLE,
-        'Attaching': StorageVolumeState.ATTACHING,
-        'Detaching': StorageVolumeState.INUSE,
-        'Creating': StorageVolumeState.CREATING,
-        'ReIniting': StorageVolumeState.CREATING}
+        "In_use": StorageVolumeState.INUSE,
+        "Available": StorageVolumeState.AVAILABLE,
+        "Attaching": StorageVolumeState.ATTACHING,
+        "Detaching": StorageVolumeState.INUSE,
+        "Creating": StorageVolumeState.CREATING,
+        "ReIniting": StorageVolumeState.CREATING,
+    }
 
     SNAPSHOT_STATE_MAPPING = {
-        'progressing': VolumeSnapshotState.CREATING,
-        'accomplished': VolumeSnapshotState.AVAILABLE,
-        'failed': VolumeSnapshotState.ERROR}
+        "progressing": VolumeSnapshotState.CREATING,
+        "accomplished": VolumeSnapshotState.AVAILABLE,
+        "failed": VolumeSnapshotState.ERROR,
+    }
 
     def list_nodes(self, ex_node_ids=None, ex_filters=None):
         """
@@ -578,66 +420,61 @@ class ECSDriver(NodeDriver):
         :type   ex_filters: ``dict``
         """
 
-        params = {'Action': 'DescribeInstances',
-                  'RegionId': self.region}
+        params = {"Action": "DescribeInstances", "RegionId": self.region}
 
         if ex_node_ids:
             if isinstance(ex_node_ids, list):
-                params['InstanceIds'] = self._list_to_json_array(ex_node_ids)
+                params["InstanceIds"] = self._list_to_json_array(ex_node_ids)
             else:
-                raise AttributeError('ex_node_ids should be a list of '
-                                     'node ids.')
+                raise AttributeError("ex_node_ids should be a list of " "node ids.")
 
         if ex_filters:
             if isinstance(ex_filters, dict):
                 params.update(ex_filters)
             else:
-                raise AttributeError('ex_filters should be a dict of '
-                                     'node attributes.')
+                raise AttributeError(
+                    "ex_filters should be a dict of " "node attributes."
+                )
 
-        nodes = self._request_multiple_pages(self.path, params,
-                                             self._to_nodes)
+        nodes = self._request_multiple_pages(self.path, params, self._to_nodes)
         return nodes
 
     def list_sizes(self, location=None):
-        params = {'Action': 'DescribeInstanceTypes'}
+        params = {"Action": "DescribeInstanceTypes"}
 
         resp_body = self.connection.request(self.path, params).object
-        size_elements = findall(resp_body, 'InstanceTypes/InstanceType',
-                                namespace=self.namespace)
+        size_elements = findall(
+            resp_body, "InstanceTypes/InstanceType", namespace=self.namespace
+        )
         sizes = [self._to_size(each) for each in size_elements]
         return sizes
 
     def list_locations(self):
-        params = {'Action': 'DescribeRegions'}
+        params = {"Action": "DescribeRegions"}
 
         resp_body = self.connection.request(self.path, params).object
-        location_elements = findall(resp_body, 'Regions/Region',
-                                    namespace=self.namespace)
+        location_elements = findall(
+            resp_body, "Regions/Region", namespace=self.namespace
+        )
         locations = [self._to_location(each) for each in location_elements]
         return locations
 
     def ex_list_networks(self, ex_filters=None):
-        params = {'Action': 'DescribeVpcs',
-                  'RegionId': self.region}
+        params = {"Action": "DescribeVpcs", "RegionId": self.region}
 
         if ex_filters and isinstance(ex_filters, dict):
             params.update(ex_filters)
 
         def _parse_response(resp_object):
-            sg_elements = findall(resp_object, 'Vpcs/Vpc',
-                                  namespace=self.namespace)
+            sg_elements = findall(resp_object, "Vpcs/Vpc", namespace=self.namespace)
             sgs = [self._to_network(el) for el in sg_elements]
             return sgs
-        return self._request_multiple_pages(self.path, params,
-                                            _parse_response)
 
-    def ex_create_network(self,
-                          region_id=None,
-                          name=None,
-                          cidr_block=None,
-                          ex_filters=None,
-                          only_id=True):
+        return self._request_multiple_pages(self.path, params, _parse_response)
+
+    def ex_create_network(
+        self, region_id=None, name=None, cidr_block=None, ex_filters=None, only_id=True
+    ):
         """
         Create a VPC.
 
@@ -657,23 +494,22 @@ class ECSDriver(NodeDriver):
         or a ECSVpc object
         :type only_id: ``bool``
         """
-        params = {'Action': 'CreateVpc'}
+        params = {"Action": "CreateVpc"}
         if region_id:
-            params['RegionId'] = region_id
+            params["RegionId"] = region_id
         else:
-            params['RegionId'] = self.region
+            params["RegionId"] = self.region
         if name:
-            params['VpcName'] = name
+            params["VpcName"] = name
         if cidr_block:
-            params['CidrBlock'] = cidr_block
+            params["CidrBlock"] = cidr_block
 
         if ex_filters and isinstance(ex_filters, dict):
             params.update(ex_filters)
 
         resp = self.connection.request(self.path, params)
 
-        id_ = findtext(resp.object, 'VpcId',
-                       namespace=self.namespace)
+        id_ = findtext(resp.object, "VpcId", namespace=self.namespace)
         if only_id is True:
             return id_
         else:
@@ -690,77 +526,65 @@ class ECSDriver(NodeDriver):
             network_id = network.id
         except AttributeError:
             network_id = network
-        params = {
-            'Action': 'DeleteVpc',
-            'VpcId': network_id,
-            'RegionId': self.region
-        }
+        params = {"Action": "DeleteVpc", "VpcId": network_id, "RegionId": self.region}
         resp = self.connection.request(self.path, params)
         return resp.success()
 
     def _to_network(self, element, name=None):
-        id_ = findtext(element, 'VpcId', namespace=self.namespace)
-        name = findtext(element, 'VpcName',
-                        namespace=self.namespace)
-        cidr_block = findtext(element, 'CidrBlock',
-                              namespace=self.namespace)
-        status = findtext(element, 'Status',
-                          namespace=self.namespace)
+        id_ = findtext(element, "VpcId", namespace=self.namespace)
+        name = findtext(element, "VpcName", namespace=self.namespace)
+        cidr_block = findtext(element, "CidrBlock", namespace=self.namespace)
+        status = findtext(element, "Status", namespace=self.namespace)
         extra = {
-            'description': findtext(element, 'Description',
-                                    namespace=self.namespace),
-            'creation_time': findtext(element, 'CreationTime',
-                                      namespace=self.namespace),
-            'is_default': findtext(element, 'IsDefault',
-                                   namespace=self.namespace),
-            'switches': findtext(element, 'VSwitchIds',
-                                 namespace=self.namespace),
-            'user_cidr_blocks': findtext(element, 'UserCidrs',
-                                         namespace=self.namespace),
-            'secondary_cidr_blocks': findtext(element, 'SecondaryCidrBlocks',
-                                              namespace=self.namespace),
+            "description": findtext(element, "Description", namespace=self.namespace),
+            "creation_time": findtext(
+                element, "CreationTime", namespace=self.namespace
+            ),
+            "is_default": findtext(element, "IsDefault", namespace=self.namespace),
+            "switches": findtext(element, "VSwitchIds", namespace=self.namespace),
+            "user_cidr_blocks": findtext(
+                element, "UserCidrs", namespace=self.namespace
+            ),
+            "secondary_cidr_blocks": findtext(
+                element, "SecondaryCidrBlocks", namespace=self.namespace
+            ),
         }
 
-        return ECSVpc(id_,
-                      name,
-                      cidr_block,
-                      status,
-                      self,
-                      extra=extra)
+        return ECSVpc(id_, name, cidr_block, status, self, extra=extra)
 
     def ex_list_switches(self, ex_filters=None):
-        params = {'Action': 'DescribeVSwitches', 'RegionId': self.region}
+        params = {"Action": "DescribeVSwitches", "RegionId": self.region}
 
         if ex_filters and isinstance(ex_filters, dict):
             params.update(ex_filters)
 
-        return self._request_multiple_pages(self.path, params,
-                                            self._to_switches)
+        return self._request_multiple_pages(self.path, params, self._to_switches)
 
-
-    def ex_create_switch(self, cidr, zone, vpc, region_id=None,
-                         name=None, description=None, only_id=True):
-        params = {'Action': 'CreateVSwitch',
-                  'CidrBlock': cidr,
-                  'VpcId': vpc,
-                  'ZoneId': zone,
-                  'RegionId': self.region}
+    def ex_create_switch(
+        self, cidr, zone, vpc, region_id=None, name=None, description=None, only_id=True
+    ):
+        params = {
+            "Action": "CreateVSwitch",
+            "CidrBlock": cidr,
+            "VpcId": vpc,
+            "ZoneId": zone,
+            "RegionId": self.region,
+        }
 
         if region_id:
-            params['RegionId'] = region_id
+            params["RegionId"] = region_id
         else:
-            params['RegionId'] = self.region
+            params["RegionId"] = self.region
 
         if name:
-            params['VSwitchName'] = name
+            params["VSwitchName"] = name
 
         if description:
-            params['Description'] = description
+            params["Description"] = description
 
         resp = self.connection.request(self.path, params)
 
-        id_ = findtext(resp.object, 'VSwitchId',
-                       namespace=self.namespace)
+        id_ = findtext(resp.object, "VSwitchId", namespace=self.namespace)
 
         if only_id is True:
             return id_
@@ -779,51 +603,63 @@ class ECSDriver(NodeDriver):
         except AttributeError:
             switch_id = switch
         params = {
-            'Action': 'DeleteVSwitch',
-            'RegionId': self.region,
-            'VSwitchId': switch_id
+            "Action": "DeleteVSwitch",
+            "RegionId": self.region,
+            "VSwitchId": switch_id,
         }
         resp = self.connection.request(self.path, params)
         return resp.success()
 
     def _to_switches(self, response):
-        return [self._to_switch(el) for el in response.findall(
-            fixxpath(xpath='VSwitches/VSwitch', namespace=self.namespace))
+        return [
+            self._to_switch(el)
+            for el in response.findall(
+                fixxpath(xpath="VSwitches/VSwitch", namespace=self.namespace)
+            )
         ]
 
     def _to_switch(self, element, name=None):
-        id_ = findtext(element, 'VSwitchId', namespace=self.namespace)
-        name = findtext(element, 'VSwitchName',
-                        namespace=self.namespace)
-        cidr_block = findtext(element, 'CidrBlock',
-                              namespace=self.namespace)
-        vpc_id = findtext(element, 'VpcId',
-                          namespace=self.namespace)
+        id_ = findtext(element, "VSwitchId", namespace=self.namespace)
+        name = findtext(element, "VSwitchName", namespace=self.namespace)
+        cidr_block = findtext(element, "CidrBlock", namespace=self.namespace)
+        vpc_id = findtext(element, "VpcId", namespace=self.namespace)
         extra = {
-            'description': findtext(element, 'VSwitchDescription',
-                                    namespace=self.namespace),
-            'creation_time': findtext(element, 'CreationTime',
-                                      namespace=self.namespace),
-            'zone_id': findtext(element, 'ZoneId',
-                                namespace=self.namespace),
-            'available_ips': findtext(element, 'AvailableIpAddressCount',
-                                      namespace=self.namespace),
-            'default': findtext(element, 'IsDefault',
-                                namespace=self.namespace),
-            'status': findtext(element, 'Status',
-                               namespace=self.namespace),
+            "description": findtext(
+                element, "VSwitchDescription", namespace=self.namespace
+            ),
+            "creation_time": findtext(
+                element, "CreationTime", namespace=self.namespace
+            ),
+            "zone_id": findtext(element, "ZoneId", namespace=self.namespace),
+            "available_ips": findtext(
+                element, "AvailableIpAddressCount", namespace=self.namespace
+            ),
+            "default": findtext(element, "IsDefault", namespace=self.namespace),
+            "status": findtext(element, "Status", namespace=self.namespace),
         }
         return ECSVSwitch(id_, name, cidr_block, vpc_id, self, extra=extra)
 
-    def create_node(self, name, size, image, auth=None,
-                    ex_zone_id=None, ex_security_group_id=None,
-                    ex_description=None, ex_internet_charge_type=None,
-                    ex_internet_max_bandwidth_out=None,
-                    ex_internet_max_bandwidth_in=None,
-                    ex_hostname=None, ex_io_optimized=None,
-                    ex_system_disk=None, ex_data_disks=None,
-                    ex_vswitch_id=None, ex_private_ip_address=None,
-                    ex_client_token=None, **kwargs):
+    def create_node(
+        self,
+        name,
+        size,
+        image,
+        auth=None,
+        ex_zone_id=None,
+        ex_security_group_id=None,
+        ex_description=None,
+        ex_internet_charge_type=None,
+        ex_internet_max_bandwidth_out=None,
+        ex_internet_max_bandwidth_in=None,
+        ex_hostname=None,
+        ex_io_optimized=None,
+        ex_system_disk=None,
+        ex_data_disks=None,
+        ex_vswitch_id=None,
+        ex_private_ip_address=None,
+        ex_client_token=None,
+        **kwargs,
+    ):
         """
         @inherits: :class:`NodeDriver.create_node`
 
@@ -891,53 +727,58 @@ class ECSDriver(NodeDriver):
         :type keyword ex_client_token: ``str``
         """
 
-        params = {'Action': 'CreateInstance',
-                  'RegionId': self.region,
-                  'ImageId': image.id,
-                  'InstanceType': size.id,
-                  'InstanceName': name}
+        params = {
+            "Action": "CreateInstance",
+            "RegionId": self.region,
+            "ImageId": image.id,
+            "InstanceType": size.id,
+            "InstanceName": name,
+        }
 
         if not ex_security_group_id:
-            raise AttributeError('ex_security_group_id is mandatory')
-        params['SecurityGroupId'] = ex_security_group_id
+            raise AttributeError("ex_security_group_id is mandatory")
+        params["SecurityGroupId"] = ex_security_group_id
 
         if ex_description:
-            params['Description'] = ex_description
+            params["Description"] = ex_description
 
         if ex_zone_id:
-            params['ZoneId'] = ex_zone_id
+            params["ZoneId"] = ex_zone_id
 
         inet_params = self._get_internet_related_params(
             ex_internet_charge_type,
             ex_internet_max_bandwidth_in,
-            ex_internet_max_bandwidth_out)
+            ex_internet_max_bandwidth_out,
+        )
         if inet_params:
             params.update(inet_params)
 
         if ex_hostname:
-            params['HostName'] = ex_hostname
+            params["HostName"] = ex_hostname
 
         if auth:
             auth = self._get_and_check_auth(auth)
-            if getattr(auth, 'pubkey'):
+            if getattr(auth, "pubkey"):
                 key = self.ex_find_or_import_keypair_by_key_material(
-                    auth.pubkey, kwargs.get('ex_keyname'))
-                params['KeyName'] = key['keyName']
+                    auth.pubkey, kwargs.get("ex_keyname")
+                )
+                params["KeyName"] = key["keyName"]
             else:
-                params['Password'] = auth.password
+                params["Password"] = auth.password
 
-        if 'ex_userdata' in kwargs:
-            params['UserData'] = base64.b64encode(
-                kwargs.get('ex_userdata').encode()).decode()
+        if "ex_userdata" in kwargs:
+            params["UserData"] = base64.b64encode(
+                kwargs.get("ex_userdata").encode()
+            ).decode()
 
-        if 'ex_keyname' in kwargs:
-            params['KeyPairName'] = kwargs['ex_keyname']
+        if "ex_keyname" in kwargs:
+            params["KeyPairName"] = kwargs["ex_keyname"]
 
         if ex_io_optimized is not None:
             optimized = ex_io_optimized
             if isinstance(optimized, bool):
-                optimized = 'optimized' if optimized else 'none'
-            params['IoOptimized'] = optimized
+                optimized = "optimized" if optimized else "none"
+            params["IoOptimized"] = optimized
 
         if ex_system_disk:
             system_disk = self._get_system_disk(ex_system_disk)
@@ -950,32 +791,34 @@ class ECSDriver(NodeDriver):
                 params.update(data_disks)
 
         if ex_vswitch_id:
-            params['VSwitchId'] = ex_vswitch_id
+            params["VSwitchId"] = ex_vswitch_id
 
         if ex_private_ip_address:
             if not ex_vswitch_id:
-                raise AttributeError('must provide ex_private_ip_address  '
-                                     'and ex_vswitch_id at the same time')
+                raise AttributeError(
+                    "must provide ex_private_ip_address  "
+                    "and ex_vswitch_id at the same time"
+                )
             else:
-                params['PrivateIpAddress'] = ex_private_ip_address
+                params["PrivateIpAddress"] = ex_private_ip_address
 
         if ex_client_token:
-            params['ClientToken'] = ex_client_token
+            params["ClientToken"] = ex_client_token
 
         resp = self.connection.request(self.path, params=params)
-        node_id = findtext(resp.object, xpath='InstanceId',
-                           namespace=self.namespace)
+        node_id = findtext(resp.object, xpath="InstanceId", namespace=self.namespace)
         nodes = self.list_nodes(ex_node_ids=[node_id])
         if len(nodes) != 1:
-            raise LibcloudError('could not find the new created node '
-                                'with id %s. ' % node_id,
-                                driver=self)
+            raise LibcloudError(
+                "could not find the new created node " "with id %s. " % node_id,
+                driver=self,
+            )
         node = nodes[0]
         self._wait_until_state([node], NodeState.STOPPED)
         self.start_node(node)
         self._wait_until_state(nodes, NodeState.RUNNING)
 
-        if 'ex_allocate_public_ip_address' in kwargs:
+        if "ex_allocate_public_ip_address" in kwargs:
             self.ex_allocate_public_ip(node)
         return node
 
@@ -990,25 +833,24 @@ class ECSDriver(NodeDriver):
                                 default to ``False``
         :type ex_force_stop: ``bool``
         """
-        params = {'Action': 'RebootInstance',
-                  'InstanceId': node.id,
-                  'ForceStop': u(ex_force_stop).lower()}
+        params = {
+            "Action": "RebootInstance",
+            "InstanceId": node.id,
+            "ForceStop": u(ex_force_stop).lower(),
+        }
         resp = self.connection.request(self.path, params=params)
-        return resp.success() and \
-            self._wait_until_state([node], NodeState.RUNNING)
+        return resp.success() and self._wait_until_state([node], NodeState.RUNNING)
 
     def destroy_node(self, node):
         nodes = self.list_nodes(ex_node_ids=[node.id])
         if len(nodes) != 1 and node.id != nodes[0].id:
-            raise LibcloudError('could not find the node with id %s.'
-                                % node.id)
+            raise LibcloudError("could not find the node with id %s." % node.id)
         current = nodes[0]
         if current.state == NodeState.RUNNING:
             # stop node first
             self.stop_node(node)
             self._wait_until_state(nodes, NodeState.STOPPED)
-        params = {'Action': 'DeleteInstance',
-                  'InstanceId': node.id}
+        params = {"Action": "DeleteInstance", "InstanceId": node.id}
         resp = self.connection.request(self.path, params)
         return resp.success()
 
@@ -1022,11 +864,9 @@ class ECSDriver(NodeDriver):
         :return: starting operation result.
         :rtype: ``bool``
         """
-        params = {'Action': 'StartInstance',
-                  'InstanceId': node.id}
+        params = {"Action": "StartInstance", "InstanceId": node.id}
         resp = self.connection.request(self.path, params)
-        return resp.success() and \
-            self._wait_until_state([node], NodeState.RUNNING)
+        return resp.success() and self._wait_until_state([node], NodeState.RUNNING)
 
     def stop_node(self, node, ex_force_stop=False):
         """
@@ -1043,12 +883,13 @@ class ECSDriver(NodeDriver):
         :return: stopping operation result.
         :rtype: ``bool``
         """
-        params = {'Action': 'StopInstance',
-                  'InstanceId': node.id,
-                  'ForceStop': u(ex_force_stop).lower()}
+        params = {
+            "Action": "StopInstance",
+            "InstanceId": node.id,
+            "ForceStop": u(ex_force_stop).lower(),
+        }
         resp = self.connection.request(self.path, params)
-        return resp.success() and \
-            self._wait_until_state([node], NodeState.STOPPED)
+        return resp.success() and self._wait_until_state([node], NodeState.STOPPED)
 
     def ex_resize_node(self, node, size):
         """
@@ -1057,14 +898,17 @@ class ECSDriver(NodeDriver):
         :param node: The node to resize
         :param size: The new size of the node
         """
-        params = {'Action': 'ModifyInstanceSpec',
-                  'InstanceId': node.id,
-                  'InstanceType': size}
+        params = {
+            "Action": "ModifyInstanceSpec",
+            "InstanceId": node.id,
+            "InstanceType": size,
+        }
         resp = self.connection.request(self.path, params)
         return resp.success()
 
-    def ex_create_security_group(self, name=None, description=None,
-                                 client_token=None, vpc_id=None):
+    def ex_create_security_group(
+        self, name=None, description=None, client_token=None, vpc_id=None
+    ):
         """
         Create a new security group.
 
@@ -1075,19 +919,17 @@ class ECSDriver(NodeDriver):
                                   each request.
         :type client_token: ``str``
         """
-        params = {'Action': 'CreateSecurityGroup',
-                  'RegionId': self.region}
+        params = {"Action": "CreateSecurityGroup", "RegionId": self.region}
         if name:
-            params['SecurityGroupName'] = name
+            params["SecurityGroupName"] = name
         if description:
-            params['Description'] = description
+            params["Description"] = description
         if client_token:
-            params['ClientToken'] = client_token
+            params["ClientToken"] = client_token
         if vpc_id:
-            params['VpcId'] = vpc_id
+            params["VpcId"] = vpc_id
         resp = self.connection.request(self.path, params)
-        return findtext(resp.object, 'SecurityGroupId',
-                        namespace=self.namespace)
+        return findtext(resp.object, "SecurityGroupId", namespace=self.namespace)
 
     def ex_delete_security_group_by_id(self, group_id=None):
         """
@@ -1096,17 +938,17 @@ class ECSDriver(NodeDriver):
         :keyword group_id: security group id
         :type group_id: ``str``
         """
-        params = {'Action': 'DeleteSecurityGroup',
-                  'RegionId': self.region,
-                  'SecurityGroupId': group_id}
+        params = {
+            "Action": "DeleteSecurityGroup",
+            "RegionId": self.region,
+            "SecurityGroupId": group_id,
+        }
         resp = self.connection.request(self.path, params)
         return resp.success()
 
     def ex_modify_security_group_by_id(
-            self,
-            group_id=None,
-            name=None,
-            description=None):
+        self, group_id=None, name=None, description=None
+    ):
         """
         Modify a new security group.
         :keyword group_id: id of the security group
@@ -1117,10 +959,9 @@ class ECSDriver(NodeDriver):
         :type description: ``unicode``
         """
 
-        params = {'Action': 'ModifySecurityGroupAttribute',
-                  'RegionId': self.region}
+        params = {"Action": "ModifySecurityGroupAttribute", "RegionId": self.region}
         if not group_id:
-            raise AttributeError('group_id is required')
+            raise AttributeError("group_id is required")
         params["SecurityGroupId"] = group_id
 
         if name:
@@ -1132,9 +973,17 @@ class ECSDriver(NodeDriver):
         return resp.success()
 
     def ex_modify_security_group_rule(
-            self, group_id, description, ip_protocol, port_range,
-            source_port_range=None, nic_type=None, policy='accept',
-            dest_cidr_ip='0.0.0.0/0', source_cidr_ip='0.0.0.0/0', priority=None
+        self,
+        group_id,
+        description,
+        ip_protocol,
+        port_range,
+        source_port_range=None,
+        nic_type=None,
+        policy="accept",
+        dest_cidr_ip="0.0.0.0/0",
+        source_cidr_ip="0.0.0.0/0",
+        priority=None,
     ):
         """
         Modify a security group rule.
@@ -1148,34 +997,42 @@ class ECSDriver(NodeDriver):
         """
 
         params = {
-            'Action': 'ModifySecurityGroupRule',
-            'RegionId': self.region,
-            'SecurityGroupId': group_id,
-            'Description': description,
-            'IpProtocol': ip_protocol,
-            'PortRange': port_range,
-            'Policy': policy,
-            'DestCidrIp': dest_cidr_ip,
-            'SourceCidrIp': source_cidr_ip
+            "Action": "ModifySecurityGroupRule",
+            "RegionId": self.region,
+            "SecurityGroupId": group_id,
+            "Description": description,
+            "IpProtocol": ip_protocol,
+            "PortRange": port_range,
+            "Policy": policy,
+            "DestCidrIp": dest_cidr_ip,
+            "SourceCidrIp": source_cidr_ip,
         }
 
         if not group_id:
-            raise AttributeError('group_id is required')
+            raise AttributeError("group_id is required")
 
         if source_port_range:
             params["SourcePortRange"] = source_port_range
         if nic_type:
             params["Nictype"] = nic_type
         if priority:
-            params['Priority'] = priority
+            params["Priority"] = priority
 
         resp = self.connection.request(self.path, params)
         return resp.success()
 
     def ex_authorize_security_group(
-            self, group_id, description, ip_protocol, port_range,
-            source_port_range=None, nic_type=None, policy='accept',
-            dest_cidr_ip=None, source_cidr_ip='0.0.0.0/0', priority=None
+        self,
+        group_id,
+        description,
+        ip_protocol,
+        port_range,
+        source_port_range=None,
+        nic_type=None,
+        policy="accept",
+        dest_cidr_ip=None,
+        source_cidr_ip="0.0.0.0/0",
+        priority=None,
     ):
         """
         Modify a security group rule.
@@ -1189,27 +1046,27 @@ class ECSDriver(NodeDriver):
         """
 
         params = {
-            'Action': 'AuthorizeSecurityGroup',
-            'RegionId': self.region,
-            'SecurityGroupId': group_id,
-            'Description': description,
-            'IpProtocol': ip_protocol,
-            'PortRange': port_range,
-            'Policy': policy,
-            'SourceCidrIp': source_cidr_ip
+            "Action": "AuthorizeSecurityGroup",
+            "RegionId": self.region,
+            "SecurityGroupId": group_id,
+            "Description": description,
+            "IpProtocol": ip_protocol,
+            "PortRange": port_range,
+            "Policy": policy,
+            "SourceCidrIp": source_cidr_ip,
         }
 
         if not group_id:
-            raise AttributeError('group_id is required')
+            raise AttributeError("group_id is required")
 
         if source_port_range:
             params["SourcePortRange"] = source_port_range
         if nic_type:
             params["Nictype"] = nic_type
         if priority:
-            params['Priority'] = priority
+            params["Priority"] = priority
         if dest_cidr_ip:
-            params['DestCidrIp'] = dest_cidr_ip
+            params["DestCidrIp"] = dest_cidr_ip
 
         resp = self.connection.request(self.path, params)
         return resp.success()
@@ -1224,22 +1081,21 @@ class ECSDriver(NodeDriver):
         :return: a list of defined security groups
         :rtype: ``list`` of ``ECSSecurityGroup``
         """
-        params = {'Action': 'DescribeSecurityGroups',
-                  'RegionId': self.region}
+        params = {"Action": "DescribeSecurityGroups", "RegionId": self.region}
 
         if ex_filters and isinstance(ex_filters, dict):
             params.update(ex_filters)
 
         def _parse_response(resp_object):
-            sg_elements = findall(resp_object, 'SecurityGroups/SecurityGroup',
-                                  namespace=self.namespace)
+            sg_elements = findall(
+                resp_object, "SecurityGroups/SecurityGroup", namespace=self.namespace
+            )
             sgs = [self._to_security_group(el) for el in sg_elements]
             return sgs
-        return self._request_multiple_pages(self.path, params,
-                                            _parse_response)
 
-    def ex_list_security_group_attributes(self, group_id=None,
-                                          nic_type='internet'):
+        return self._request_multiple_pages(self.path, params, _parse_response)
+
+    def ex_list_security_group_attributes(self, group_id=None, nic_type="internet"):
         """
         List security group attributes in the current region.
 
@@ -1252,17 +1108,20 @@ class ECSDriver(NodeDriver):
         :return: a list of defined security group Attributes
         :rtype: ``list`` of ``ECSSecurityGroupAttribute``
         """
-        params = {'Action': 'DescribeSecurityGroupAttribute',
-                  'RegionId': self.region,
-                  'NicType': nic_type}
+        params = {
+            "Action": "DescribeSecurityGroupAttribute",
+            "RegionId": self.region,
+            "NicType": nic_type,
+        }
 
         if group_id is None:
-            raise AttributeError('group_id is required')
-        params['SecurityGroupId'] = group_id
+            raise AttributeError("group_id is required")
+        params["SecurityGroupId"] = group_id
 
         resp_object = self.connection.request(self.path, params).object
-        sga_elements = findall(resp_object, 'Permissions/Permission',
-                               namespace=self.namespace)
+        sga_elements = findall(
+            resp_object, "Permissions/Permission", namespace=self.namespace
+        )
         return [self._to_security_group_attribute(el) for el in sga_elements]
 
     def ex_join_security_group(self, node, group_id=None):
@@ -1280,16 +1139,20 @@ class ECSDriver(NodeDriver):
         :rtype: ``bool``
         """
         if group_id is None:
-            raise AttributeError('group_id is required')
+            raise AttributeError("group_id is required")
 
-        if node.state != NodeState.RUNNING and \
-           node.state != NodeState.STOPPED:
-            raise LibcloudError('The node state with id % s need\
-                                be running or stopped .' % node.id)
+        if node.state != NodeState.RUNNING and node.state != NodeState.STOPPED:
+            raise LibcloudError(
+                "The node state with id % s need\
+                                be running or stopped ."
+                % node.id
+            )
 
-        params = {'Action': 'JoinSecurityGroup',
-                  'InstanceId': node.id,
-                  'SecurityGroupId': group_id}
+        params = {
+            "Action": "JoinSecurityGroup",
+            "InstanceId": node.id,
+            "SecurityGroupId": group_id,
+        }
         resp = self.connection.request(self.path, params)
         return resp.success()
 
@@ -1308,16 +1171,20 @@ class ECSDriver(NodeDriver):
         :rtype: ``bool``
         """
         if group_id is None:
-            raise AttributeError('group_id is required')
+            raise AttributeError("group_id is required")
 
-        if node.state != NodeState.RUNNING and \
-           node.state != NodeState.STOPPED:
-            raise LibcloudError('The node state with id % s need\
-                                be running or stopped .' % node.id)
+        if node.state != NodeState.RUNNING and node.state != NodeState.STOPPED:
+            raise LibcloudError(
+                "The node state with id % s need\
+                                be running or stopped ."
+                % node.id
+            )
 
-        params = {'Action': 'LeaveSecurityGroup',
-                  'InstanceId': node.id,
-                  'SecurityGroupId': group_id}
+        params = {
+            "Action": "LeaveSecurityGroup",
+            "InstanceId": node.id,
+            "SecurityGroupId": group_id,
+        }
         resp = self.connection.request(self.path, params)
         return resp.success()
 
@@ -1331,16 +1198,16 @@ class ECSDriver(NodeDriver):
         :return: list of zones
         :rtype: ``list`` of ``ECSZone``
         """
-        params = {'Action': 'DescribeZones'}
+        params = {"Action": "DescribeZones"}
         if region_id:
-            params['RegionId'] = region_id
+            params["RegionId"] = region_id
         else:
-            params['RegionId'] = self.region
+            params["RegionId"] = self.region
         resp_body = self.connection.request(self.path, params).object
-        zone_elements = findall(resp_body, 'Zones/Zone',
-                                namespace=self.namespace)
+        zone_elements = findall(resp_body, "Zones/Zone", namespace=self.namespace)
         zones = [self._to_zone(el) for el in zone_elements]
         return zones
+
     ##
     # Volume and snapshot management methods
     ##
@@ -1363,34 +1230,31 @@ class ECSDriver(NodeDriver):
                              use ``list`` object, the driver will convert it.
         :type ex_filters: ``dict``
         """
-        params = {'Action': 'DescribeDisks',
-                  'RegionId': self.region}
+        params = {"Action": "DescribeDisks", "RegionId": self.region}
 
         if ex_volume_ids:
             if isinstance(ex_volume_ids, list):
-                params['DiskIds'] = self._list_to_json_array(ex_volume_ids)
+                params["DiskIds"] = self._list_to_json_array(ex_volume_ids)
             else:
-                raise AttributeError('ex_volume_ids should be a list of '
-                                     'volume ids.')
+                raise AttributeError("ex_volume_ids should be a list of " "volume ids.")
 
         if ex_filters:
             if not isinstance(ex_filters, dict):
-                raise AttributeError('ex_filters should be a dict of '
-                                     'volume attributes.')
+                raise AttributeError(
+                    "ex_filters should be a dict of " "volume attributes."
+                )
             else:
                 for key in ex_filters.keys():
                     params[key] = ex_filters[key]
 
         def _parse_response(resp_object):
-            disk_elements = findall(resp_object, 'Disks/Disk',
-                                    namespace=self.namespace)
+            disk_elements = findall(resp_object, "Disks/Disk", namespace=self.namespace)
             volumes = [self._to_volume(each) for each in disk_elements]
             return volumes
-        return self._request_multiple_pages(self.path, params,
-                                            _parse_response)
 
-    def list_volume_snapshots(self, volume, ex_snapshot_ids=[],
-                              ex_filters=None):
+        return self._request_multiple_pages(self.path, params, _parse_response)
+
+    def list_volume_snapshots(self, volume, ex_snapshot_ids=[], ex_filters=None):
         """
         List snapshots for a storage volume.
 
@@ -1407,29 +1271,36 @@ class ECSDriver(NodeDriver):
                              use ``list`` object, the driver will convert it.
         :type ex_filters: ``dict``
         """
-        params = {'Action': 'DescribeSnapshots',
-                  'RegionId': self.region}
+        params = {"Action": "DescribeSnapshots", "RegionId": self.region}
 
         if volume:
-            params['DiskId'] = volume.id
+            params["DiskId"] = volume.id
         if ex_snapshot_ids and isinstance(ex_snapshot_ids, list):
-            params['SnapshotIds'] = self._list_to_json_array(ex_snapshot_ids)
+            params["SnapshotIds"] = self._list_to_json_array(ex_snapshot_ids)
         if ex_filters and isinstance(ex_filters, dict):
             for key in ex_filters.keys():
                 params[key] = ex_filters[key]
 
         def _parse_response(resp_body):
-            snapshot_elements = findall(resp_body, 'Snapshots/Snapshot',
-                                        namespace=self.namespace)
+            snapshot_elements = findall(
+                resp_body, "Snapshots/Snapshot", namespace=self.namespace
+            )
             snapshots = [self._to_snapshot(each) for each in snapshot_elements]
             return snapshots
 
-        return self._request_multiple_pages(self.path, params,
-                                            _parse_response)
+        return self._request_multiple_pages(self.path, params, _parse_response)
 
-    def create_volume(self, size, name, location=None, snapshot=None,
-                      ex_zone_id=None, ex_description=None,
-                      ex_disk_category=None, ex_client_token=None):
+    def create_volume(
+        self,
+        size,
+        name,
+        location=None,
+        snapshot=None,
+        ex_zone_id=None,
+        ex_description=None,
+        ex_disk_category=None,
+        ex_client_token=None,
+    ):
         """
         Create a new volume.
 
@@ -1448,33 +1319,37 @@ class ECSDriver(NodeDriver):
                                   each request.
         :type ex_client_token: ``str``
         """
-        params = {'Action': 'CreateDisk',
-                  'RegionId': self.region,
-                  'DiskName': name,
-                  'Size': size}
+        params = {
+            "Action": "CreateDisk",
+            "RegionId": self.region,
+            "DiskName": name,
+            "Size": size,
+        }
         if ex_zone_id is None:
-            raise AttributeError('ex_zone_id is required')
-        params['ZoneId'] = ex_zone_id
+            raise AttributeError("ex_zone_id is required")
+        params["ZoneId"] = ex_zone_id
 
         if snapshot is not None and isinstance(snapshot, VolumeSnapshot):
-            params['SnapshotId'] = snapshot.id
+            params["SnapshotId"] = snapshot.id
         if ex_description:
-            params['Description'] = ex_description
+            params["Description"] = ex_description
         if ex_disk_category:
-            params['DiskCategory'] = ex_disk_category
+            params["DiskCategory"] = ex_disk_category
         if ex_client_token:
-            params['ClientToken'] = ex_client_token
+            params["ClientToken"] = ex_client_token
         resp = self.connection.request(self.path, params).object
-        volume_id = findtext(resp, 'DiskId', namespace=self.namespace)
+        volume_id = findtext(resp, "DiskId", namespace=self.namespace)
         volumes = self.list_volumes(ex_volume_ids=[volume_id])
         if len(volumes) != 1:
-            raise LibcloudError('could not find the new create volume '
-                                'with id %s.' % volume_id,
-                                driver=self)
+            raise LibcloudError(
+                "could not find the new create volume " "with id %s." % volume_id,
+                driver=self,
+            )
         return volumes[0]
 
-    def create_volume_snapshot(self, volume, name=None, ex_description=None,
-                               ex_client_token=None):
+    def create_volume_snapshot(
+        self, volume, name=None, ex_description=None, ex_client_token=None
+    ):
         """
         Creates a snapshot of the storage volume.
 
@@ -1487,27 +1362,29 @@ class ECSDriver(NodeDriver):
                                   each request.
         :type ex_client_token: ``str``
         """
-        params = {'Action': 'CreateSnapshot',
-                  'DiskId': volume.id}
+        params = {"Action": "CreateSnapshot", "DiskId": volume.id}
         if name:
-            params['SnapshotName'] = name
+            params["SnapshotName"] = name
         if ex_description:
-            params['Description'] = ex_description
+            params["Description"] = ex_description
         if ex_client_token:
-            params['ClientToken'] = ex_client_token
+            params["ClientToken"] = ex_client_token
 
         snapshot_elements = self.connection.request(self.path, params).object
-        snapshot_id = findtext(snapshot_elements, 'SnapshotId',
-                               namespace=self.namespace)
-        snapshots = self.list_volume_snapshots(volume=None,
-                                               ex_snapshot_ids=[snapshot_id])
+        snapshot_id = findtext(
+            snapshot_elements, "SnapshotId", namespace=self.namespace
+        )
+        snapshots = self.list_volume_snapshots(
+            volume=None, ex_snapshot_ids=[snapshot_id]
+        )
         if len(snapshots) != 1:
-            raise LibcloudError('could not find new created snapshot with '
-                                'id %s.' % snapshot_id, driver=self)
+            raise LibcloudError(
+                "could not find new created snapshot with " "id %s." % snapshot_id,
+                driver=self,
+            )
         return snapshots[0]
 
-    def attach_volume(self, node, volume, device=None,
-                      ex_delete_with_instance=None):
+    def attach_volume(self, node, volume, device=None, ex_delete_with_instance=None):
         """
         Attaches volume to node.
 
@@ -1520,15 +1397,12 @@ class ECSDriver(NodeDriver):
                                           instance is deleted.
         :type ex_delete_with_instance: ``bool``
         """
-        params = {'Action': 'AttachDisk',
-                  'InstanceId': node.id,
-                  'DiskId': volume.id}
+        params = {"Action": "AttachDisk", "InstanceId": node.id, "DiskId": volume.id}
 
         if device:
-            params['Device'] = device
+            params["Device"] = device
         if ex_delete_with_instance:
-            params['DeleteWithInstance'] = \
-                str(bool(ex_delete_with_instance)).lower()
+            params["DeleteWithInstance"] = str(bool(ex_delete_with_instance)).lower()
         resp = self.connection.request(self.path, params)
         return resp.success()
 
@@ -1542,45 +1416,44 @@ class ECSDriver(NodeDriver):
                                  is detached.
         :type ex_instance_id: ``str``
         """
-        params = {'Action': 'DetachDisk',
-                  'DiskId': volume.id}
+        params = {"Action": "DetachDisk", "DiskId": volume.id}
 
         if ex_instance_id:
-            params['InstanceId'] = ex_instance_id
+            params["InstanceId"] = ex_instance_id
         else:
             volumes = self.list_volumes(ex_volume_ids=[volume.id])
             if len(volumes) != 1:
-                raise AttributeError('could not find the instance id '
-                                     'the volume %s attached to, '
-                                     'ex_instance_id is required.' %
-                                     volume.id)
-            params['InstanceId'] = volumes[0].extra['instance_id']
+                raise AttributeError(
+                    "could not find the instance id "
+                    "the volume %s attached to, "
+                    "ex_instance_id is required." % volume.id
+                )
+            params["InstanceId"] = volumes[0].extra["instance_id"]
 
         resp = self.connection.request(self.path, params)
         return resp.success()
 
     def destroy_volume(self, volume):
-        params = {'Action': 'DeleteDisk',
-                  'DiskId': volume.id}
+        params = {"Action": "DeleteDisk", "DiskId": volume.id}
         volumes = self.list_volumes(ex_volume_ids=[volume.id])
         if len(volumes) != 1:
-            raise LibcloudError('could not find the volume with id %s.' %
-                                volume.id,
-                                driver=self)
+            raise LibcloudError(
+                "could not find the volume with id %s." % volume.id, driver=self
+            )
         if volumes[0].state != StorageVolumeState.AVAILABLE:
-            raise LibcloudError('only volume in AVAILABLE state could be '
-                                'destroyed.', driver=self)
+            raise LibcloudError(
+                "only volume in AVAILABLE state could be " "destroyed.", driver=self
+            )
         resp = self.connection.request(self.path, params)
         return resp.success()
 
     def destroy_volume_snapshot(self, snapshot):
-        params = {'Action': 'DeleteSnapshot'}
+        params = {"Action": "DeleteSnapshot"}
 
         if snapshot and isinstance(snapshot, VolumeSnapshot):
-            params['SnapshotId'] = snapshot.id
+            params["SnapshotId"] = snapshot.id
         else:
-            raise AttributeError('snapshot is required and must be a '
-                                 'VolumeSnapshot')
+            raise AttributeError("snapshot is required and must be a " "VolumeSnapshot")
         resp = self.connection.request(self.path, params)
         return resp.success()
 
@@ -1610,28 +1483,34 @@ class ECSDriver(NodeDriver):
             region = location.id
         else:
             region = self.region
-        params = {'Action': 'DescribeImages',
-                  'RegionId': region}
+        params = {"Action": "DescribeImages", "RegionId": region}
         if ex_image_ids:
             if isinstance(ex_image_ids, list):
-                params['ImageId'] = ','.join(ex_image_ids)
+                params["ImageId"] = ",".join(ex_image_ids)
             else:
-                raise AttributeError('ex_image_ids should be a list of '
-                                     'image ids')
+                raise AttributeError("ex_image_ids should be a list of " "image ids")
         if ex_filters and isinstance(ex_filters, dict):
             for key in ex_filters.keys():
                 params[key] = ex_filters[key]
 
         def _parse_response(resp_body):
-            image_elements = findall(resp_body, 'Images/Image',
-                                     namespace=self.namespace)
+            image_elements = findall(
+                resp_body, "Images/Image", namespace=self.namespace
+            )
             images = [self._to_image(each) for each in image_elements]
             return images
-        return self._request_multiple_pages(self.path, params,
-                                            _parse_response)
 
-    def create_image(self, node, name, description=None, ex_snapshot_id=None,
-                     ex_image_version=None, ex_client_token=None):
+        return self._request_multiple_pages(self.path, params, _parse_response)
+
+    def create_image(
+        self,
+        node,
+        name,
+        description=None,
+        ex_snapshot_id=None,
+        ex_image_version=None,
+        ex_client_token=None,
+    ):
         """
         Creates an image from a system disk snapshot.
 
@@ -1648,29 +1527,30 @@ class ECSDriver(NodeDriver):
                                   each request.
         :type ex_client_token: ``str``
         """
-        params = {'Action': 'CreateImage',
-                  'RegionId': self.region}
+        params = {"Action": "CreateImage", "RegionId": self.region}
         if name:
-            params['ImageName'] = name
+            params["ImageName"] = name
         if description:
-            params['Description'] = description
+            params["Description"] = description
         if ex_snapshot_id:
-            params['SnapshotId'] = ex_snapshot_id
+            params["SnapshotId"] = ex_snapshot_id
         else:
-            raise AttributeError('ex_snapshot_id is required')
+            raise AttributeError("ex_snapshot_id is required")
         if ex_image_version:
-            params['ImageVersion'] = ex_image_version
+            params["ImageVersion"] = ex_image_version
         if ex_client_token:
-            params['ClientToken'] = ex_client_token
+            params["ClientToken"] = ex_client_token
 
         resp = self.connection.request(self.path, params)
-        image_id = findtext(resp.object, 'ImageId', namespace=self.namespace)
+        image_id = findtext(resp.object, "ImageId", namespace=self.namespace)
         return self.get_image(image_id=image_id)
 
     def delete_image(self, node_image):
-        params = {'Action': 'DeleteImage',
-                  'RegionId': self.region,
-                  'ImageId': node_image.id}
+        params = {
+            "Action": "DeleteImage",
+            "RegionId": self.region,
+            "ImageId": node_image.id,
+        }
         resp = self.connection.request(self.path, params)
         return resp.success()
 
@@ -1679,17 +1559,23 @@ class ECSDriver(NodeDriver):
             region = ex_region_id
         else:
             region = self.region
-        location = NodeLocation(id=region, name=None, country=None,
-                                driver=self)
+        location = NodeLocation(id=region, name=None, country=None, driver=self)
         images = self.list_images(location, ex_image_ids=[image_id])
         if len(images) != 1:
-            raise LibcloudError('could not find the image with id %s' %
-                                image_id,
-                                driver=self)
+            raise LibcloudError(
+                "could not find the image with id %s" % image_id, driver=self
+            )
         return images[0]
 
-    def copy_image(self, source_region, node_image, name, description=None,
-                   ex_destination_region_id=None, ex_client_token=None):
+    def copy_image(
+        self,
+        source_region,
+        node_image,
+        name,
+        description=None,
+        ex_destination_region_id=None,
+        ex_client_token=None,
+    ):
         """
         Copies an image from a source region to the destination region.
         If not provide a destination region, default to the current region.
@@ -1703,21 +1589,23 @@ class ECSDriver(NodeDriver):
                                   each request.
         :type ex_client_token: ``str``
         """
-        params = {'Action': 'CopyImage',
-                  'RegionId': source_region,
-                  'ImageId': node_image.id}
+        params = {
+            "Action": "CopyImage",
+            "RegionId": source_region,
+            "ImageId": node_image.id,
+        }
         if ex_destination_region_id is not None:
-            params['DestinationRegionId'] = ex_destination_region_id
+            params["DestinationRegionId"] = ex_destination_region_id
         else:
-            params['DestinationRegionId'] = self.region
+            params["DestinationRegionId"] = self.region
         if name:
-            params['DestinationImageName'] = name
+            params["DestinationImageName"] = name
         if description:
-            params['DestinationDescription'] = description
+            params["DestinationDescription"] = description
         if ex_client_token:
-            params['ClientToken'] = ex_client_token
+            params["ClientToken"] = ex_client_token
         resp = self.connection.request(self.path, params)
-        image_id = findtext(resp.object, 'ImageId', namespace=self.namespace)
+        image_id = findtext(resp.object, "ImageId", namespace=self.namespace)
         return self.get_image(image_id=image_id)
 
     def create_public_ip(self, instance_id):
@@ -1730,12 +1618,10 @@ class ECSDriver(NodeDriver):
         :return public ip
         :rtype ``str``
         """
-        params = {'Action': 'AllocatePublicIpAddress',
-                  'InstanceId': instance_id}
+        params = {"Action": "AllocatePublicIpAddress", "InstanceId": instance_id}
 
         resp = self.connection.request(self.path, params=params)
-        return findtext(resp.object, 'IpAddress',
-                        namespace=self.namespace)
+        return findtext(resp.object, "IpAddress", namespace=self.namespace)
 
     def _to_nodes(self, object):
         """
@@ -1745,7 +1631,7 @@ class ECSDriver(NodeDriver):
         :return: a list of ``Node``
         :rtype: ``list``
         """
-        node_elements = findall(object, 'Instances/Instance', self.namespace)
+        node_elements = findall(object, "Instances/Instance", self.namespace)
         return [self._to_node(el) for el in node_elements]
 
     def _to_node(self, instance):
@@ -1756,36 +1642,44 @@ class ECSDriver(NodeDriver):
         :return: a ``Node`` object
         :rtype: ``Node``
         """
-        _id = findtext(element=instance, xpath='InstanceId',
-                       namespace=self.namespace)
-        name = findtext(element=instance, xpath='InstanceName',
-                        namespace=self.namespace)
-        instance_status = findtext(element=instance, xpath='Status',
-                                   namespace=self.namespace)
+        _id = findtext(element=instance, xpath="InstanceId", namespace=self.namespace)
+        name = findtext(
+            element=instance, xpath="InstanceName", namespace=self.namespace
+        )
+        instance_status = findtext(
+            element=instance, xpath="Status", namespace=self.namespace
+        )
         state = self.NODE_STATE_MAPPING.get(instance_status, NodeState.UNKNOWN)
 
         def _get_ips(ip_address_els):
             return [each.text for each in ip_address_els]
 
-        public_ip_els = findall(element=instance,
-                                xpath='PublicIpAddress/IpAddress',
-                                namespace=self.namespace)
+        public_ip_els = findall(
+            element=instance,
+            xpath="PublicIpAddress/IpAddress",
+            namespace=self.namespace,
+        )
         public_ips = _get_ips(public_ip_els)
-        private_ip_els = findall(element=instance,
-                                 xpath='InnerIpAddress/IpAddress',
-                                 namespace=self.namespace)
+        private_ip_els = findall(
+            element=instance, xpath="InnerIpAddress/IpAddress", namespace=self.namespace
+        )
         private_ips = _get_ips(private_ip_els)
 
         # Extra properties
-        extra = self._get_extra_dict(instance,
-                                     RESOURCE_EXTRA_ATTRIBUTES_MAP['node'])
-        extra['vpc_attributes'] = self._get_vpc_attributes(instance)
-        extra['eip_address'] = self._get_eip_address(instance)
-        extra['operation_locks'] = self._get_operation_locks(instance)
+        extra = self._get_extra_dict(instance, RESOURCE_EXTRA_ATTRIBUTES_MAP["node"])
+        extra["vpc_attributes"] = self._get_vpc_attributes(instance)
+        extra["eip_address"] = self._get_eip_address(instance)
+        extra["operation_locks"] = self._get_operation_locks(instance)
 
-        node = Node(id=_id, name=name, state=state,
-                    public_ips=public_ips, private_ips=private_ips,
-                    driver=self.connection.driver, extra=extra)
+        node = Node(
+            id=_id,
+            name=name,
+            state=state,
+            public_ips=public_ips,
+            private_ips=private_ips,
+            driver=self.connection.driver,
+            extra=extra,
+        )
         return node
 
     def _get_extra_dict(self, element, mapping):
@@ -1803,10 +1697,10 @@ class ECSDriver(NodeDriver):
         """
         extra = {}
         for attribute, values in mapping.items():
-            transform_func = values['transform_func']
-            value = findattr(element=element,
-                             xpath=values['xpath'],
-                             namespace=self.namespace)
+            transform_func = values["transform_func"]
+            value = findattr(
+                element=element, xpath=values["xpath"], namespace=self.namespace
+            )
             if value:
                 try:
                     extra[attribute] = transform_func(value)
@@ -1817,38 +1711,42 @@ class ECSDriver(NodeDriver):
 
         return extra
 
-    def _get_internet_related_params(self, ex_internet_charge_type,
-                                     ex_internet_max_bandwidth_in,
-                                     ex_internet_max_bandwidth_out):
+    def _get_internet_related_params(
+        self,
+        ex_internet_charge_type,
+        ex_internet_max_bandwidth_in,
+        ex_internet_max_bandwidth_out,
+    ):
         params = {}
         if ex_internet_charge_type:
-            params['InternetChargeType'] = ex_internet_charge_type
-            if ex_internet_charge_type.lower() == 'paybytraffic':
+            params["InternetChargeType"] = ex_internet_charge_type
+            if ex_internet_charge_type.lower() == "paybytraffic":
                 if ex_internet_max_bandwidth_out:
-                    params['InternetMaxBandwidthOut'] = \
-                        ex_internet_max_bandwidth_out
+                    params["InternetMaxBandwidthOut"] = ex_internet_max_bandwidth_out
                 else:
-                    raise AttributeError('ex_internet_max_bandwidth_out is '
-                                         'mandatory for PayByTraffic internet'
-                                         ' charge type.')
+                    raise AttributeError(
+                        "ex_internet_max_bandwidth_out is "
+                        "mandatory for PayByTraffic internet"
+                        " charge type."
+                    )
             elif ex_internet_max_bandwidth_out:
-                params['InternetMaxBandwidthOut'] = \
-                    ex_internet_max_bandwidth_out
+                params["InternetMaxBandwidthOut"] = ex_internet_max_bandwidth_out
 
         if ex_internet_max_bandwidth_in:
-            params['InternetMaxBandwidthIn'] = \
-                ex_internet_max_bandwidth_in
+            params["InternetMaxBandwidthIn"] = ex_internet_max_bandwidth_in
         return params
 
     def _get_system_disk(self, ex_system_disk):
         if not isinstance(ex_system_disk, dict):
-            raise AttributeError('ex_system_disk is not a dict')
+            raise AttributeError("ex_system_disk is not a dict")
         sys_disk_dict = ex_system_disk
-        key_base = 'SystemDisk.'
+        key_base = "SystemDisk."
         # TODO(samsong8610): Use a type instead of dict
-        mappings = {'category': 'Category',
-                    'disk_name': 'DiskName',
-                    'description': 'Description'}
+        mappings = {
+            "category": "Category",
+            "disk_name": "DiskName",
+            "description": "Description",
+        }
         params = {}
         for attr in mappings.keys():
             if attr in sys_disk_dict:
@@ -1861,21 +1759,23 @@ class ECSDriver(NodeDriver):
         elif isinstance(ex_data_disks, list):
             data_disks = ex_data_disks
         else:
-            raise AttributeError('ex_data_disks should be a list of dict')
+            raise AttributeError("ex_data_disks should be a list of dict")
         # TODO(samsong8610): Use a type instead of dict
-        mappings = {'size': 'Size',
-                    'category': 'Category',
-                    'snapshot_id': 'SnapshotId',
-                    'name': 'DiskName',
-                    'description': 'Description',
-                    'device': 'Device',
-                    'delete_on_termination': 'DeleteWithInstance'}
+        mappings = {
+            "size": "Size",
+            "category": "Category",
+            "snapshot_id": "SnapshotId",
+            "name": "DiskName",
+            "description": "Description",
+            "device": "Device",
+            "delete_on_termination": "DeleteWithInstance",
+        }
         params = {}
         for idx, disk in enumerate(data_disks):
-            key_base = 'DataDisk.{0}.'.format(idx + 1)
+            key_base = "DataDisk.{0}.".format(idx + 1)
             for attr in mappings.keys():
                 if attr in disk:
-                    if attr == 'delete_with_instance':
+                    if attr == "delete_with_instance":
                         # Convert bool value to str
                         value = str(disk[attr]).lower()
                     else:
@@ -1884,28 +1784,28 @@ class ECSDriver(NodeDriver):
         return params
 
     def _get_vpc_attributes(self, instance):
-        vpcs = findall(instance, xpath='VpcAttributes',
-                       namespace=self.namespace)
+        vpcs = findall(instance, xpath="VpcAttributes", namespace=self.namespace)
         if len(vpcs) <= 0:
             return None
         return self._get_extra_dict(
-            vpcs[0], RESOURCE_EXTRA_ATTRIBUTES_MAP['vpc_attributes'])
+            vpcs[0], RESOURCE_EXTRA_ATTRIBUTES_MAP["vpc_attributes"]
+        )
 
     def _get_eip_address(self, instance):
-        eips = findall(instance, xpath='EipAddress',
-                       namespace=self.namespace)
+        eips = findall(instance, xpath="EipAddress", namespace=self.namespace)
         if len(eips) <= 0:
             return None
         return self._get_extra_dict(
-            eips[0], RESOURCE_EXTRA_ATTRIBUTES_MAP['eip_address_associate'])
+            eips[0], RESOURCE_EXTRA_ATTRIBUTES_MAP["eip_address_associate"]
+        )
 
     def _get_operation_locks(self, instance):
-        locks = findall(instance, xpath='OperationLocks',
-                        namespace=self.namespace)
+        locks = findall(instance, xpath="OperationLocks", namespace=self.namespace)
         if len(locks) <= 0:
             return None
         return self._get_extra_dict(
-            locks[0], RESOURCE_EXTRA_ATTRIBUTES_MAP['operation_locks'])
+            locks[0], RESOURCE_EXTRA_ATTRIBUTES_MAP["operation_locks"]
+        )
 
     def _wait_until_state(self, nodes, state, wait_period=3, timeout=600):
         """
@@ -1927,16 +1827,17 @@ class ECSDriver(NodeDriver):
         end = start + timeout
         node_ids = [node.id for node in nodes]
 
-        while(time.time() < end):
+        while time.time() < end:
             matched_nodes = self.list_nodes(ex_node_ids=node_ids)
             if len(matched_nodes) > len(node_ids):
                 found_ids = [node.id for node in matched_nodes]
-                msg = ('found multiple nodes with same ids, '
-                       'desired ids: %(ids)s, found ids: %(found_ids)s' %
-                       {'ids': node_ids, 'found_ids': found_ids})
+                msg = (
+                    "found multiple nodes with same ids, "
+                    "desired ids: %(ids)s, found ids: %(found_ids)s"
+                    % {"ids": node_ids, "found_ids": found_ids}
+                )
                 raise LibcloudError(value=msg, driver=self)
-            desired_nodes = [node for node in matched_nodes
-                             if node.state == state]
+            desired_nodes = [node for node in matched_nodes if node.state == state]
 
             if len(desired_nodes) == len(node_ids):
                 return True
@@ -1944,135 +1845,144 @@ class ECSDriver(NodeDriver):
                 time.sleep(wait_period)
                 continue
 
-        raise LibcloudError(value='Timed out after %s seconds' % (timeout),
-                            driver=self)
+        raise LibcloudError(value="Timed out after %s seconds" % (timeout), driver=self)
 
     def _to_volume(self, element):
-        _id = findtext(element, 'DiskId', namespace=self.namespace)
-        name = findtext(element, 'DiskName', namespace=self.namespace)
-        size = int(findtext(element, 'Size', namespace=self.namespace))
-        status_str = findtext(element, 'Status', namespace=self.namespace)
-        status = self.VOLUME_STATE_MAPPING.get(status_str,
-                                               StorageVolumeState.UNKNOWN)
+        _id = findtext(element, "DiskId", namespace=self.namespace)
+        name = findtext(element, "DiskName", namespace=self.namespace)
+        size = int(findtext(element, "Size", namespace=self.namespace))
+        status_str = findtext(element, "Status", namespace=self.namespace)
+        status = self.VOLUME_STATE_MAPPING.get(status_str, StorageVolumeState.UNKNOWN)
 
-        extra = self._get_extra_dict(element,
-                                     RESOURCE_EXTRA_ATTRIBUTES_MAP['volume'])
-        extra['operation_locks'] = self._get_operation_locks(element)
+        extra = self._get_extra_dict(element, RESOURCE_EXTRA_ATTRIBUTES_MAP["volume"])
+        extra["operation_locks"] = self._get_operation_locks(element)
         return StorageVolume(_id, name, size, self, state=status, extra=extra)
 
     def _list_to_json_array(self, value):
         try:
             return json.dumps(value)
         except Exception:
-            raise AttributeError('could not convert list to json array')
+            raise AttributeError("could not convert list to json array")
 
     def _to_snapshot(self, element):
-        _id = findtext(element, 'SnapshotId', namespace=self.namespace)
-        created = findtext(element, 'CreationTime', namespace=self.namespace)
-        status_str = findtext(element, 'Status', namespace=self.namespace)
-        state = self.SNAPSHOT_STATE_MAPPING.get(status_str,
-                                                VolumeSnapshotState.UNKNOWN)
-        extra = self._get_extra_dict(element,
-                                     RESOURCE_EXTRA_ATTRIBUTES_MAP['snapshot'])
-        return VolumeSnapshot(id=_id, driver=self, extra=extra,
-                              created=created, state=state)
+        _id = findtext(element, "SnapshotId", namespace=self.namespace)
+        created = findtext(element, "CreationTime", namespace=self.namespace)
+        status_str = findtext(element, "Status", namespace=self.namespace)
+        state = self.SNAPSHOT_STATE_MAPPING.get(status_str, VolumeSnapshotState.UNKNOWN)
+        extra = self._get_extra_dict(element, RESOURCE_EXTRA_ATTRIBUTES_MAP["snapshot"])
+        return VolumeSnapshot(
+            id=_id, driver=self, extra=extra, created=created, state=state
+        )
 
     def _to_size(self, element):
-        _id = findtext(element, 'InstanceTypeId', namespace=self.namespace)
-        ram = float(findtext(element, 'MemorySize',
-                    namespace=self.namespace)) * 1024
+        _id = findtext(element, "InstanceTypeId", namespace=self.namespace)
+        ram = float(findtext(element, "MemorySize", namespace=self.namespace)) * 1024
         extra = {}
-        extra['cpu_core_count'] = int(findtext(element, 'CpuCoreCount',
-                                               namespace=self.namespace))
-        extra['instance_type_family'] = findtext(element, 'InstanceTypeFamily',
-                                                 namespace=self.namespace)
-        return NodeSize(id=_id, name=_id, ram=ram, disk=None, bandwidth=None,
-                        price=None, driver=self, extra=extra)
+        extra["cpu_core_count"] = int(
+            findtext(element, "CpuCoreCount", namespace=self.namespace)
+        )
+        extra["instance_type_family"] = findtext(
+            element, "InstanceTypeFamily", namespace=self.namespace
+        )
+        return NodeSize(
+            id=_id,
+            name=_id,
+            ram=ram,
+            disk=None,
+            bandwidth=None,
+            price=None,
+            driver=self,
+            extra=extra,
+        )
 
     def _to_location(self, element):
-        _id = findtext(element, 'RegionId', namespace=self.namespace)
-        localname = findtext(element, 'LocalName', namespace=self.namespace)
+        _id = findtext(element, "RegionId", namespace=self.namespace)
+        localname = findtext(element, "LocalName", namespace=self.namespace)
         return NodeLocation(id=_id, name=localname, country=None, driver=self)
 
     def _to_image(self, element):
-        _id = findtext(element, 'ImageId', namespace=self.namespace)
-        name = findtext(element, 'OSNameEn', namespace=self.namespace)
+        _id = findtext(element, "ImageId", namespace=self.namespace)
+        name = findtext(element, "OSNameEn", namespace=self.namespace)
         # Remove double spaces from image name
         if name is not None:
-            name = ' '.join(name.split())
+            name = " ".join(name.split())
         if not name:
-            name = findtext(element, 'ImageName', namespace=self.namespace)
-        extra = self._get_extra_dict(element,
-                                     RESOURCE_EXTRA_ATTRIBUTES_MAP['image'])
-        extra['disk_device_mappings'] = self._get_disk_device_mappings(
-            element.find('DiskDeviceMappings'))
+            name = findtext(element, "ImageName", namespace=self.namespace)
+        extra = self._get_extra_dict(element, RESOURCE_EXTRA_ATTRIBUTES_MAP["image"])
+        extra["disk_device_mappings"] = self._get_disk_device_mappings(
+            element.find("DiskDeviceMappings")
+        )
         return NodeImage(id=_id, name=name, driver=self, extra=extra)
 
     def _get_disk_device_mappings(self, element):
         if element is None:
             return None
-        mapping_element = element.find('DiskDeviceMapping')
+        mapping_element = element.find("DiskDeviceMapping")
         if mapping_element is not None:
             return self._get_extra_dict(
-                mapping_element,
-                RESOURCE_EXTRA_ATTRIBUTES_MAP['disk_device_mapping'])
+                mapping_element, RESOURCE_EXTRA_ATTRIBUTES_MAP["disk_device_mapping"]
+            )
         return None
 
     def _to_security_group(self, element):
-        _id = findtext(element, 'SecurityGroupId', namespace=self.namespace)
-        name = findtext(element, 'SecurityGroupName',
-                        namespace=self.namespace)
-        description = findtext(element, 'Description',
-                               namespace=self.namespace)
-        vpc_id = findtext(element, 'VpcId', namespace=self.namespace)
-        creation_time = findtext(element, 'CreationTime',
-                                 namespace=self.namespace)
-        return ECSSecurityGroup(_id, name, description=description,
-                                driver=self, vpc_id=vpc_id,
-                                creation_time=creation_time)
+        _id = findtext(element, "SecurityGroupId", namespace=self.namespace)
+        name = findtext(element, "SecurityGroupName", namespace=self.namespace)
+        description = findtext(element, "Description", namespace=self.namespace)
+        vpc_id = findtext(element, "VpcId", namespace=self.namespace)
+        creation_time = findtext(element, "CreationTime", namespace=self.namespace)
+        return ECSSecurityGroup(
+            _id,
+            name,
+            description=description,
+            driver=self,
+            vpc_id=vpc_id,
+            creation_time=creation_time,
+        )
 
     def _to_security_group_attribute(self, element):
-        ip_protocol = findtext(element, 'IpProtocol', namespace=self.namespace)
-        port_range = findtext(element, 'PortRange', namespace=self.namespace)
-        source_group_id = findtext(element, 'SourceGroupId',
-                                   namespace=self.namespace)
-        policy = findtext(element, 'Policy', namespace=self.namespace)
-        nic_type = findtext(element, 'NicType', namespace=self.namespace)
-        return ECSSecurityGroupAttribute(ip_protocol=ip_protocol,
-                                         port_range=port_range,
-                                         source_group_id=source_group_id,
-                                         policy=policy, nic_type=nic_type)
+        ip_protocol = findtext(element, "IpProtocol", namespace=self.namespace)
+        port_range = findtext(element, "PortRange", namespace=self.namespace)
+        source_group_id = findtext(element, "SourceGroupId", namespace=self.namespace)
+        policy = findtext(element, "Policy", namespace=self.namespace)
+        nic_type = findtext(element, "NicType", namespace=self.namespace)
+        return ECSSecurityGroupAttribute(
+            ip_protocol=ip_protocol,
+            port_range=port_range,
+            source_group_id=source_group_id,
+            policy=policy,
+            nic_type=nic_type,
+        )
 
     def _to_zone(self, element):
-        _id = findtext(element, 'ZoneId', namespace=self.namespace)
-        local_name = findtext(element, 'LocalName', namespace=self.namespace)
-        resource_types = findall(element,
-                                 'AvailableResourceCreation/ResourceTypes',
-                                 namespace=self.namespace)
-        instance_types = findall(element,
-                                 'AvailableInstanceTypes/InstanceTypes',
-                                 namespace=self.namespace)
-        disk_categories = findall(element,
-                                  'AvailableDiskCategories/DiskCategories',
-                                  namespace=self.namespace)
+        _id = findtext(element, "ZoneId", namespace=self.namespace)
+        local_name = findtext(element, "LocalName", namespace=self.namespace)
+        resource_types = findall(
+            element, "AvailableResourceCreation/ResourceTypes", namespace=self.namespace
+        )
+        instance_types = findall(
+            element, "AvailableInstanceTypes/InstanceTypes", namespace=self.namespace
+        )
+        disk_categories = findall(
+            element, "AvailableDiskCategories/DiskCategories", namespace=self.namespace
+        )
 
         def _text(element):
             return element.text
 
-        return ECSZone(id=_id, name=local_name, driver=self,
-                       available_resource_types=list(
-                           map(_text, resource_types)),
-                       available_instance_types=list(
-                           map(_text, instance_types)),
-                       available_disk_categories=list(
-                           map(_text, disk_categories)))
+        return ECSZone(
+            id=_id,
+            name=local_name,
+            driver=self,
+            available_resource_types=list(map(_text, resource_types)),
+            available_instance_types=list(map(_text, instance_types)),
+            available_disk_categories=list(map(_text, disk_categories)),
+        )
 
     def _get_pagination(self, element):
-        page_number = int(findtext(element, 'PageNumber'))
-        total_count = int(findtext(element, 'TotalCount'))
-        page_size = int(findtext(element, 'PageSize'))
-        return Pagination(total=total_count, size=page_size,
-                          current=page_number)
+        page_number = int(findtext(element, "PageNumber"))
+        total_count = int(findtext(element, "TotalCount"))
+        page_size = int(findtext(element, "PageSize"))
+        return Pagination(total=total_count, size=page_size, current=page_number)
 
     def _request_multiple_pages(self, path, params, parse_func):
         """
@@ -2100,38 +2010,33 @@ class ECSDriver(NodeDriver):
     # Key pair management methods
 
     def list_key_pairs(self, fingerprint=None):
-        params = {
-            'Action': 'DescribeKeyPairs',
-            'RegionId': self.region
-        }
+        params = {"Action": "DescribeKeyPairs", "RegionId": self.region}
         if fingerprint:
-            params['KeyPairFingerPrint'] = fingerprint
+            params["KeyPairFingerPrint"] = fingerprint
         response = self.connection.request(self.path, params=params)
-        elems = findall(element=response.object, xpath='KeyPairs/KeyPair',
-                        namespace=self.namespace)
+        elems = findall(
+            element=response.object, xpath="KeyPairs/KeyPair", namespace=self.namespace
+        )
 
         key_pairs = self._to_key_pairs(elems=elems)
         return key_pairs
 
     def get_key_pair(self, name):
         params = {
-            'Action': 'DescribeKeyPairs',
-            'KeyName': name,
-            'RegionId': self.region
+            "Action": "DescribeKeyPairs",
+            "KeyName": name,
+            "RegionId": self.region,
         }
 
         response = self.connection.request(self.path, params=params)
-        elems = findall(element=response.object, xpath='KeyPairs/KeyPair',
-                        namespace=self.namespace)
+        elems = findall(
+            element=response.object, xpath="KeyPairs/KeyPair", namespace=self.namespace
+        )
         key_pair = self._to_key_pairs(elems=elems)[0]
         return key_pair
 
     def create_key_pair(self, name):
-        params = {
-            'Action': 'CreateKeyPair',
-            'KeyName': name,
-            'RegionId': self.region
-        }
+        params = {"Action": "CreateKeyPair", "KeyName": name, "RegionId": self.region}
 
         response = self.connection.request(self.path, params=params)
         elem = response.object
@@ -2140,10 +2045,10 @@ class ECSDriver(NodeDriver):
 
     def import_key_pair_from_string(self, name, key_material):
         params = {
-            'Action': 'ImportKeyPair',
-            'KeyPairName': name,
-            'PublicKeyBody': key_material,
-            'RegionId': self.region
+            "Action": "ImportKeyPair",
+            "KeyPairName": name,
+            "PublicKeyBody": key_material,
+            "RegionId": self.region,
         }
 
         response = self.connection.request(self.path, params=params)
@@ -2153,16 +2058,16 @@ class ECSDriver(NodeDriver):
 
     def delete_key_pair(self, key_pair):
         params = {
-            'Action': 'DeleteKeyPairs',
-            'KeyPairNames': '["%s"]' % key_pair.name,
-            'RegionId': self.region
+            "Action": "DeleteKeyPairs",
+            "KeyPairNames": '["%s"]' % key_pair.name,
+            "RegionId": self.region,
         }
         res = self.connection.request(self.path, params=params)
 
         return res.status == 200
 
     def _get_pubkey_ssh2_fingerprint(self, pubkey):
-        key = base64.b64decode(pubkey.strip().split()[1].encode('ascii'))
+        key = base64.b64decode(pubkey.strip().split()[1].encode("ascii"))
         return hashlib.md5(key).hexdigest()
 
     def ex_find_or_import_keypair_by_key_material(self, pubkey, key_name=None):
@@ -2175,10 +2080,9 @@ class ECSDriver(NodeDriver):
         :rtype: ``dict``
         """
         key_fingerprint = self._get_pubkey_ssh2_fingerprint(pubkey)
-        key_comment = get_pubkey_comment(pubkey, default=(
-            key_name or 'unnamed'))
+        key_comment = get_pubkey_comment(pubkey, default=(key_name or "unnamed"))
         if not key_name:
-            key_name = '%s-%s' % (key_comment, key_fingerprint)
+            key_name = "%s-%s" % (key_comment, key_fingerprint)
 
         key_pairs = self.list_key_pairs(fingerprint=key_fingerprint)
 
@@ -2187,10 +2091,7 @@ class ECSDriver(NodeDriver):
         else:
             key_pair = self.import_key_pair_from_string(key_name, pubkey)
 
-        result = {
-            'keyName': key_pair.name,
-            'keyFingerprint': key_pair.fingerprint
-        }
+        result = {"keyName": key_pair.name, "keyFingerprint": key_pair.fingerprint}
 
         return result
 
@@ -2199,22 +2100,21 @@ class ECSDriver(NodeDriver):
         return key_pairs
 
     def _to_key_pair(self, elem):
-        name = findtext(element=elem, xpath='KeyPairName',
-                        namespace=self.namespace)
-        fingerprint = findtext(element=elem, xpath='KeyPairFingerPrint',
-                               namespace=self.namespace).strip()
+        name = findtext(element=elem, xpath="KeyPairName", namespace=self.namespace)
+        fingerprint = findtext(
+            element=elem, xpath="KeyPairFingerPrint", namespace=self.namespace
+        ).strip()
 
-        key_pair = KeyPair(name=name,
-                           public_key=None,
-                           fingerprint=fingerprint,
-                           driver=self)
+        key_pair = KeyPair(
+            name=name, public_key=None, fingerprint=fingerprint, driver=self
+        )
         return key_pair
 
     def ex_allocate_public_ip(self, node):
         params = {
-            'Action': 'AllocatePublicIpAddress',
-            'InstanceId': node.id,
-            'RegionId': self.region
+            "Action": "AllocatePublicIpAddress",
+            "InstanceId": node.id,
+            "RegionId": self.region,
         }
         res = self.connection.request(self.path, params=params)
 

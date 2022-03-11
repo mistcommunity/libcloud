@@ -29,36 +29,37 @@ from libcloud.common.providers import get_driver as _get_driver
 from libcloud.common.providers import set_driver as _set_driver
 
 __all__ = [
-    'find',
-    'get_driver',
-    'set_driver',
-    'merge_valid_keys',
-    'get_new_obj',
-    'str2dicts',
-    'dict2str',
-    'reverse_dict',
-    'lowercase_keys',
-    'get_secure_random_string',
-    'retry',
-
-    'ReprMixin'
+    "find",
+    "get_driver",
+    "set_driver",
+    "merge_valid_keys",
+    "get_new_obj",
+    "str2dicts",
+    "dict2str",
+    "reverse_dict",
+    "lowercase_keys",
+    "get_secure_random_string",
+    "retry",
+    "ReprMixin",
 ]
 
-K8S_UNIT_MAP = OrderedDict({
-    'K': 1000,
-    'Ki': 1024,
-    'M': 1000 * 1000,
-    'Mi': 1024 * 1024,
-    'G': 1000 * 1000 * 1000,
-    'Gi': 1024 * 1024 * 1024
-})
+K8S_UNIT_MAP = OrderedDict(
+    {
+        "K": 1000,
+        "Ki": 1024,
+        "M": 1000 * 1000,
+        "Mi": 1024 * 1024,
+        "G": 1000 * 1000 * 1000,
+        "Gi": 1024 * 1024 * 1024,
+    }
+)
 
 
 def to_n_bytes(memory_str):
     """Convert memory string to number of bytes
     (e.g. '1234Mi'-> 1293942784)
     """
-    if memory_str.startswith('0'):
+    if memory_str.startswith("0"):
         return 0
     if memory_str.isnumeric():
         return int(memory_str)
@@ -72,20 +73,19 @@ def to_memory_str(n_bytes, unit=None):
     (e.g. 1293942784 -> '1234Mi')
     """
     if n_bytes == 0:
-        return '0K'
+        return "0K"
     n_bytes = int(n_bytes)
     memory_str = None
     if unit is None:
         for unit, multiplier in reversed(K8S_UNIT_MAP.items()):
             converted_n_bytes_float = n_bytes / multiplier
             converted_n_bytes = n_bytes // multiplier
-            memory_str = '{bytes}{unit}'.format(
-                bytes=converted_n_bytes, unit=unit)
+            memory_str = "{bytes}{unit}".format(bytes=converted_n_bytes, unit=unit)
             if converted_n_bytes_float % 1 == 0:
                 break
     elif K8S_UNIT_MAP.get(unit.upper()):
         converted_n_bytes = n_bytes // K8S_UNIT_MAP[unit]
-        memory_str = '{bytes}{unit}'.format(bytes=converted_n_bytes, unit=unit)
+        memory_str = "{bytes}{unit}".format(bytes=converted_n_bytes, unit=unit)
     return memory_str
 
 
@@ -94,27 +94,27 @@ def to_cpu_str(n_cpus):
     (e.g. 0.5 -> '500m')
     """
     if n_cpus == 0:
-        return '0'
+        return "0"
     millicores = n_cpus * 1000
     if millicores % 1 == 0:
-        return '{value}m'.format(value=int(millicores))
+        return "{value}m".format(value=int(millicores))
     microcores = n_cpus * 1000000
     if microcores % 1 == 0:
-        return '{value}u'.format(value=int(microcores))
+        return "{value}u".format(value=int(microcores))
     nanocores = n_cpus * 1000000000
-    return '{value}n'.format(value=int(nanocores))
+    return "{value}n".format(value=int(nanocores))
 
 
 def to_n_cpus(cpu_str):
     """Convert cpu string to number of cpus
     (e.g. '500m' -> 0.5, '2000000000n' -> 2)
     """
-    if cpu_str.endswith('n'):
-        return int(cpu_str.strip('n')) / 1000000000
-    elif cpu_str.endswith('u'):
-        return int(cpu_str.strip('u')) / 1000000
-    elif cpu_str.endswith('m'):
-        return int(cpu_str.strip('m')) / 1000
+    if cpu_str.endswith("n"):
+        return int(cpu_str.strip("n")) / 1000000000
+    elif cpu_str.endswith("u"):
+        return int(cpu_str.strip("u")) / 1000000
+    elif cpu_str.endswith("m"):
+        return int(cpu_str.strip("m")) / 1000
     elif cpu_str.isnumeric():
         return int(cpu_str)
     else:
@@ -123,11 +123,12 @@ def to_n_cpus(cpu_str):
 
 # Error message which indicates a transient SSL error upon which request
 # can be retried
-TRANSIENT_SSL_ERROR = 'The read operation timed out'
+TRANSIENT_SSL_ERROR = "The read operation timed out"
 
 
 class TransientSSLError(ssl.SSLError):
     """Represent transient SSL errors, e.g. timeouts"""
+
     pass
 
 
@@ -135,9 +136,14 @@ class TransientSSLError(ssl.SSLError):
 DEFAULT_TIMEOUT = 30  # default retry timeout
 DEFAULT_DELAY = 1  # default sleep delay used in each iterator
 DEFAULT_BACKOFF = 1  # retry backup multiplier
-RETRY_EXCEPTIONS = (RateLimitReachedError, socket.error, socket.gaierror,
-                    httplib.NotConnected, httplib.ImproperConnectionState,
-                    TransientSSLError)
+RETRY_EXCEPTIONS = (
+    RateLimitReachedError,
+    socket.error,
+    socket.gaierror,
+    httplib.NotConnected,
+    httplib.ImproperConnectionState,
+    TransientSSLError,
+)
 
 
 def find(l, predicate):
@@ -222,7 +228,7 @@ def str2dicts(data):
     list_data.append({})
     d = list_data[-1]
 
-    lines = data.split('\n')
+    lines = data.split("\n")
     for line in lines:
         line = line.strip()
 
@@ -232,13 +238,13 @@ def str2dicts(data):
             d = list_data[-1]
             continue
 
-        whitespace = line.find(' ')
+        whitespace = line.find(" ")
 
         if not whitespace:
             continue
 
         key = line[0:whitespace]
-        value = line[whitespace + 1:]
+        value = line[whitespace + 1 :]
         d.update({key: value})
 
     list_data = [val for val in list_data if val != {}]
@@ -260,14 +266,14 @@ def str2list(data):
     """
     list_data = []
 
-    for line in data.split('\n'):
+    for line in data.split("\n"):
         line = line.strip()
 
         if not line:
             continue
 
         try:
-            splitted = line.split(' ')
+            splitted = line.split(" ")
             # key = splitted[0]
             value = splitted[1]
         except Exception:
@@ -294,12 +300,12 @@ def dict2str(data):
     cpu 2200
     ram 1024
     """
-    result = ''
+    result = ""
     for k in data:
         if data[k] is not None:
-            result += '%s %s\n' % (str(k), str(data[k]))
+            result += "%s %s\n" % (str(k), str(data[k]))
         else:
-            result += '%s\n' % str(k)
+            result += "%s\n" % str(k)
 
     return result
 
@@ -325,7 +331,7 @@ def get_secure_random_string(size):
     """
     value = os.urandom(size)
     value = binascii.hexlify(value)
-    value = value.decode('utf-8')[:size]
+    value = value.decode("utf-8")[:size]
     return value
 
 
@@ -341,18 +347,22 @@ class ReprMixin(object):
         attributes = []
         for attribute in self._repr_attributes:
             value = getattr(self, attribute, None)
-            attributes.append('%s=%s' % (attribute, value))
+            attributes.append("%s=%s" % (attribute, value))
 
-        values = (self.__class__.__name__, ', '.join(attributes))
-        result = '<%s %s>' % values
+        values = (self.__class__.__name__, ", ".join(attributes))
+        result = "<%s %s>" % values
         return result
 
     def __str__(self):
         return str(self.__repr__())
 
 
-def retry(retry_exceptions=RETRY_EXCEPTIONS, retry_delay=DEFAULT_DELAY,
-          timeout=DEFAULT_TIMEOUT, backoff=DEFAULT_BACKOFF):
+def retry(
+    retry_exceptions=RETRY_EXCEPTIONS,
+    retry_delay=DEFAULT_DELAY,
+    timeout=DEFAULT_TIMEOUT,
+    backoff=DEFAULT_BACKOFF,
+):
     """
     Retry decorator that helps to handle common transient exceptions.
 
@@ -403,7 +413,8 @@ def retry(retry_exceptions=RETRY_EXCEPTIONS, retry_delay=DEFAULT_DELAY,
                         # limiting
                         current_delay = retry_delay
                         end = datetime.now() + timedelta(
-                            seconds=exc.retry_after + timeout)
+                            seconds=exc.retry_after + timeout
+                        )
                     elif datetime.now() >= end:
                         raise
                     else:
@@ -411,4 +422,5 @@ def retry(retry_exceptions=RETRY_EXCEPTIONS, retry_delay=DEFAULT_DELAY,
                         current_delay *= backoff
 
         return retry_loop
+
     return decorator

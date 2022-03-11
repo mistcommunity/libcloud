@@ -55,9 +55,13 @@ if sys.version_info >= (3, 0):
 
 if PY2_pre_279:
     try:
-        from backports.ssl_match_hostname import match_hostname, CertificateError  # NOQA
+        from backports.ssl_match_hostname import (
+            match_hostname,
+            CertificateError,
+        )  # NOQA
     except ImportError:
         import warnings
+
         warnings.warn("Missing backports.ssl_match_hostname package")
 else:
     # ssl module in Python >= 3.2 includes match hostname function
@@ -69,6 +73,7 @@ if PY3:
     import urllib
     import urllib as urllib2
     import base64
+
     # pylint: disable=no-name-in-module
     import urllib.parse as urlparse
     import xmlrpc.client as xmlrpclib
@@ -96,7 +101,7 @@ if PY3:
 
     def b(s):
         if isinstance(s, str):
-            return s.encode('utf-8')
+            return s.encode("utf-8")
         elif isinstance(s, bytes):
             return s
         elif isinstance(s, int):
@@ -108,7 +113,7 @@ if PY3:
         if isinstance(s, str):
             return s
         elif isinstance(s, bytes):
-            return s.decode('utf-8')
+            return s.decode("utf-8")
         else:
             raise TypeError("Invalid argument %r for ensure_string()" % (s,))
 
@@ -127,7 +132,7 @@ if PY3:
         return list(d.values())
 
     def tostring(node):
-        return ET.tostring(node, encoding='unicode')
+        return ET.tostring(node, encoding="unicode")
 
     def hexadigits(s):
         # s needs to be a byte string.
@@ -140,7 +145,9 @@ if PY3:
 
         def base64_decode_string(*args, **kwargs):
             return base64.decodebytes(*args, **kwargs)  # NOQA
+
     else:
+
         def base64_encode_string(*args, **kwargs):
             return base64.encodestring(*args, **kwargs)
 
@@ -149,16 +156,19 @@ if PY3:
 
     def assertRaisesRegex(self, *args, **kwargs):
         if not isinstance(self, unittest.TestCase):
-            raise ValueError('First argument "self" needs to be an instance '
-                             'of unittest.TestCase')
-        return getattr(self, 'assertRaisesRegex')(*args, **kwargs)
+            raise ValueError(
+                'First argument "self" needs to be an instance ' "of unittest.TestCase"
+            )
+        return getattr(self, "assertRaisesRegex")(*args, **kwargs)
 
     def assertRegex(self, *args, **kwargs):
         if not isinstance(self, unittest.TestCase):
-            raise ValueError('First argument "self" needs to be an instance '
-                             'of unittest.TestCase')
+            raise ValueError(
+                'First argument "self" needs to be an instance ' "of unittest.TestCase"
+            )
 
-        return getattr(self, 'assertRegex')(*args, **kwargs)
+        return getattr(self, "assertRegex")(*args, **kwargs)
+
 else:
     import httplib  # NOQA
     from StringIO import StringIO  # NOQA
@@ -211,10 +221,10 @@ else:
 
     tostring = ET.tostring
 
-    def urlquote(s, safe='/'):
+    def urlquote(s, safe="/"):
         if isinstance(s, _real_unicode):
             # Pretend to be py3 by encoding the URI automatically.
-            s = s.encode('utf8')
+            s = s.encode("utf8")
         return _urlquote(s, safe)
 
     def hexadigits(s):
@@ -229,14 +239,16 @@ else:
 
     def assertRaisesRegex(self, *args, **kwargs):
         if not isinstance(self, unittest.TestCase):
-            raise ValueError('First argument "self" needs to be an instance '
-                             'of unittest.TestCase')
+            raise ValueError(
+                'First argument "self" needs to be an instance ' "of unittest.TestCase"
+            )
 
-        return getattr(self, 'assertRaisesRegex')(*args, **kwargs)
+        return getattr(self, "assertRaisesRegex")(*args, **kwargs)
 
     def assertRegex(self, *args, **kwargs):
         if not isinstance(self, unittest.TestCase):
-            raise ValueError('First argument "self" needs to be an instance '
-                             'of unittest.TestCase')
+            raise ValueError(
+                'First argument "self" needs to be an instance ' "of unittest.TestCase"
+            )
 
-        return getattr(self, 'assertRegex')(*args, **kwargs)
+        return getattr(self, "assertRegex")(*args, **kwargs)

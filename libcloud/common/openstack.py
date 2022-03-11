@@ -22,13 +22,15 @@ from libcloud.utils.py3 import httplib
 
 from libcloud.common.base import ConnectionUserAndKey, Response
 from libcloud.common.types import ProviderError
-from libcloud.compute.types import (LibcloudError, MalformedResponseError)
+from libcloud.compute.types import LibcloudError, MalformedResponseError
 from libcloud.compute.types import KeyPairDoesNotExistError
 from libcloud.common.openstack_identity import get_class_for_auth_version
 
 # Imports for backward compatibility reasons
-from libcloud.common.openstack_identity import (OpenStackServiceCatalog,
-                                                OpenStackIdentityTokenScope)
+from libcloud.common.openstack_identity import (
+    OpenStackServiceCatalog,
+    OpenStackIdentityTokenScope,
+)
 
 
 try:
@@ -36,23 +38,23 @@ try:
 except ImportError:
     import json  # type: ignore
 
-AUTH_API_VERSION = '1.1'
+AUTH_API_VERSION = "1.1"
 
 # Auth versions which contain token expiration information.
 AUTH_VERSIONS_WITH_EXPIRES = [
-    '1.1',
-    '2.0',
-    '2.0_apikey',
-    '2.0_password',
-    '3.x',
-    '3.x_password'
+    "1.1",
+    "2.0",
+    "2.0_apikey",
+    "2.0_password",
+    "3.x",
+    "3.x_password",
 ]
 
 __all__ = [
-    'OpenStackBaseConnection',
-    'OpenStackResponse',
-    'OpenStackException',
-    'OpenStackDriverMixin'
+    "OpenStackBaseConnection",
+    "OpenStackResponse",
+    "OpenStackException",
+    "OpenStackDriverMixin",
 ]
 
 
@@ -145,23 +147,39 @@ class OpenStackBaseConnection(ConnectionUserAndKey):
     accept_format = None
     _auth_version = None  # type: str
 
-    def __init__(self, user_id, key, secure=True,
-                 host=None, port=None, timeout=None, proxy_url=None,
-                 ex_force_base_url=None,
-                 ex_force_auth_url=None,
-                 ex_force_auth_version=None,
-                 ex_force_auth_token=None,
-                 ex_token_scope=OpenStackIdentityTokenScope.PROJECT,
-                 ex_domain_name='Default',
-                 ex_tenant_name=None,
-                 ex_tenant_domain_id='default',
-                 ex_force_service_type=None,
-                 ex_force_service_name=None,
-                 ex_force_service_region=None,
-                 retry_delay=None, backoff=None, ex_auth_url=None):
+    def __init__(
+        self,
+        user_id,
+        key,
+        secure=True,
+        host=None,
+        port=None,
+        timeout=None,
+        proxy_url=None,
+        ex_force_base_url=None,
+        ex_force_auth_url=None,
+        ex_force_auth_version=None,
+        ex_force_auth_token=None,
+        ex_token_scope=OpenStackIdentityTokenScope.PROJECT,
+        ex_domain_name="Default",
+        ex_tenant_name=None,
+        ex_tenant_domain_id="default",
+        ex_force_service_type=None,
+        ex_force_service_name=None,
+        ex_force_service_region=None,
+        retry_delay=None,
+        backoff=None,
+        ex_auth_url=None,
+    ):
         super(OpenStackBaseConnection, self).__init__(
-            user_id, key, secure=secure, timeout=timeout,
-            retry_delay=retry_delay, backoff=backoff, proxy_url=proxy_url)
+            user_id,
+            key,
+            secure=secure,
+            timeout=timeout,
+            retry_delay=retry_delay,
+            backoff=backoff,
+            proxy_url=proxy_url,
+        )
 
         if ex_auth_url:
             self.auth_url = ex_auth_url
@@ -183,8 +201,9 @@ class OpenStackBaseConnection(ConnectionUserAndKey):
 
         if ex_force_auth_token and not ex_force_base_url:
             raise LibcloudError(
-                'Must also provide ex_force_base_url when specifying '
-                'ex_force_auth_token.')
+                "Must also provide ex_force_base_url when specifying "
+                "ex_force_auth_token."
+            )
 
         if ex_force_auth_token:
             self.auth_token = ex_force_auth_token
@@ -195,8 +214,7 @@ class OpenStackBaseConnection(ConnectionUserAndKey):
         auth_url = self._get_auth_url()
 
         if not auth_url:
-            raise LibcloudError('OpenStack instance must ' +
-                                'have auth_url set')
+            raise LibcloudError("OpenStack instance must " + "have auth_url set")
 
     def get_auth_class(self):
         """
@@ -208,35 +226,40 @@ class OpenStackBaseConnection(ConnectionUserAndKey):
             auth_url = self._get_auth_url()
 
             cls = get_class_for_auth_version(auth_version=self._auth_version)
-            self._osa = cls(auth_url=auth_url,
-                            user_id=self.user_id,
-                            key=self.key,
-                            tenant_name=self._ex_tenant_name,
-                            tenant_domain_id=self._ex_tenant_domain_id,
-                            domain_name=self._ex_domain_name,
-                            token_scope=self._ex_token_scope,
-                            timeout=self.timeout,
-                            proxy_url=self.proxy_url,
-                            parent_conn=self)
+            self._osa = cls(
+                auth_url=auth_url,
+                user_id=self.user_id,
+                key=self.key,
+                tenant_name=self._ex_tenant_name,
+                tenant_domain_id=self._ex_tenant_domain_id,
+                domain_name=self._ex_domain_name,
+                token_scope=self._ex_token_scope,
+                timeout=self.timeout,
+                proxy_url=self.proxy_url,
+                parent_conn=self,
+            )
 
         return self._osa
 
-    def request(self, action, params=None, data='', headers=None,
-                method='GET', raw=False):
+    def request(
+        self, action, params=None, data="", headers=None, method="GET", raw=False
+    ):
         headers = headers or {}
         params = params or {}
 
         # Include default content-type for POST and PUT request (if available)
-        default_content_type = getattr(self, 'default_content_type', None)
-        if method.upper() in ['POST', 'PUT'] and default_content_type:
-            headers = {'Content-Type': default_content_type}
+        default_content_type = getattr(self, "default_content_type", None)
+        if method.upper() in ["POST", "PUT"] and default_content_type:
+            headers = {"Content-Type": default_content_type}
 
-        return super(OpenStackBaseConnection, self).request(action=action,
-                                                            params=params,
-                                                            data=data,
-                                                            method=method,
-                                                            headers=headers,
-                                                            raw=raw)
+        return super(OpenStackBaseConnection, self).request(
+            action=action,
+            params=params,
+            data=data,
+            method=method,
+            headers=headers,
+            raw=raw,
+        )
 
     def _get_auth_url(self):
         """
@@ -286,20 +309,20 @@ class OpenStackBaseConnection(ConnectionUserAndKey):
         if self._ex_force_service_region:
             service_region = self._ex_force_service_region
 
-        endpoint = self.service_catalog.get_endpoint(service_type=service_type,
-                                                     name=service_name,
-                                                     region=service_region)
+        endpoint = self.service_catalog.get_endpoint(
+            service_type=service_type, name=service_name, region=service_region
+        )
 
         url = endpoint.url
 
         if not url:
-            raise LibcloudError('Could not find specified endpoint')
+            raise LibcloudError("Could not find specified endpoint")
 
         return url
 
     def add_default_headers(self, headers):
-        headers['X-Auth-Token'] = self.auth_token
-        headers['Accept'] = self.accept_format
+        headers["X-Auth-Token"] = self.auth_token
+        headers["Accept"] = self.accept_format
         return headers
 
     def morph_action_hook(self, action):
@@ -330,10 +353,10 @@ class OpenStackBaseConnection(ConnectionUserAndKey):
         if not osa.is_token_valid():
             # Token is not available or it has expired. Need to retrieve a
             # new one.
-            if self._auth_version == '2.0_apikey':
-                kwargs = {'auth_type': 'api_key'}
-            elif self._auth_version == '2.0_password':
-                kwargs = {'auth_type': 'password'}
+            if self._auth_version == "2.0_apikey":
+                kwargs = {"auth_type": "api_key"}
+            elif self._auth_version == "2.0_password":
+                kwargs = {"auth_type": "password"}
             else:
                 kwargs = {}
 
@@ -344,8 +367,9 @@ class OpenStackBaseConnection(ConnectionUserAndKey):
             self.auth_user_info = osa.auth_user_info
 
             # Pull out and parse the service catalog
-            osc = OpenStackServiceCatalog(service_catalog=osa.urls,
-                                          auth_version=self._auth_version)
+            osc = OpenStackServiceCatalog(
+                service_catalog=osa.urls, auth_version=self._auth_version
+            )
             self.service_catalog = osc
 
         url = self._ex_force_base_url or self.get_endpoint()
@@ -364,7 +388,7 @@ class OpenStackResponse(Response):
         return 200 <= i <= 299
 
     def has_content_type(self, content_type):
-        content_type_value = self.headers.get('content-type') or ''
+        content_type_value = self.headers.get("content-type") or ""
         content_type_value = content_type_value.lower()
         return content_type_value.find(content_type.lower()) > -1
 
@@ -372,45 +396,44 @@ class OpenStackResponse(Response):
         if self.status == httplib.NO_CONTENT or not self.body:
             return None
 
-        if self.has_content_type('application/xml'):
+        if self.has_content_type("application/xml"):
             try:
                 return ET.XML(self.body)
             except Exception:
                 raise MalformedResponseError(
-                    'Failed to parse XML',
-                    body=self.body,
-                    driver=self.node_driver)
+                    "Failed to parse XML", body=self.body, driver=self.node_driver
+                )
 
-        elif self.has_content_type('application/json'):
+        elif self.has_content_type("application/json"):
             try:
                 return json.loads(self.body)
             except Exception:
                 raise MalformedResponseError(
-                    'Failed to parse JSON',
-                    body=self.body,
-                    driver=self.node_driver)
+                    "Failed to parse JSON", body=self.body, driver=self.node_driver
+                )
         else:
             return self.body
 
     def parse_error(self):
         body = self.parse_body()
 
-        if self.has_content_type('application/xml'):
-            text = '; '.join([err.text or '' for err in body.getiterator()
-                              if err.text])
-        elif self.has_content_type('application/json'):
+        if self.has_content_type("application/xml"):
+            text = "; ".join([err.text or "" for err in body.getiterator() if err.text])
+        elif self.has_content_type("application/json"):
             values = list(body.values())
 
             context = self.connection.context
             driver = self.connection.driver
-            key_pair_name = context.get('key_pair_name', None)
-            if len(values) > 0 and hasattr(values[0], 'get') and \
-                values[0].get('code') == 404 and key_pair_name:
-                raise KeyPairDoesNotExistError(name=key_pair_name,
-                                               driver=driver)
-            elif len(values) > 0 and 'message' in values[0]:
-                text = ';'.join([fault_data['message'] for fault_data
-                                 in values])
+            key_pair_name = context.get("key_pair_name", None)
+            if (
+                len(values) > 0
+                and hasattr(values[0], "get")
+                and values[0].get("code") == 404
+                and key_pair_name
+            ):
+                raise KeyPairDoesNotExistError(name=key_pair_name, driver=driver)
+            elif len(values) > 0 and "message" in values[0]:
+                text = ";".join([fault_data["message"] for fault_data in values])
             else:
                 text = body
         else:
@@ -420,24 +443,27 @@ class OpenStackResponse(Response):
             # it along as the whole response body in the text variable.
             text = body
 
-        return '%s %s %s' % (self.status, self.error, text)
+        return "%s %s %s" % (self.status, self.error, text)
 
 
 class OpenStackDriverMixin(object):
-
-    def __init__(self,
-                 ex_force_base_url=None,
-                 ex_force_auth_url=None,
-                 ex_force_auth_version=None,
-                 ex_force_auth_token=None,
-                 ex_token_scope=OpenStackIdentityTokenScope.PROJECT,
-                 ex_domain_name='Default',
-                 ex_tenant_name=None,
-                 ex_tenant_domain_id='default',
-                 ex_force_service_type=None,
-                 ex_force_service_name=None,
-                 ex_force_service_region=None,
-                 ex_auth_url=None, *args, **kwargs):
+    def __init__(
+        self,
+        ex_force_base_url=None,
+        ex_force_auth_url=None,
+        ex_force_auth_version=None,
+        ex_force_auth_token=None,
+        ex_token_scope=OpenStackIdentityTokenScope.PROJECT,
+        ex_domain_name="Default",
+        ex_tenant_name=None,
+        ex_tenant_domain_id="default",
+        ex_force_service_type=None,
+        ex_force_service_name=None,
+        ex_force_service_region=None,
+        ex_auth_url=None,
+        *args,
+        **kwargs,
+    ):
         self._ex_auth_url = ex_auth_url
         self._ex_force_base_url = ex_force_base_url
         self._ex_force_auth_url = ex_force_auth_url
@@ -459,27 +485,27 @@ class OpenStackDriverMixin(object):
         """
         rv = {}
         if self._ex_force_base_url:
-            rv['ex_force_base_url'] = self._ex_force_base_url
+            rv["ex_force_base_url"] = self._ex_force_base_url
         if self._ex_force_auth_token:
-            rv['ex_force_auth_token'] = self._ex_force_auth_token
+            rv["ex_force_auth_token"] = self._ex_force_auth_token
         if self._ex_force_auth_url:
-            rv['ex_force_auth_url'] = self._ex_force_auth_url
+            rv["ex_force_auth_url"] = self._ex_force_auth_url
         if self._ex_force_auth_version:
-            rv['ex_force_auth_version'] = self._ex_force_auth_version
+            rv["ex_force_auth_version"] = self._ex_force_auth_version
         if self._ex_token_scope:
-            rv['ex_token_scope'] = self._ex_token_scope
+            rv["ex_token_scope"] = self._ex_token_scope
         if self._ex_domain_name:
-            rv['ex_domain_name'] = self._ex_domain_name
+            rv["ex_domain_name"] = self._ex_domain_name
         if self._ex_tenant_name:
-            rv['ex_tenant_name'] = self._ex_tenant_name
+            rv["ex_tenant_name"] = self._ex_tenant_name
         if self._ex_tenant_domain_id:
-            rv['ex_tenant_domain_id'] = self._ex_tenant_domain_id
+            rv["ex_tenant_domain_id"] = self._ex_tenant_domain_id
         if self._ex_force_service_type:
-            rv['ex_force_service_type'] = self._ex_force_service_type
+            rv["ex_force_service_type"] = self._ex_force_service_type
         if self._ex_force_service_name:
-            rv['ex_force_service_name'] = self._ex_force_service_name
+            rv["ex_force_service_name"] = self._ex_force_service_name
         if self._ex_force_service_region:
-            rv['ex_force_service_region'] = self._ex_force_service_region
+            rv["ex_force_service_region"] = self._ex_force_service_region
         if self._ex_auth_url:
-            rv['ex_auth_url'] = self._ex_auth_url
+            rv["ex_auth_url"] = self._ex_auth_url
         return rv

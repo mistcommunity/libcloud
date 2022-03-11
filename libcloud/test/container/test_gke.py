@@ -23,7 +23,7 @@ from unittest.mock import MagicMock
 
 from libcloud.utils.py3 import httplib
 from libcloud.container.drivers.gke import GKEContainerDriver, API_VERSION
-from libcloud.common.google import (GoogleBaseAuthConnection)
+from libcloud.common.google import GoogleBaseAuthConnection
 from libcloud.test.common.test_google import GoogleAuthMockHttp, GoogleTestCase
 
 from libcloud.test import MockHttp
@@ -44,88 +44,86 @@ class GKEContainerDriverTestCase(GoogleTestCase):
         GKEMockHttp.type = None
         GKEContainerDriver.containerDriverCls = MagicMock()
         kwargs = GKE_KEYWORD_PARAMS.copy()
-        kwargs['auth_type'] = 'IA'
+        kwargs["auth_type"] = "IA"
         self.driver = GKEContainerDriver(*GKE_PARAMS, **kwargs)
 
     def test_list_clusters(self):
         clusters = self.driver.list_clusters()
         self.assertEqual(
             clusters[0].id,
-            'f7ff4c8cf47b48e9b13640d687fcef3d0a36cdb8ca2c4960b28e164eb52ae52b')
-        self.assertEqual(clusters[0].name, 'cluster-1')
-        self.assertEqual(clusters[0].location, 'us-central1-a')
+            "f7ff4c8cf47b48e9b13640d687fcef3d0a36cdb8ca2c4960b28e164eb52ae52b",
+        )
+        self.assertEqual(clusters[0].name, "cluster-1")
+        self.assertEqual(clusters[0].location, "us-central1-a")
 
     def test_create_cluster(self):
-        success = self.driver.ex_create_cluster('us-central1-a', 'default')
+        success = self.driver.ex_create_cluster("us-central1-a", "default")
         self.assertTrue(success)
 
     def test_get_cluster(self):
-        cluster = self.driver.ex_get_cluster('us-central1-a', 'default')
+        cluster = self.driver.ex_get_cluster("us-central1-a", "default")
         self.assertEqual(
             cluster.id,
-            'e16b714412e546488a36281cce5acd6e595901c0624346c5904e986371f9d993')
-        self.assertEqual(cluster.name, 'default')
-        self.assertEqual(cluster.location, 'us-central1-a')
+            "e16b714412e546488a36281cce5acd6e595901c0624346c5904e986371f9d993",
+        )
+        self.assertEqual(cluster.name, "default")
+        self.assertEqual(cluster.location, "us-central1-a")
 
     def test_destroy_cluster(self):
-        success = self.driver.ex_destroy_cluster('us-central1-a', 'default')
+        success = self.driver.ex_destroy_cluster("us-central1-a", "default")
         self.assertTrue(success)
 
     def test_get_cluster_credentials(self):
-        cluster = self.driver.ex_get_cluster('us-central1-a', 'default')
+        cluster = self.driver.ex_get_cluster("us-central1-a", "default")
         self.driver.connection.oauth2_credential = MagicMock()
-        self.driver.connection.oauth2_credential.access_token = '12345'
+        self.driver.connection.oauth2_credential.access_token = "12345"
         credentials = self.driver.get_cluster_credentials(cluster)
-        self.assertEqual(credentials['host'], '34.122.208.135')
-        self.assertEqual(credentials['port'], '443')
-        self.assertEqual(credentials['token'], '12345')
+        self.assertEqual(credentials["host"], "34.122.208.135")
+        self.assertEqual(credentials["port"], "443")
+        self.assertEqual(credentials["token"], "12345")
 
     def test_get_server_config(self):
-        config = self.driver.get_server_config('us-central1-a')
-        self.assertEqual(config['defaultClusterVersion'], '1.6.4')
-        self.assertEqual(config['defaultImageType'], 'COS')
+        config = self.driver.get_server_config("us-central1-a")
+        self.assertEqual(config["defaultClusterVersion"], "1.6.4")
+        self.assertEqual(config["defaultImageType"], "COS")
 
 
 class GKEMockHttp(MockHttp):
-    fixtures = ContainerFileFixtures('gke')
-    json_hdr = {'content-type': 'application/json; charset=UTF-8'}
+    fixtures = ContainerFileFixtures("gke")
+    json_hdr = {"content-type": "application/json; charset=UTF-8"}
 
     def _get_method_name(self, type, use_param, qs, path):
-        api_path = '/%s' % API_VERSION
-        project_path = '/projects/%s' % GKE_KEYWORD_PARAMS['project']
-        path = path.replace(api_path, '')
+        api_path = "/%s" % API_VERSION
+        project_path = "/projects/%s" % GKE_KEYWORD_PARAMS["project"]
+        path = path.replace(api_path, "")
         # This replace is separate, since there is a call with a different
         # project name
-        path = path.replace(project_path, '')
+        path = path.replace(project_path, "")
         # The path to get project information is the base path, so use a fake
         # '/project' path instead
         if not path:
-            path = '/project'
+            path = "/project"
         method_name = super(GKEMockHttp, self)._get_method_name(
-            type, use_param, qs, path)
+            type, use_param, qs, path
+        )
         return method_name
 
     def _zones_us_central1_a_serverconfig(self, method, url, body, headers):
-        body = self.fixtures.load(
-            'zones_us-central1-a_serverconfig.json')
+        body = self.fixtures.load("zones_us-central1-a_serverconfig.json")
         return (httplib.OK, body, self.json_hdr, httplib.responses[httplib.OK])
 
     def _zones___clusters(self, method, url, body, headers):
-        body = self.fixtures.load(
-            'zones_-_clusters.json')
+        body = self.fixtures.load("zones_-_clusters.json")
         return (httplib.OK, body, self.json_hdr, httplib.responses[httplib.OK])
 
-    def _zones_us_central1_a_clusters_default(
-            self, method, url, body, headers):
-        body = self.fixtures.load(
-            'zones_us-central1-a_clusters_default.json')
+    def _zones_us_central1_a_clusters_default(self, method, url, body, headers):
+        body = self.fixtures.load("zones_us-central1-a_clusters_default.json")
         return (httplib.OK, body, self.json_hdr, httplib.responses[httplib.OK])
 
     def _zones_us_central1_a_clusters(self, method, url, body, headers):
-        body = self.fixtures.load(
-            'zones_us-central1-a_clusters_default.json')
+        body = self.fixtures.load("zones_us-central1-a_clusters_default.json")
         return (httplib.OK, body, self.json_hdr, httplib.responses[httplib.OK])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(unittest.main())

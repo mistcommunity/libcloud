@@ -6,17 +6,21 @@ from libcloud.common.base import ConnectionKey
 
 
 class ClearAPIResponse(JsonResponse):
-    valid_response_codes = [httplib.OK, httplib.ACCEPTED, httplib.CREATED,
-                            httplib.NO_CONTENT]
+    valid_response_codes = [
+        httplib.OK,
+        httplib.ACCEPTED,
+        httplib.CREATED,
+        httplib.NO_CONTENT,
+    ]
 
     def parse_error(self):
         if self.status == httplib.UNAUTHORIZED:
             body = self.parse_body()
-            raise InvalidCredsError(body['message'])
+            raise InvalidCredsError(body["message"])
         else:
             body = self.parse_body()
-            if 'message' in body:
-                error = '%s (code: %s)' % (body['message'], self.status)
+            if "message" in body:
+                error = "%s (code: %s)" % (body["message"], self.status)
             else:
                 error = body
             return error
@@ -38,6 +42,6 @@ class ClearAPIConnection(ConnectionKey):
 
         This method adds apikey to the request.
         """
-        headers['X-Authorization'] = 'Bearer %s' % (self.key)
-        headers['Content-Type'] = 'application/json'
+        headers["X-Authorization"] = "Bearer %s" % (self.key)
+        headers["Content-Type"] = "application/json"
         return headers
