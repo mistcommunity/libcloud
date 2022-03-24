@@ -12,7 +12,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import os
+import base64
+import tempfile
 from typing import List, Dict
 
 from libcloud.common.google import GoogleOAuth2Credential
@@ -21,7 +23,6 @@ from libcloud.container.providers import Provider
 from libcloud.container.drivers.kubernetes import KubernetesContainerDriver
 from libcloud.common.google import GoogleResponse
 from libcloud.common.google import GoogleBaseConnection
-from libcloud.common.google import GoogleBaseError
 from libcloud.utils.misc import to_memory_str
 from libcloud.utils.misc import to_n_bytes
 
@@ -35,23 +36,51 @@ class GKECluster(ContainerCluster):
         name,
         node_count,
         location,
-        driver,
         config,
         status,
-        extra,
-        credentials=None,
+        host,
+        port,
+        token,
+        ca_cert,
+        extra=None,
         total_cpus=None,
         total_memory=None,
     ):
 
-        super().__init__(id, name, driver, extra)
         self.node_count = node_count
         self.location = location
         self.status = status
         self.config = config
-        self.credentials = credentials
         self.total_cpus = total_cpus
         self.total_memory = total_memory
+        self.credentials = {
+            "host": host,
+            "port": port,
+            "token": token,
+            "ca_cert": ca_cert,
+        }
+
+        # CA Certificate can only be passed as a path to the underlying requests session.
+        # The temporary file is accessed every time a request is made, so it must be
+        # accessible for the span of the cluster's lifetime.
+        cert_file = tempfile.NamedTemporaryFile("w", encoding="utf8", delete=False)
+        cert_file.write(ca_cert)
+        cert_file.close()
+        self._cert_file_path = cert_file.name
+        driver = KubernetesContainerDriver(
+            host=host,
+            port=port,
+            key=token,
+            ca_cert=self._cert_file_path,
+            ex_token_bearer_auth=True,
+        )
+        super().__init__(id, name, driver, extra)
+
+    def __del__(self):
+        try:
+            os.remove(self._cert_file_path)
+        except FileNotFoundError:
+            ...
 
 
 class GKEResponse(GoogleResponse):
@@ -138,7 +167,6 @@ class GKEContainerDriver(KubernetesContainerDriver):
     """
 
     connectionCls = GKEConnection
-    containerDriverCls = KubernetesContainerDriver
     api_name = "google"
     name = "Google Container Engine"
     type = Provider.GKE
@@ -395,15 +423,22 @@ class GKEContainerDriver(KubernetesContainerDriver):
         except KeyError:
             status = ClusterState.UNKNOWN
 
+        host = data["endpoint"]
+        port = "443"
+        token = self.connection.oauth2_credential.access_token
+        ca_cert = base64.b64decode(data["masterAuth"]["clusterCaCertificate"]).decode(
+            "utf-8"
+        )
         cluster = GKECluster(
             id=data.pop("id"),
             name=data.pop("name"),
             node_count=data.pop("currentNodeCount"),
-            total_cpus=0,
-            total_memory=0,
-            status=status,
             location=data.pop("location"),
-            driver=None,
+            status=status,
+            host=host,
+            port=port,
+            token=token,
+            ca_cert=ca_cert,
             config={
                 k: data.pop(k)
                 for k in list(data)
@@ -429,18 +464,9 @@ class GKEContainerDriver(KubernetesContainerDriver):
                 ]
             },
             extra=data,
+            total_cpus=0,
+            total_memory=0,
         )
-        try:
-            cluster.credentials = self.get_cluster_credentials(cluster)
-        except Exception:
-            ...
-        else:
-            cluster.driver = self.containerDriverCls(
-                host=cluster.credentials["host"],
-                port=cluster.credentials["port"],
-                key=cluster.credentials["token"],
-                ex_token_bearer_auth=True,
-            )
 
         if cluster.driver:
             try:
