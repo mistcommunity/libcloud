@@ -423,7 +423,8 @@ class GKEContainerDriver(KubernetesContainerDriver):
         except KeyError:
             status = ClusterState.UNKNOWN
 
-        host = data["endpoint"]
+        # When the Kubernetes API is not up endpoint might not exist
+        host = data.get("endpoint", "")
         port = "443"
         token = self.connection.oauth2_credential.access_token
         ca_cert = base64.b64decode(data["masterAuth"]["clusterCaCertificate"]).decode(
