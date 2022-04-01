@@ -13,8 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import re
 import base64
+import tempfile
 from typing import List, Optional, Union, Any, Dict
 
 try:
@@ -45,22 +47,48 @@ class EKSCluster(ContainerCluster):
         id,
         name,
         location,
-        driver,
         config,
         status,
-        extra,
-        credentials=None,
+        host,
+        port,
+        token,
+        ca_cert,
+        extra=None,
         total_cpus=None,
         total_memory=None,
     ):
-
-        super().__init__(id, name, driver, extra)
         self.location = location
         self.status = status
         self.config = config
-        self.credentials = credentials
+        self.credentials = {
+            "host": host,
+            "port": port,
+            "token": token,
+            "ca_cert": ca_cert,
+        }
+        # CA Certificate can only be passed as a path to the underlying requests session.
+        # The temporary file is accessed every time a request is made, so it must be
+        # accessible for the span of the cluster's lifetime.
+        cert_file = tempfile.NamedTemporaryFile("w", encoding="utf8", delete=False)
+        cert_file.write(ca_cert)
+        cert_file.close()
+        self._cert_file_path = cert_file.name
+        driver = KubernetesContainerDriver(
+            host=host,
+            port=port,
+            key=token,
+            ca_cert=self._cert_file_path,
+            ex_token_bearer_auth=True,
+        )
+        super().__init__(id, name, driver, extra)
         self.total_cpus = total_cpus or 0
         self.total_memory = total_memory or 0
+
+    def __del__(self):
+        try:
+            os.remove(self._cert_file_path)
+        except FileNotFoundError:
+            ...
 
 
 class EKSNodeGroup:
@@ -98,7 +126,6 @@ class ElasticKubernetesDriver(ContainerDriver):
     name = "Amazon Elastic Kubernetes Service"
     website = "https://aws.amazon.com/eks/"
     connectionCls = EKSJsonConnection
-    containerDriverCls = KubernetesContainerDriver
     supports_clusters = True
 
     CLUSTER_STATES = {
@@ -388,7 +415,8 @@ class ElasticKubernetesDriver(ContainerDriver):
     def _to_cluster(self, data, fetch_nodes=True):
         id_ = data["arn"]
         name = data["name"]
-        endpoint = data["endpoint"]
+        endpoint = data.get("endpoint", "")
+        ca_cert = base64.b64decode(data["certificateAuthority"]["data"]).decode("utf-8")
         try:
             status = self.CLUSTER_STATES[data["status"]]
         except KeyError:
@@ -411,24 +439,20 @@ class ElasticKubernetesDriver(ContainerDriver):
             "certificateAuthority": data["certificateAuthority"],
             "clientRequestToken": data["clientRequestToken"],
             "platformVersion": data["platformVersion"],
-            "tags": data["platformVersion"],
+            "tags": data["tags"],
         }
 
         cluster = EKSCluster(
             id=id_,
             name=name,
             location=self.region,
-            status=status,
-            driver=None,
             config=config,
+            status=status,
+            host=endpoint,
+            port="443",
+            token=self._get_cluster_token(name),
+            ca_cert=ca_cert,
             extra=extra,
-        )
-        cluster.credentials = self.get_cluster_credentials(cluster)
-        cluster.driver = self.containerDriverCls(
-            host=cluster.credentials["host"],
-            port=cluster.credentials["port"],
-            key=cluster.credentials["token"],
-            ex_token_bearer_auth=True,
         )
 
         if fetch_nodes:
