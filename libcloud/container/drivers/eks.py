@@ -92,23 +92,28 @@ class EKSCluster(ContainerCluster):
 
 
 class EKSNodeGroup:
+    """A class representing an Amazon EKS managed node group."""
+
     def __init__(
         self,
         id_: str,
         name: str,
         state: str,
         cluster_name: str,
+        sizes: List[str],
+        scaling_config: Dict[str, int],
         extra: Optional[Dict[str, Any]] = None,
     ):
         self.id = id_
         self.name = name
         self.state = state
         self.cluster_name = cluster_name
+        self.scaling_config = scaling_config
+        self.sizes = sizes
         self.extra = extra or {}
 
     def __repr__(self):
-        return ("<EKSNodeGroup: id=%s, name=%s, state=%s, cluster=%s ...>") % (
-            self.id,
+        return ("<EKSNodeGroup: name=%s, state=%s, cluster=%s ...>") % (
             self.name,
             self.state,
             self.cluster_name,
@@ -271,7 +276,49 @@ class ElasticKubernetesDriver(ContainerDriver):
         credentials = dict(host=host, port=port, token=token)
         return credentials
 
-    def ex_create_cluster_node_group(
+    def ex_list_nodegroups(self, cluster: Union[EKSCluster, str]):
+        """List node groups associated with the specified cluster.
+
+        :param  cluster: The cluster to list node groups for.
+        :type   cluster: :class: `EKSCluster` or ``str``
+
+        :rtype: ``list`` of ``str``
+        """
+        try:
+            cluster_name = cluster.name
+        except AttributeError:
+            cluster_name = cluster
+
+        response = self.connection.request(
+            f"{CLUSTERS_ENDPOINT}{cluster_name}/node-groups",
+        ).object
+
+        nodepools = response["nodegroups"]
+        return nodepools
+
+    def ex_get_nodegroup(self, cluster: Union[EKSCluster, str], name: str):
+        """Return detailed information about a node group.
+
+        :param  cluster: The cluster the node group belongs to.
+        :type   cluster: :class: `EKSCluster` or ``str``
+
+        :param  name: The name of the nodegroup to describe.
+        :type   name: ``str``
+
+        :rtype: :class:`EKSNodeGroup`
+        """
+        try:
+            cluster_name = cluster.name
+        except AttributeError:
+            cluster_name = cluster
+
+        response = self.connection.request(
+            f"{CLUSTERS_ENDPOINT}{cluster_name}/node-groups/{name}",
+        ).object
+
+        return self._to_nodegroup(response["nodegroup"])
+
+    def ex_create_node_group(
         self,
         cluster: Union[EKSCluster, str],
         name: str,
@@ -361,19 +408,74 @@ class ElasticKubernetesDriver(ContainerDriver):
 
         return self._to_nodegroup(response["nodegroup"])
 
+    def ex_scale_nodegroup(
+        self,
+        cluster: Union[EKSCluster, str],
+        nodegroup: Union[EKSNodeGroup, str],
+        desired_nodes: int,
+        min_nodes: int,
+        max_nodes: int,
+    ):
+        """Scale the nodegroup up or down.
+
+        :param  cluster: The cluster the node group belongs to.
+        :type   cluster: :class: `EKSCluster` or ``str``
+
+        :param  nodegroup: The name of the nodegroup to scale.
+        :type   nodegroup: :class: `EKSNodeGroup` or ``str``
+
+        :param  desired_nodes: The number of nodes that the managed node group should maintain.
+        :type   desired_nodes: ``int``
+
+        :param  min_nodes: The minimum number of nodes that the managed node group can scale.
+        :type   min_nodes: ``int``
+
+        :param  max_nodes: The maximum number of nodes that the managed node group can scale.
+        :type   max_nodes: ``int``
+
+        :return: An update ID
+        :rtype: `str`
+        """
+        try:
+            cluster_name = cluster.name
+        except AttributeError:
+            cluster_name = cluster
+
+        try:
+            nodegroup_name = nodegroup.name
+        except AttributeError:
+            nodegroup_name = nodegroup
+
+        data = {
+            "scalingConfig": {
+                "desiredSize": desired_nodes,
+                "maxSize": max_nodes,
+                "minSize": min_nodes,
+            },
+        }
+
+        response = self.connection.request(
+            f"{CLUSTERS_ENDPOINT}{cluster_name}/node-groups/{nodegroup_name}/update-config",
+            method="POST",
+            data=json.dumps(data),
+        ).object
+
+        return response["update"]["id"]
+
     def _to_nodegroup(self, data):
         id_ = data["nodegroupArn"]
         name = data["nodegroupName"]
         state = data["status"]
         cluster_name = data["clusterName"]
+        sizes = data["instanceTypes"]
+        scaling_config = data["scalingConfig"]
+
         extra = {
             "version": data.get("version"),
             "release_version": data.get("releaseVersion"),
             "created_at": data.get("createdAt"),
             "modified_at": data.get("modified_at"),
             "capacity_type": data.get("capacityType"),
-            "scaling_config": data.get("scalingConfig"),
-            "instance_types": data.get("instanceTypes"),
             "subnets": data.get("subnets"),
             "remote_access": data.get("remoteAccess"),
             "ami_type": data.get("amiType"),
@@ -387,8 +489,15 @@ class ElasticKubernetesDriver(ContainerDriver):
             "launch_template": data.get("launchTemplate"),
             "tags": data.get("tags"),
         }
+
         return EKSNodeGroup(
-            id_=id_, name=name, state=state, cluster_name=cluster_name, extra=extra
+            id_=id_,
+            name=name,
+            state=state,
+            cluster_name=cluster_name,
+            sizes=sizes,
+            scaling_config=scaling_config,
+            extra=extra,
         )
 
     def _get_cluster_token(self, cluster_name):
