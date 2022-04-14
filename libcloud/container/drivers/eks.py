@@ -441,8 +441,8 @@ class ElasticKubernetesDriver(ContainerDriver):
         cluster: Union[EKSCluster, str],
         nodegroup: Union[EKSNodeGroup, str],
         desired_nodes: int,
-        min_nodes: int,
-        max_nodes: int,
+        min_nodes: Optional[int] = None,
+        max_nodes: Optional[int] = None,
     ) -> str:
         """Scale the nodegroup up or down.
 
@@ -455,11 +455,13 @@ class ElasticKubernetesDriver(ContainerDriver):
         :param  desired_nodes: The number of nodes that the managed node group should maintain.
         :type   desired_nodes: ``int``
 
-        :param  min_nodes: The minimum number of nodes that the managed node group can scale.
-        :type   min_nodes: ``int``
+        :keyword  min_nodes: The minimum number of nodes that the managed node group can scale.
+                             If left unspecified, the value will be set to `desired_nodes`
+        :type     min_nodes: ``int``
 
-        :param  max_nodes: The maximum number of nodes that the managed node group can scale.
-        :type   max_nodes: ``int``
+        :keyword  max_nodes: The maximum number of nodes that the managed node group can scale.
+                             If left unspecified, the value will be set to `desired_nodes`
+        :type     max_nodes: ``int``
 
         :return: An update ID
         :rtype: `str`
@@ -477,8 +479,8 @@ class ElasticKubernetesDriver(ContainerDriver):
         data = {
             "scalingConfig": {
                 "desiredSize": desired_nodes,
-                "maxSize": max_nodes,
-                "minSize": min_nodes,
+                "maxSize": max_nodes or desired_nodes,
+                "minSize": min_nodes or desired_nodes,
             },
         }
 
