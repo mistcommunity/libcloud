@@ -120,6 +120,31 @@ class EKSNodeGroup:
         )
 
 
+class EKSUpdate:
+    """Represent an update against a cluster."""
+
+    def __init__(
+        self,
+        id: str,
+        status: str,
+        type: str,
+        errors: List[Dict[str, Any]],
+        extra: Optional[Dict[Any, Any]] = None,
+    ):
+        self.id = id
+        self.status = status
+        self.type = type
+        self.errors = errors
+        self.extra = extra or {}
+
+    def __repr__(self):
+        return ("<EKSUpdate: id=%s, type=%s, status=%s ...>") % (
+            self.id,
+            self.type,
+            self.status,
+        )
+
+
 class EKSJsonConnection(SignedAWSConnection):
     version = EKS_VERSION
     host = EKS_HOST
@@ -184,7 +209,7 @@ class ElasticKubernetesDriver(ContainerDriver):
         endpoint_public_access: bool = True,
         endpoint_private_access: bool = False,
         ip_family: str = "ipv4",
-    ):
+    ) -> EKSCluster:
         """
         Create a cluster
 
@@ -244,7 +269,7 @@ class ElasticKubernetesDriver(ContainerDriver):
         ).object
         return self._to_cluster(response["cluster"], fetch_nodes=False)
 
-    def destroy_cluster(self, name):
+    def destroy_cluster(self, name) -> bool:
         """
         Destroy a cluster
 
@@ -260,7 +285,7 @@ class ElasticKubernetesDriver(ContainerDriver):
 
         return response.success()
 
-    def get_cluster_credentials(self, cluster):
+    def get_cluster_credentials(self, cluster) -> Dict:
         """
         Return cluster kubernetes credentials
 
@@ -276,12 +301,13 @@ class ElasticKubernetesDriver(ContainerDriver):
         credentials = dict(host=host, port=port, token=token)
         return credentials
 
-    def ex_list_nodegroups(self, cluster: Union[EKSCluster, str]):
+    def ex_list_nodegroups(self, cluster: Union[EKSCluster, str]) -> List[str]:
         """List node groups associated with the specified cluster.
 
         :param  cluster: The cluster to list node groups for.
         :type   cluster: :class: `EKSCluster` or ``str``
 
+        :return: A list of the nodegroups names
         :rtype: ``list`` of ``str``
         """
         try:
@@ -293,10 +319,11 @@ class ElasticKubernetesDriver(ContainerDriver):
             f"{CLUSTERS_ENDPOINT}{cluster_name}/node-groups",
         ).object
 
-        nodepools = response["nodegroups"]
-        return nodepools
+        return response["nodegroups"]
 
-    def ex_get_nodegroup(self, cluster: Union[EKSCluster, str], name: str):
+    def ex_get_nodegroup(
+        self, cluster: Union[EKSCluster, str], name: str
+    ) -> EKSNodeGroup:
         """Return detailed information about a node group.
 
         :param  cluster: The cluster the node group belongs to.
@@ -332,7 +359,7 @@ class ElasticKubernetesDriver(ContainerDriver):
         max_nodes: int = 2,
         min_nodes: int = 2,
         max_unavailable_nodes: int = 1,
-    ):
+    ) -> EKSNodeGroup:
         """Create a managed node group for a cluster.
 
         :param  cluster: The cluster to create the node group for.
@@ -374,6 +401,7 @@ class ElasticKubernetesDriver(ContainerDriver):
         :keyword max_unavailable_nodes: The maximum number of nodes unavailable at once.
         :type    max_unavailable_nodes: ``int``
 
+        :rtype: :class:`EKSNodeGroup`
         """
         try:
             cluster_name = cluster.name
@@ -415,7 +443,7 @@ class ElasticKubernetesDriver(ContainerDriver):
         desired_nodes: int,
         min_nodes: int,
         max_nodes: int,
-    ):
+    ) -> str:
         """Scale the nodegroup up or down.
 
         :param  cluster: The cluster the node group belongs to.
@@ -461,6 +489,86 @@ class ElasticKubernetesDriver(ContainerDriver):
         ).object
 
         return response["update"]["id"]
+
+    def ex_get_update(
+        self,
+        cluster: Union[EKSCluster, str],
+        update_id: str,
+        addon_name: Optional[str] = None,
+        nodegroup: Optional[Union[EKSNodeGroup, str]] = None,
+    ) -> EKSUpdate:
+        """Returns detailed information about an update against the specified cluster or
+        associated managed node group or EKS add-on.
+
+        :param  cluster: The name of the cluster associated with the update.
+        :type   cluster: :class: `EKSCluster` or ``str``
+
+        :param  update_id: The ID of the update to describe.
+        :type   update_id: ``str``
+
+        :keyword addon_name: The name of the add-on, required if the update is an add-on update.
+        :type    addon_name: ``str``
+
+        :keyword nodegroup: The name of the nodegroup associated with the update,
+                            required if the update is a node group update.
+        :type    nodegroup: :class: `EKSNodeGroup` or ``str``
+
+        :rtype: :class:`EKSUpdate`
+        """
+        params = {}
+        if addon_name:
+            params["addonName"] = addon_name
+
+        if nodegroup:
+            try:
+                params["nodegroupName"] = nodegroup.name
+            except AttributeError:
+                params["nodegroupName"] = nodegroup
+
+        try:
+            name = cluster.name
+        except AttributeError:
+            name = cluster
+
+        response = self.connection.request(
+            f"{CLUSTERS_ENDPOINT}{name}/updates/{update_id}",
+            params=params,
+        ).object
+
+        return self._to_update(response["update"])
+
+    def ex_list_addons(
+        self,
+        cluster: Union[EKSCluster, str],
+    ) -> List[str]:
+        """Lists the available add-ons for the cluster.
+
+        :param  cluster: The name of the cluster.
+        :type   cluster: :class: `EKSCluster` or ``str``
+
+        :rtype: ``list`` of ``str``
+        """
+        try:
+            name = cluster.name
+        except AttributeError:
+            name = cluster
+
+        response = self.connection.request(
+            f"{CLUSTERS_ENDPOINT}{name}/addons",
+        ).object
+
+        return response["addons"]
+
+    def _to_update(self, data):
+        id_ = data["id"]
+        status = data["status"]
+        type_ = data["type"]
+        errors = data["errors"]
+        extra = {
+            "created_at": data["createdAt"],
+            "params": data["params"],
+        }
+        return EKSUpdate(id=id_, status=status, type=type_, errors=errors, extra=extra)
 
     def _to_nodegroup(self, data):
         id_ = data["nodegroupArn"]
