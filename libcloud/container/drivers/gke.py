@@ -15,7 +15,7 @@
 import os
 import base64
 import tempfile
-from typing import List, Dict
+from typing import Any, List, Dict, Optional, Union
 
 from libcloud.common.google import GoogleOAuth2Credential
 from libcloud.container.base import ContainerCluster, ClusterState
@@ -42,6 +42,7 @@ class GKECluster(ContainerCluster):
         port,
         token,
         ca_cert,
+        nodepools,
         extra=None,
         total_cpus=None,
         total_memory=None,
@@ -51,6 +52,7 @@ class GKECluster(ContainerCluster):
         self.location = location
         self.status = status
         self.config = config
+        self.nodepools = nodepools
         self.total_cpus = total_cpus
         self.total_memory = total_memory
         self.credentials = {
@@ -81,6 +83,56 @@ class GKECluster(ContainerCluster):
             os.remove(self._cert_file_path)
         except FileNotFoundError:
             ...
+
+
+class GKENodePool:
+    """A class representing a GKE nodepool"""
+
+    def __init__(
+        self,
+        name: str,
+        state: str,
+        size: str,
+        locations: List[str],
+        node_count: int,
+        extra: Optional[Dict[str, Any]] = None,
+    ):
+        self.name = name
+        self.state = state
+        self.size = size
+        self.locations = locations
+        self.node_count = node_count
+        self.extra = extra or {}
+
+    def __repr__(self):
+        return ("<GKENodePool: name=%s, state=%s, node_count=%s ...>") % (
+            self.name,
+            self.state,
+            self.node_count,
+        )
+
+
+class GKEOperation:
+    """Represents an operation that may have happened or are happening on the cluster"""
+
+    def __init__(
+        self,
+        name: str,
+        location: str,
+        type: str,
+        status: str,
+    ):
+        self.name = name
+        self.location = location
+        self.type = type
+        self.status = status
+
+    def __repr__(self):
+        return ("<GKEOperation: name=%s, type=%s, status=%s ...>") % (
+            self.name,
+            self.type,
+            self.status,
+        )
 
 
 class GKEResponse(GoogleResponse):
@@ -286,8 +338,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
         Return cluster information in the given zone
 
         :keyword  zone:  Zone name
-        :type     zone:  ``str`` or :class:`GCEZone` or
-                            :class:`NodeLocation`
+        :type     zone:  ``str``
 
         :keyword  name:  Cluster name
         :type     name:  ``str``
@@ -297,29 +348,6 @@ class GKEContainerDriver(KubernetesContainerDriver):
         request = "/zones/%s/clusters/%s" % (zone, name)
         data = self.connection.request(request, method="GET").object
         return self._to_cluster(data)
-
-    def _build_nodepools_list(self, nodepools, cluster_name):
-        """Helper method to convert a list of Nodepool dictionaries
-        to the format expected by the GKE API.
-        """
-        gke_nodepools = []
-        for index, nodepool in enumerate(nodepools):
-            disk_size = nodepool.get("disk_size", 100)
-            disk_type = nodepool.get("disk_type", "pd-standard")
-            preemptible = nodepool.get("preemptible", False)
-            gke_nodepools.append(
-                {
-                    "name": f"{cluster_name}-pool-{index}",
-                    "initialNodeCount": nodepool["node_count"],
-                    "config": {
-                        "machineType": nodepool["size"],
-                        "diskSizeGb": disk_size,
-                        "preemptible": preemptible,
-                        "diskType": disk_type,
-                    },
-                }
-            )
-        return gke_nodepools
 
     def create_cluster(
         self,
@@ -368,8 +396,8 @@ class GKEContainerDriver(KubernetesContainerDriver):
         Destroy cluster in the given zone
 
         :keyword  zone:  Zone name
-        :type     zone:  ``str`` or :class:`GCEZone` or
-                            :class:`NodeLocation`
+        :type     zone:  ``str``
+
         :keyword  name:  Cluster name
         :type     name:  ``str``
 
@@ -386,8 +414,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
         Return cluster kubernetes credentials
 
         :keyword  zone:  Zone name (required if cluster is ``str``)
-        :type     zone:  ``str`` or :class:`GCEZone` or
-                            :class:`NodeLocation`
+        :type     zone:  ``str``
 
         :keyword  name:  Cluster name or object
         :type     name:  ``str`` or :class:`GKECluster`
@@ -407,12 +434,104 @@ class GKEContainerDriver(KubernetesContainerDriver):
         Return configuration info about the Container Engine service.
 
         :keyword  ex_zone:  Zone name
-        :type     ex_zone:  ``str`` or :class:`GCEZone` or
-                            :class:`NodeLocation`
+        :type     ex_zone:  ``str``
         """
         request = "/zones/%s/serverconfig" % (ex_zone)
         response = self.connection.request(request, method="GET").object
         return response
+
+    def ex_scale_nodepool(
+        self,
+        cluster: Union[GKECluster, str],
+        nodepool: Union[GKENodePool, str],
+        zone: str,
+        desired_nodes: int,
+    ) -> GKEOperation:
+        """Set the node count for a specific nodepool.
+
+        :param cluster: The cluster the nodepool belongs to.
+        :type  cluster: :class: `GKECluster` or ``str``
+
+        :param nodepool: The nodepool to scale.
+        :type  nodepool: :class: `GKENodePool` or ``str``
+
+        :param zone: The zone in which the cluster resides.
+        :type  zone: ``str``
+
+        :param desired_nodes:  The desired node count for the pool.
+        :type  desired_nodes: ``int``
+
+        # TODO operation
+        :rtype: ``dict``
+        """
+        try:
+            cluster_name = cluster.name
+        except AttributeError:
+            cluster_name = cluster
+
+        try:
+            nodepool_name = nodepool.name
+        except AttributeError:
+            nodepool_name = nodepool
+
+        path = (
+            f"/zones/{zone}/clusters/{cluster_name}/nodePools/{nodepool_name}/setSize"
+        )
+
+        data = {
+            "nodeCount": desired_nodes,
+        }
+
+        response = self.connection.request(path, method="POST", data=data).object
+        return self._to_operation(response)
+
+    def ex_get_operation(self, name: str, zone: str) -> GKEOperation:
+        """Return details about a cluster operation.
+
+        :param name: The name of the operation.
+        :type  name: ``str``
+
+        :param zone: The zone in which the cluster resides.
+        :type  zone: ``str``
+        """
+
+        response = self.connection.request(f"/zones/{zone}/operations/{name}").object
+
+        return self._to_operation(response)
+
+    def _to_operation(self, data):
+        name = data["name"]
+        location = data["zone"]
+        status = data["status"]
+        type_ = data["operationType"]
+        return GKEOperation(name=name, location=location, type=type_, status=status)
+
+    def _to_nodepool(self, data):
+        name = data["name"]
+        state = data["status"]
+        size = data["config"]["machineType"]
+        locations = data["locations"]
+        node_count = data["initialNodeCount"]
+        extra = {
+            "config": data["config"],
+            "network_config": data["networkConfig"],
+            "upgrade_settings": data["upgradeSettings"],
+            "version": data["version"],
+            "instance_group_urls": data.get("instanceGroupUrls"),
+            "management": data.get("management"),
+            "max_pods_constraint": data.get("maxPodsConstraint"),
+            "autoscaling": data.get("autoscaling"),
+            "pod_ipv4_cidr_size": data.get("podIpv4CidrSize"),
+            "conditions": data.get("conditions"),
+        }
+        return GKENodePool(
+            name=name,
+            state=state,
+            size=size,
+            locations=locations,
+            node_count=node_count,
+            extra=extra,
+        )
 
     def _to_clusters(self, data):
         return [self._to_cluster(c) for c in data.get("clusters", [])]
@@ -430,11 +549,14 @@ class GKEContainerDriver(KubernetesContainerDriver):
         ca_cert = base64.b64decode(data["masterAuth"]["clusterCaCertificate"]).decode(
             "utf-8"
         )
+        nodepools = [self._to_nodepool(item) for item in data.get("nodePools", [])]
+
         cluster = GKECluster(
             id=data.pop("id"),
             name=data.pop("name"),
-            node_count=data.pop("currentNodeCount"),
+            node_count=data.pop("currentNodeCount", 0),
             location=data.pop("location"),
+            nodepools=nodepools,
             status=status,
             host=host,
             port=port,
@@ -488,3 +610,26 @@ class GKEContainerDriver(KubernetesContainerDriver):
                         )
                     )
         return cluster
+
+    def _build_nodepools_list(self, nodepools, cluster_name):
+        """Helper method to convert a list of Nodepool dictionaries
+        to the format expected by the GKE API.
+        """
+        gke_nodepools = []
+        for index, nodepool in enumerate(nodepools):
+            disk_size = nodepool.get("disk_size", 100)
+            disk_type = nodepool.get("disk_type", "pd-standard")
+            preemptible = nodepool.get("preemptible", False)
+            gke_nodepools.append(
+                {
+                    "name": f"{cluster_name}-pool-{index}",
+                    "initialNodeCount": nodepool["node_count"],
+                    "config": {
+                        "machineType": nodepool["size"],
+                        "diskSizeGb": disk_size,
+                        "preemptible": preemptible,
+                        "diskType": disk_type,
+                    },
+                }
+            )
+        return gke_nodepools
