@@ -106,6 +106,38 @@ class KubernetesNamespace(ContainerCluster):
     A Kubernetes namespace
     """
 
+class KubernetesPortStatus:
+    def __init__(self, port, protocol=None, error=None):
+        self.port = port
+        self.protocol = protocol
+        self.error = error
+
+class KubernetesLoadBalancerIngress:
+    def __init__(self, ip=None, hostname=None, ports=None):
+        self.ip = ip
+        self.hostname = hostname
+        self.ports = [] if ports is None else [
+            KubernetesContainerDriver._to_port_status(port)
+            for port in ports
+        ]
+
+class KubernetesIngress:
+    def __init__(self, id, name, namespace, created_at, load_balancer_ingresses):
+        self.id = id
+        self.name = name
+        self.namespace = namespace
+        self.created_at = created_at
+        self.load_balancer_ingresses = [] if load_balancer_ingresses is None else [
+            KubernetesContainerDriver._to_load_balancer_ingress(load_balancer_ingress)
+            for load_balancer_ingress in load_balancer_ingresses
+        ]
+
+    def __repr__(self):
+        return "<KubernetesIngress name=%s namespace=%s>" % (
+            self.name,
+            self.namespace,
+        )
+
 
 class KubernetesContainerDriver(KubernetesDriverMixin, ContainerDriver):
     type = Provider.KUBERNETES
@@ -352,6 +384,22 @@ class KubernetesContainerDriver(KubernetesDriverMixin, ContainerDriver):
         ).object["items"]
         return [self._to_deployment(item) for item in items]
 
+    def ex_get_ingress(self, name, namespace):
+        url = f"/apis/networking.k8s.io/v1/namespaces/{namespace}/ingresses/{name}"
+        result = self.connection.request(
+            url, enforce_unicode_response=True
+        ).object
+        return self._to_ingress(result)
+
+    def ex_list_ingresses(self, namespace=None):
+        url = "/apis/networking.k8s.io/v1/ingresses"
+        if namespace:
+            url = f"/apis/networking.k8s.io/v1/namespaces/{namespace}/ingresses"
+        items = self.connection.request(
+            url, enforce_unicode_response=True
+        ).object["items"]
+        return [self._to_ingress(item) for item in items]
+
     def _to_deployment(self, data):
         id_ = data["metadata"]["uid"]
         name = data["metadata"]["name"]
@@ -538,6 +586,43 @@ class KubernetesContainerDriver(KubernetesDriverMixin, ContainerDriver):
             name=data["metadata"]["name"],
             driver=self.connection.driver,
             extra={"phase": data["status"]["phase"]},
+        )
+
+    def _to_ingress(self, data):
+        """
+        Convert an API response to a `KubernetesIngress` object
+        """
+        created_at = datetime.datetime.strptime(
+            data["metadata"]["creationTimestamp"], "%Y-%m-%dT%H:%M:%SZ"
+        )
+        return KubernetesIngress(
+            id=data["metadata"]["uid"],
+            name=data["metadata"]["name"],
+            namespace=data["metadata"]["namespace"],
+            created_at=created_at,
+            load_balancer_ingresses=data["status"].get("loadBalancer",{}).get("ingress")
+        )
+
+    @staticmethod
+    def _to_load_balancer_ingress(data):
+        """
+        Convert LoadBalancerIngress object to a `KubernetesLoadBalancerIngress` object
+        """
+        return KubernetesLoadBalancerIngress(
+            ip=data.get("ip"),
+            hostname=data.get("hostname"),
+            ports=data.get("ports")
+        )
+
+    @staticmethod
+    def _to_port_status(data):
+        """
+        Convert an PortStatus object to a `KubernetesPortStatus` object
+        """
+        return KubernetesPortStatus(
+            port=data.get("port"),
+            protocol=data.get("protocol"),
+            error=data.get("error")
         )
 
 
