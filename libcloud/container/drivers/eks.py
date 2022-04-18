@@ -101,14 +101,18 @@ class EKSNodeGroup:
         state: str,
         cluster_name: str,
         sizes: List[str],
-        scaling_config: Dict[str, int],
+        nodes: int,
+        min_nodes: int,
+        max_nodes: int,
         extra: Optional[Dict[str, Any]] = None,
     ):
         self.id = id_
         self.name = name
         self.state = state
         self.cluster_name = cluster_name
-        self.scaling_config = scaling_config
+        self.nodes = nodes
+        self.min_nodes = min_nodes
+        self.max_nodes = max_nodes
         self.sizes = sizes
         self.extra = extra or {}
 
@@ -578,8 +582,9 @@ class ElasticKubernetesDriver(ContainerDriver):
         state = data["status"]
         cluster_name = data["clusterName"]
         sizes = data["instanceTypes"]
-        scaling_config = data["scalingConfig"]
-
+        nodes = data["scalingConfig"]["desiredSize"]
+        min_nodes = data["scalingConfig"]["minSize"]
+        max_nodes = data["scalingConfig"]["maxSize"]
         extra = {
             "version": data.get("version"),
             "release_version": data.get("releaseVersion"),
@@ -606,7 +611,9 @@ class ElasticKubernetesDriver(ContainerDriver):
             state=state,
             cluster_name=cluster_name,
             sizes=sizes,
-            scaling_config=scaling_config,
+            nodes=nodes,
+            min_nodes=min_nodes,
+            max_nodes=max_nodes,
             extra=extra,
         )
 

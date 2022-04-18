@@ -94,21 +94,25 @@ class GKENodePool:
         state: str,
         size: str,
         locations: List[str],
-        node_count: int,
+        nodes: int,
+        min_nodes: Optional[int] = None,
+        max_nodes: Optional[int] = None,
         extra: Optional[Dict[str, Any]] = None,
     ):
         self.name = name
         self.state = state
         self.size = size
         self.locations = locations
-        self.node_count = node_count
+        self.nodes = nodes
+        self.min_nodes = min_nodes
+        self.max_nodes = max_nodes
         self.extra = extra or {}
 
     def __repr__(self):
         return ("<GKENodePool: name=%s, state=%s, node_count=%s ...>") % (
             self.name,
             self.state,
-            self.node_count,
+            self.nodes,
         )
 
 
@@ -511,7 +515,15 @@ class GKEContainerDriver(KubernetesContainerDriver):
         state = data["status"]
         size = data["config"]["machineType"]
         locations = data["locations"]
-        node_count = data["initialNodeCount"]
+        nodes = data["initialNodeCount"]
+        try:
+            min_nodes = data["autoscaling"]["minNodeCount"]
+        except (KeyError, TypeError):
+            min_nodes = None
+        try:
+            max_nodes = data["autoscaling"]["maxNodeCount"]
+        except (KeyError, TypeError):
+            max_nodes = None
         extra = {
             "config": data["config"],
             "network_config": data["networkConfig"],
@@ -529,7 +541,9 @@ class GKEContainerDriver(KubernetesContainerDriver):
             state=state,
             size=size,
             locations=locations,
-            node_count=node_count,
+            nodes=nodes,
+            min_nodes=min_nodes,
+            max_nodes=max_nodes,
             extra=extra,
         )
 
