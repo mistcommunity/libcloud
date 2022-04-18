@@ -488,6 +488,56 @@ class GKEContainerDriver(KubernetesContainerDriver):
         response = self.connection.request(path, method="POST", data=data).object
         return self._to_operation(response)
 
+    def ex_set_nodepool_autoscaling(
+        self,
+        cluster: Union[GKECluster, str],
+        nodepool: Union[GKENodePool, str],
+        zone: str,
+        min_nodes: int,
+        max_nodes: int,
+    ):
+        """Set the autoscaling settings for the specified node pool.
+
+        :param cluster: The cluster the nodepool belongs to.
+        :type  cluster: :class: `GKECluster` or ``str``
+
+        :param nodepool: The nodepool to scale.
+        :type  nodepool: :class: `GKENodePool` or ``str``
+
+        :param zone: The zone in which the cluster resides.
+        :type  zone: ``str``
+
+        :param min_nodes:  The desired node count for the pool.
+        :type  min_nodes: ``int``
+
+        :param max_nodes:  The desired node count for the pool.
+        :type  max_nodes: ``int``
+
+        :rtype: :class:`GKEOperation`
+        """
+        try:
+            cluster_name = cluster.name
+        except AttributeError:
+            cluster_name = cluster
+
+        try:
+            nodepool_name = nodepool.name
+        except AttributeError:
+            nodepool_name = nodepool
+
+        data = {
+            "autoscaling": {
+                "enabled": True,
+                "minNodeCount": min_nodes,
+                "maxNodeCount": max_nodes,
+            }
+        }
+        path = f"/zones/{zone}/clusters/{cluster_name}/nodePools/{nodepool_name}/autoscaling"
+
+        response = self.connection.request(path, method="POST", data=data).object
+
+        return self._to_operation(response)
+
     def ex_get_operation(self, name: str, zone: str) -> GKEOperation:
         """Return details about a cluster operation.
 
