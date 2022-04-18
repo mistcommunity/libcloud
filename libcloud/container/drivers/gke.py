@@ -465,8 +465,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
         :param desired_nodes:  The desired node count for the pool.
         :type  desired_nodes: ``int``
 
-        # TODO operation
-        :rtype: ``dict``
+        :rtype: :class:`GKEOperation`
         """
         try:
             cluster_name = cluster.name

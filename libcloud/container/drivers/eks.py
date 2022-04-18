@@ -460,11 +460,9 @@ class ElasticKubernetesDriver(ContainerDriver):
         :type   desired_nodes: ``int``
 
         :keyword  min_nodes: The minimum number of nodes that the managed node group can scale.
-                             If left unspecified, the value will be set to `desired_nodes`
         :type     min_nodes: ``int``
 
         :keyword  max_nodes: The maximum number of nodes that the managed node group can scale.
-                             If left unspecified, the value will be set to `desired_nodes`
         :type     max_nodes: ``int``
 
         :return: An update ID
@@ -483,10 +481,14 @@ class ElasticKubernetesDriver(ContainerDriver):
         data = {
             "scalingConfig": {
                 "desiredSize": desired_nodes,
-                "maxSize": max_nodes or desired_nodes,
-                "minSize": min_nodes or desired_nodes,
             },
         }
+
+        if min_nodes:
+            data["scalingConfig"]["minSize"] = min_nodes
+
+        if max_nodes:
+            data["scalingConfig"]["maxSize"] = max_nodes
 
         response = self.connection.request(
             f"{CLUSTERS_ENDPOINT}{cluster_name}/node-groups/{nodegroup_name}/update-config",
