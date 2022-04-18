@@ -1,0 +1,23 @@
+{
+    "update": {
+        "id": "db84eb8b-db3d-337b-80da-fccf7e1e81bf",
+        "status": "Successful",
+        "type": "ConfigUpdate",
+        "params": [
+            {
+                "type": "DesiredSize",
+                "value": "1"
+            },
+            {
+                "type": "MaxSize",
+                "value": "1"
+            },
+            {
+                "type": "MinSize",
+                "value": "1"
+            }
+        ],
+        "createdAt": 1649926129.076,
+        "errors": []
+    }
+}
