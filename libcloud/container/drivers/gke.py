@@ -493,8 +493,9 @@ class GKEContainerDriver(KubernetesContainerDriver):
         cluster: Union[GKECluster, str],
         nodepool: Union[GKENodePool, str],
         zone: str,
-        min_nodes: int,
-        max_nodes: int,
+        enabled: bool = True,
+        min_nodes: Optional[int] = None,
+        max_nodes: Optional[int] = None,
     ):
         """Set the autoscaling settings for the specified node pool.
 
@@ -507,10 +508,13 @@ class GKEContainerDriver(KubernetesContainerDriver):
         :param zone: The zone in which the cluster resides.
         :type  zone: ``str``
 
-        :param min_nodes:  The desired node count for the pool.
+        :keyword enabled:  Enable/Disable autoscaling
+        :type  enabled: ``bool``
+
+        :keyword min_nodes:  The desired node count for the pool. Required when enabled is True
         :type  min_nodes: ``int``
 
-        :param max_nodes:  The desired node count for the pool.
+        :keyword max_nodes:  The desired node count for the pool. Required when enabled is True
         :type  max_nodes: ``int``
 
         :rtype: :class:`GKEOperation`
@@ -527,11 +531,14 @@ class GKEContainerDriver(KubernetesContainerDriver):
 
         data = {
             "autoscaling": {
-                "enabled": True,
-                "minNodeCount": min_nodes,
-                "maxNodeCount": max_nodes,
+                "enabled": enabled,
             }
         }
+
+        if enabled:
+            data["autoscaling"]["minNodeCount"] = min_nodes
+            data["autoscaling"]["maxNodeCount"] = max_nodes
+
         path = f"/zones/{zone}/clusters/{cluster_name}/nodePools/{nodepool_name}/autoscaling"
 
         response = self.connection.request(path, method="POST", data=data).object
