@@ -371,13 +371,19 @@ class GKEContainerDriver(KubernetesContainerDriver):
         :keyword  nodepools:  The cluster's node pools.
                               The format is a list of dictionaries with the
                               following structure:
-                              [{
-                                  node_count: int, The number of nodes
-                                  size: str, The name of a GCE machine type
-                                  disk_size: int, (optional)Size of the disk attached to nodes
-                                  disk_type: str, (optional)Type of the disk attached to nodes
-                                  preemptible: bool, (optional)preemptible VM instances
-                              }]
+
+                              min_nodes: int, (optional) The minimum number of nodes the autoscaler
+                                                         should maintain. Setting this will enable
+                                                         autoscaling for the nodepool
+                              max_nodes: int, (optional) The maximum number of nodes the autoscaler
+                                                         should maintain. Setting this will enable
+                                                         autoscaling for the nodepool
+                              node_count: int, The number of nodes.
+                              size: str, The name of a GCE machine type
+                              disk_size: int, (optional)Size of the disk attached to nodes
+                              disk_type: str, (optional)Type of the disk attached to nodes
+                              preemptible: bool, (optional)preemptible VM instances
+
         :type     nodepools:  ``list`` of ``dict``
 
         :return:  A GKE operation dictionary
@@ -493,7 +499,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
         cluster: Union[GKECluster, str],
         nodepool: Union[GKENodePool, str],
         zone: str,
-        enabled: bool = True,
+        autoscaling: bool = True,
         min_nodes: Optional[int] = None,
         max_nodes: Optional[int] = None,
     ):
@@ -508,13 +514,13 @@ class GKEContainerDriver(KubernetesContainerDriver):
         :param zone: The zone in which the cluster resides.
         :type  zone: ``str``
 
-        :keyword enabled:  Enable/Disable autoscaling
-        :type  enabled: ``bool``
+        :keyword autoscaling:  Enable/Disable autoscaling
+        :type  autoscaling: ``bool``
 
-        :keyword min_nodes:  The desired node count for the pool. Required when enabled is True
+        :keyword min_nodes:  The min node count for the pool. Required when autoscaling is True
         :type  min_nodes: ``int``
 
-        :keyword max_nodes:  The desired node count for the pool. Required when enabled is True
+        :keyword max_nodes:  The max node count for the pool. Required when autoscaling is True
         :type  max_nodes: ``int``
 
         :rtype: :class:`GKEOperation`
@@ -531,11 +537,11 @@ class GKEContainerDriver(KubernetesContainerDriver):
 
         data = {
             "autoscaling": {
-                "enabled": enabled,
+                "enabled": autoscaling,
             }
         }
 
-        if enabled:
+        if autoscaling:
             data["autoscaling"]["minNodeCount"] = min_nodes
             data["autoscaling"]["maxNodeCount"] = max_nodes
 
@@ -571,7 +577,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
         state = data["status"]
         size = data["config"]["machineType"]
         locations = data["locations"]
-        nodes = data["initialNodeCount"]
+        nodes = data.get("initialNodeCount")
         try:
             min_nodes = data["autoscaling"]["minNodeCount"]
         except (KeyError, TypeError):
@@ -690,16 +696,21 @@ class GKEContainerDriver(KubernetesContainerDriver):
             disk_size = nodepool.get("disk_size", 100)
             disk_type = nodepool.get("disk_type", "pd-standard")
             preemptible = nodepool.get("preemptible", False)
-            gke_nodepools.append(
-                {
-                    "name": f"{cluster_name}-pool-{index}",
-                    "initialNodeCount": nodepool["node_count"],
-                    "config": {
-                        "machineType": nodepool["size"],
-                        "diskSizeGb": disk_size,
-                        "preemptible": preemptible,
-                        "diskType": disk_type,
-                    },
+            gke_nodepool = {
+                "name": f"{cluster_name}-pool-{index}",
+                "initialNodeCount": nodepool["node_count"],
+                "config": {
+                    "machineType": nodepool["size"],
+                    "diskSizeGb": disk_size,
+                    "preemptible": preemptible,
+                    "diskType": disk_type,
+                },
+            }
+            if nodepool.get("min_nodes") and nodepool.get("max_nodes"):
+                gke_nodepool["autoscaling"] = {
+                    "enabled": True,
+                    "minNodeCount": nodepool["min_nodes"],
+                    "maxNodeCount": nodepool["max_nodes"],
                 }
-            )
+            gke_nodepools.append(gke_nodepool)
         return gke_nodepools
