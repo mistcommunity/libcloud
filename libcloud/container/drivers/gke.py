@@ -493,7 +493,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
         cluster: Union[GKECluster, str],
         nodepool: Union[GKENodePool, str],
         zone: str,
-        enabled: bool = True,
+        autoscaling: bool = True,
         min_nodes: Optional[int] = None,
         max_nodes: Optional[int] = None,
     ):
@@ -508,8 +508,8 @@ class GKEContainerDriver(KubernetesContainerDriver):
         :param zone: The zone in which the cluster resides.
         :type  zone: ``str``
 
-        :keyword enabled:  Enable/Disable autoscaling
-        :type  enabled: ``bool``
+        :keyword autoscaling:  Enable/Disable autoscaling
+        :type  autoscaling: ``bool``
 
         :keyword min_nodes:  The desired node count for the pool. Required when enabled is True
         :type  min_nodes: ``int``
@@ -531,11 +531,11 @@ class GKEContainerDriver(KubernetesContainerDriver):
 
         data = {
             "autoscaling": {
-                "enabled": enabled,
+                "enabled": autoscaling,
             }
         }
 
-        if enabled:
+        if autoscaling:
             data["autoscaling"]["minNodeCount"] = min_nodes
             data["autoscaling"]["maxNodeCount"] = max_nodes
 
