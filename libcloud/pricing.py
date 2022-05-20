@@ -175,6 +175,37 @@ def get_size_price(driver_type, driver_name, size_id, region=None):
     return price
 
 
+def get_gce_image_price(image_name):
+    """
+    This returns a dict that needs further diving into to get a price.
+    Depending on image Google sets prices differently, for example
+    for Windows Server it has prices for ``f1``, ``g1`` and ``any``.
+    While for SQL Server it has prices for ``standard``, ``enterprise`` and
+    ``web``.
+
+    :type image_name: ``str``
+    :param image_name: Name of the GCE image
+
+    :rtype: ``dict``
+    :return: Dictionary that depends on chosen image_name.
+             The dictionary looks like this:
+             {'key1': {price: ``float``, sku: ``string``},
+              'key2': {price: ``float``, sku: ``string``}
+             }
+             key1 and key2 depend on the image.
+    """
+    pricing = get_pricing(driver_type='compute', driver_name='gce_images')
+
+    try:
+        price = pricing[image_name]
+
+    except KeyError:
+        # Price not available
+        price = None
+
+    return price
+
+
 def invalidate_pricing_cache():
     """
     Invalidate pricing cache for all the drivers.
