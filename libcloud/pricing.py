@@ -40,6 +40,7 @@ except ImportError:
 __all__ = [
     "get_pricing",
     "get_size_price",
+    "get_gce_image_price_dict",
     "set_pricing",
     "clear_pricing_data",
     "download_pricing_file",
@@ -175,7 +176,7 @@ def get_size_price(driver_type, driver_name, size_id, region=None):
     return price
 
 
-def get_gce_image_price(image_name):
+def get_gce_image_price_dict(image_name):
     """
     This returns a dict that needs further diving into to get a price.
     Depending on image Google sets prices differently, for example
