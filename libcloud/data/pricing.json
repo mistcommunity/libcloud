@@ -63415,50 +63415,50 @@
             "RHEL": {
                 "description": "RHEL7",
                 "4vcpu or less": {
-                    "price": 0,
+                    "price": 0.06,
                     "sku": "57A4-6443-7F8D"
                 },
                 "6vcpu or more": {
-                    "price": 0,
+                    "price": 0.13,
                     "sku": "9AAA-D8A1-1CA1"
                 }
             },
             "RHEL with Update Services": {
                 "description": "Red Hat Enterprise Linux for SAP with Update Services",
                 "4vcpu or less": {
-                    "price": 0,
+                    "price": 0.10,
                     "sku": "7E6E-54A7-319A"
                 },
                 "6vcpu or more": {
-                    "price": 0,
+                    "price": 0.225,
                     "sku": "CB1D-70B4-22E0"
                 }
             },
             "SLES": {
                 "any": {
-                    "price": 0,
+                    "price": 0.11,
                     "sku": "42E1-070C-7F4E"
                 },
                 "f1": {
-                    "price": 0,
+                    "price": 0.02,
                     "sku": "0469-B817-410A"
                 },
                 "g1": {
-                    "price": 0,
+                    "price": 0.02,
                     "sku": "739A-8A87-1E79"
                 }
             },
             "SLES for SAP": {
                 "1-2vcpu": {
-                    "price": 0,
+                    "price": 0.17,
                     "sku": "EAF4-4289-40E6"
                 },
                 "3-4vcpu": {
-                    "price": 0,
+                    "price": 0.34,
                     "sku": "86C1-64B7-1E72"
                 },
                 "6vcpu or more": {
-                    "price": 0,
+                    "price": 0.41,
                     "sku": "5E02-C3BA-6290"
                 }
             },
@@ -63475,15 +63475,15 @@
             },
             "Windows Server": {
                 "any": {
-                    "price": 0,
+                    "price": 0.046,
                     "sku": "00B2-37B0-B8BB"
                 },
                 "f1": {
-                    "price": 0,
+                    "price": 0.023,
                     "sku": "151B-229F-68E1"
                 },
                 "g1": {
-                    "price": 0,
+                    "price": 0.023,
                     "sku": "03F4-45F5-24A2"
                 }
             }
