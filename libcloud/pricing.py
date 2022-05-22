@@ -40,7 +40,7 @@ except ImportError:
 __all__ = [
     "get_pricing",
     "get_size_price",
-    "get_gce_image_price_dict",
+    "get_gce_image_price",
     "set_pricing",
     "clear_pricing_data",
     "download_pricing_file",
@@ -176,7 +176,7 @@ def get_size_price(driver_type, driver_name, size_id, region=None):
     return price
 
 
-def get_gce_image_price_dict(image_name):
+def get_gce_image_price(image, size_type=None, cpus=0, img_full_name=""):
     """
     This returns a dict that needs further diving into to get a price.
     Depending on image Google sets prices differently, for example
@@ -184,27 +184,76 @@ def get_gce_image_price_dict(image_name):
     While for SQL Server it has prices for ``standard``, ``enterprise`` and
     ``web``.
 
-    :type image_name: ``str``
-    :param image_name: Name of the GCE image
+    :type image ``str``
+    :param image: Category of the GCE premium image, can be one of:
+                  `Windows Server`, `RHEL`, `SLES`, `SLES for SAP`,
+                  `RHEL with Update Services`, `SQL Server`
 
-    :rtype: ``dict``
-    :return: Dictionary that depends on chosen image_name.
-             The dictionary looks like this:
-             {'key1': {price: ``float``, sku: ``string``},
-              'key2': {price: ``float``, sku: ``string``}
-             }
-             key1 and key2 depend on the image.
+    :type size_type: ``str``
+    :param size_type: This is required for `Windows Server` or `SLES`
+                      Also it should only be filled if the size of the
+                      VM is either `f1 micro` or `g1 small`.
+                      Valid values are `f1` or `g1`.
+
+    :type cpus: ``int``
+    :param cpus: The number of cores the VM running the image has.
+                 This is required for `Windows Server`, `RHEL` or `SLES for SAP` or
+                 `RHEL with Update Services`.
+
+    :type img_full_name: ``str``
+    :param img_full_name: The full name of the image as returned from GCE API.
+                          Eg. `sql-2014-enterprise-windows-2016-dc-v20220513`
+                          This is required only for SQL Server image.
+
+    :rtype: ``float``
+    :return: Image price
     """
     pricing = get_pricing(driver_type='compute', driver_name='gce_images')
-
+    price = 0
     try:
-        price = pricing[image_name]
+        price_dict = pricing[image]
 
     except KeyError:
         # Price not available
-        price = None
+        return price
 
-    return price
+    if image == 'Windows Server':
+        if size_type in {'f1', 'g1'}:
+            price = price_dict[size_type].get('price', 0)
+        else:
+            price = price_dict['any'].get('price', 0) * cpus
+    elif image == 'RHEL':
+        if cpus <= 4:
+            price = price_dict['4vcpu or less'].get('price', 0)
+        else:
+            price = price_dict['6vcpu or more'].get('price', 0)
+    elif image == 'SLES':
+        if size_type in {'f1', 'g1'}:
+            price = price_dict[size_type].get('price', 0)
+        else:
+            price = price_dict['any'].get('price', 0)
+    elif image == 'SLES for SAP':
+        if cpus >= 6:
+            price = price_dict['6vcpu or more'].get('price', 0)
+        elif 2 < cpus <= 4:
+            price = price_dict['3-4vcpu'].get('price', 0)
+        elif cpus <= 2:
+            price = price_dict['1-2vcpu'].get('price', 0)
+    elif image == 'RHEL with Update Services':
+        if cpus <= 4:
+            price = price_dict['4vcpu or less'].get('price', 0)
+        else:
+            price = price_dict['6vcpu or more'].get('price', 0)
+
+    elif image == "SQL Server":
+        if 'standard' in img_full_name:
+            price = price_dict['standard'].get('price', 0)
+        elif 'enterprise' in img_full_name:
+            price = price_dict['enterprise'].get('price', 0)
+        elif 'web' in img_full_name:
+            price = price_dict['web'].get('price', 0)
+
+    return float(price)
 
 
 def invalidate_pricing_cache():
