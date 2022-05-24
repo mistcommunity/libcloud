@@ -20,7 +20,7 @@ from typing import Dict
 """
 A class which handles loading the pricing files.
 """
-
+import re
 import os.path
 from os.path import join as pjoin
 
@@ -176,7 +176,7 @@ def get_size_price(driver_type, driver_name, size_id, region=None):
     return price
 
 
-def get_gce_image_price(image_name, size):
+def get_gce_image_price(image_name, size_name, cores):
     """
     Return price per hour for an gce image.
     Price depends on the size of the VM.
@@ -193,79 +193,47 @@ def get_gce_image_price(image_name, size):
     :return: Image price
     """
 
-    img = None
-
-    # Decide if the image is a premium image
-    if "sql" in image_name:
-        img='SQL Server'
-    elif 'windows' in image_name:
-        img = 'Windows Server'
-    elif "rhel" in image_name and "sap" in image_name:
-        img = 'RHEL with Update Services'
-    elif "sles for sap" in image_name:
-        img = 'SLES for SAP'
-    elif 'rhel' in image_name:
-        img = 'RHEL'
-    elif 'sles' in image_name:
-        img = 'SLES'
-
-    price = 0
+    image_family = get_gce_image_family(image_name)
     # if there is no premium image return 0
-    if not img:
-        return price
+    if not image_family:
+        return 0
 
     pricing = get_pricing(driver_type='compute', driver_name='gce_images')
     try:
-        price_dict = pricing[img]
+        price_dict = pricing[image_family]
     except KeyError:
         # Price not available
-        return price
+        return 0
 
     size_type = 'any'
-    if 'f1' in size.name:
+    if 'f1' in size_name:
         size_type = 'f1'
-    elif 'g1' in size.name:
+    elif 'g1' in size_name:
         size_type = 'g1'
-    cores = float(size.extra.get('guestCpus', 1))
 
-    # get price depending on premium image 
-    if img == 'Windows Server':
-        if size_type in {'f1', 'g1'}:
-            price = price_dict[size_type].get('price', 0)
-        else:
-            price = price_dict['any'].get('price', 0) * cores
-    elif img == 'RHEL':
-        if cores <= 4:
-            price = price_dict['4vcpu or less'].get('price', 0)
-        else:
-            price = price_dict['6vcpu or more'].get('price', 0)
-    elif img == 'SLES':
-        if size_type in {'f1', 'g1'}:
-            price = price_dict[size_type].get('price', 0)
-        else:
-            price = price_dict['any'].get('price', 0)
-    elif img == 'SLES for SAP':
-        if cores >= 6:
-            price = price_dict['6vcpu or more'].get('price', 0)
-        elif 2 < cores <= 4:
-            price = price_dict['3-4vcpu'].get('price', 0)
-        elif cores <= 2:
-            price = price_dict['1-2vcpu'].get('price', 0)
-    elif img == 'RHEL with Update Services':
-        if cores <= 4:
-            price = price_dict['4vcpu or less'].get('price', 0)
-        else:
-            price = price_dict['6vcpu or more'].get('price', 0)
 
-    elif img == "SQL Server":
-        if 'standard' in image_name:
-            price = price_dict['standard'].get('price', 0) * cores
-        elif 'enterprise' in image_name:
-            price = price_dict['enterprise'].get('price', 0) * cores
-        elif 'web' in image_name:
-            price = price_dict['web'].get('price', 0) * cores
+    price_dict_keys = price_dict.keys()
 
-    return float(price)
+    # search keys to find the one we want
+    for key in price_dict_keys:
+        # eg. 4vcpu or less
+        if re.search('.{1}vcpu or less', key) and cores <= int(key[0]):
+            return float(price_dict[key]['price'])
+        # eg. 1-2vcpu
+        if re.search('.{1}-.{1}vcpu', key) and cores <= int(key[2]):
+            return float(price_dict[key]['price'])
+        # eg 6vcpu or more
+        if re.search('.{1}vcpu or more', key) and cores >= int(key[0]):
+            return float(price_dict[key]['price'])
+        if key in {'standard', 'enterprise', 'web'} and key in image_name:
+            return float(price_dict[key]['price'])
+        if key in {'f1', 'g1'} and size_type == key:
+            return float(price_dict[key]['price'])
+        elif key == 'any':
+            price = float(price_dict[key]['price'])
+            return price * cores if 'sles' not in image_name else price
+        # fallback
+        return 0
 
 
 def invalidate_pricing_cache():
@@ -343,3 +311,22 @@ def download_pricing_file(
     # No need to stream it since file is small
     with open(file_path, "w") as file_handle:
         file_handle.write(body)
+
+# helper function to get image family
+def get_gce_image_family(image_name):
+    image_family = None
+
+    # Decide if the image is a premium image
+    if "sql" in image_name:
+        image_family='SQL Server'
+    elif 'windows' in image_name:
+        image_family = 'Windows Server'
+    elif "rhel" in image_name and "sap" in image_name:
+        image_family = 'RHEL with Update Services'
+    elif "sles for sap" in image_name:
+        image_family = 'SLES for SAP'
+    elif 'rhel' in image_name:
+        image_family = 'RHEL'
+    elif 'sles' in image_name:
+        image_family = 'SLES'
+    return image_family
