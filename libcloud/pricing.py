@@ -176,7 +176,7 @@ def get_size_price(driver_type, driver_name, size_id, region=None):
     return price
 
 
-def get_gce_image_price(image_name, size_name, cores):
+def get_gce_image_price(image_name, size_name, cores=1):
     """
     Return price per hour for an gce image.
     Price depends on the size of the VM.
@@ -216,11 +216,13 @@ def get_gce_image_price(image_name, size_name, cores):
 
     # search keys to find the one we want
     for key in price_dict_keys:
+        if key == 'description':
+            continue
         # eg. 4vcpu or less
         if re.search('.{1}vcpu or less', key) and cores <= int(key[0]):
             return float(price_dict[key]['price'])
         # eg. 1-2vcpu
-        if re.search('.{1}-.{1}vcpu', key) and cores <= int(key[2]):
+        if re.search('.{1}-.{1}vcpu', key) and str(cores) in key:
             return float(price_dict[key]['price'])
         # eg 6vcpu or more
         if re.search('.{1}vcpu or more', key) and cores >= int(key[0]):
@@ -232,8 +234,8 @@ def get_gce_image_price(image_name, size_name, cores):
         elif key == 'any':
             price = float(price_dict[key]['price'])
             return price * cores if 'sles' not in image_name else price
-        # fallback
-        return 0
+    # fallback
+    return 0
 
 
 def invalidate_pricing_cache():
@@ -323,7 +325,7 @@ def get_gce_image_family(image_name):
         image_family = 'Windows Server'
     elif "rhel" in image_name and "sap" in image_name:
         image_family = 'RHEL with Update Services'
-    elif "sles for sap" in image_name:
+    elif "sles" in image_name and "sap" in image_name:
         image_family = 'SLES for SAP'
     elif 'rhel' in image_name:
         image_family = 'RHEL'
