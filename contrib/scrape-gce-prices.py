@@ -220,6 +220,23 @@ compute = {
                 "3yr_commitment": {},
             },
         },
+        #T2D scale optimized
+        "t2d": {
+            "cpu": {
+                "description": "t2d amd instance core",
+                "on_demand": {},
+                "preemptible": {},
+                "1yr_commitment": {},
+                "3yr_commitment": {}
+            },
+            "ram": {
+                "description": "t2d amd instance ram",
+                "on_demand": {},
+                "preemptible": {},
+                "1yr_commitment": {},
+                "3yr_commitment": {}
+            }
+        },
         # M1 memory optimized, no custom
         "m1": {
             "cpu": {
