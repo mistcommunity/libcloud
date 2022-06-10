@@ -26881,6 +26881,98 @@
                 "us-west-1": 6.784,
                 "us-west-2": 5.44
             },
+            "c6id.large": {
+                "eu-west-1": 0.11445,
+                "us-east-1": 0.1008,
+                "us-east-2": 0.1008,
+                "us-west-2": 0.1008
+            },
+            "c6id.xlarge": {
+                "eu-west-1": 0.2289,
+                "us-east-1": 0.2016,
+                "us-east-2": 0.2016,
+                "us-west-2": 0.2016
+            },
+            "c6id.metal": {
+                "eu-west-1": 7.3248,
+                "us-east-1": 6.4512,
+                "us-east-2": 6.4512,
+                "us-west-2": 6.4512
+            },
+            "c6id.2xlarge": {
+                "eu-west-1": 0.4578,
+                "us-east-1": 0.4032,
+                "us-east-2": 0.4032,
+                "us-west-2": 0.4032
+            },
+            "c6id.4xlarge": {
+                "eu-west-1": 0.9156,
+                "us-east-1": 0.8064,
+                "us-east-2": 0.8064,
+                "us-west-2": 0.8064
+            },
+            "c6id.8xlarge": {
+                "eu-west-1": 1.8312,
+                "us-east-1": 1.6128,
+                "us-east-2": 1.6128,
+                "us-west-2": 1.6128
+            },
+            "c6id.12xlarge": {
+                "eu-west-1": 2.7468,
+                "us-east-1": 2.4192,
+                "us-east-2": 2.4192,
+                "us-west-2": 2.4192
+            },
+            "c6id.16xlarge": {
+                "eu-west-1": 3.6624,
+                "us-east-1": 3.2256,
+                "us-east-2": 3.2256,
+                "us-west-2": 3.2256
+            },
+            "c6id.24xlarge": {
+                "eu-west-1": 5.4936,
+                "us-east-1": 4.8384,
+                "us-east-2": 4.8384,
+                "us-west-2": 4.8384
+            },
+            "c6id.32xlarge": {
+                "eu-west-1": 7.3248,
+                "us-east-1": 6.4512,
+                "us-east-2": 6.4512,
+                "us-west-2": 6.4512
+            },
+            "c7g.medium": {
+                "us-east-1": 0.0363,
+                "us-west-2": 0.0363
+            },
+            "c7g.large": {
+                "us-east-1": 0.0725,
+                "us-west-2": 0.0725
+            },
+            "c7g.xlarge": {
+                "us-east-1": 0.145,
+                "us-west-2": 0.145
+            },
+            "c7g.2xlarge": {
+                "us-east-1": 0.29,
+                "us-west-2": 0.29
+            },
+            "c7g.4xlarge": {
+                "us-east-1": 0.58,
+                "us-west-2": 0.58
+            },
+            "c7g.8xlarge": {
+                "us-east-1": 1.16,
+                "us-west-2": 1.16
+            },
+            "c7g.12xlarge": {
+                "us-east-1": 1.74,
+                "us-west-2": 1.74
+            },
+            "c7g.16xlarge": {
+                "us-east-1": 2.32,
+                "us-west-2": 2.32
+            },
             "cc2.8xlarge": {
                 "ap-northeast-1": 2.349,
                 "eu-west-1": 2.25,
@@ -29905,6 +29997,66 @@
                 "us-west-1": 7.168,
                 "us-west-2": 6.144
             },
+            "m6id.large": {
+                "eu-west-1": 0.1323,
+                "us-east-1": 0.11865,
+                "us-east-2": 0.11865,
+                "us-west-2": 0.11865
+            },
+            "m6id.xlarge": {
+                "eu-west-1": 0.2646,
+                "us-east-1": 0.2373,
+                "us-east-2": 0.2373,
+                "us-west-2": 0.2373
+            },
+            "m6id.metal": {
+                "eu-west-1": 8.4672,
+                "us-east-1": 7.5936,
+                "us-east-2": 7.5936,
+                "us-west-2": 7.5936
+            },
+            "m6id.2xlarge": {
+                "eu-west-1": 0.5292,
+                "us-east-1": 0.4746,
+                "us-east-2": 0.4746,
+                "us-west-2": 0.4746
+            },
+            "m6id.4xlarge": {
+                "eu-west-1": 1.0584,
+                "us-east-1": 0.9492,
+                "us-east-2": 0.9492,
+                "us-west-2": 0.9492
+            },
+            "m6id.8xlarge": {
+                "eu-west-1": 2.1168,
+                "us-east-1": 1.8984,
+                "us-east-2": 1.8984,
+                "us-west-2": 1.8984
+            },
+            "m6id.12xlarge": {
+                "eu-west-1": 3.1752,
+                "us-east-1": 2.8476,
+                "us-east-2": 2.8476,
+                "us-west-2": 2.8476
+            },
+            "m6id.16xlarge": {
+                "eu-west-1": 4.2336,
+                "us-east-1": 3.7968,
+                "us-east-2": 3.7968,
+                "us-west-2": 3.7968
+            },
+            "m6id.24xlarge": {
+                "eu-west-1": 6.3504,
+                "us-east-1": 5.6952,
+                "us-east-2": 5.6952,
+                "us-west-2": 5.6952
+            },
+            "m6id.32xlarge": {
+                "eu-west-1": 8.4672,
+                "us-east-1": 7.5936,
+                "us-east-2": 7.5936,
+                "us-west-2": 7.5936
+            },
             "p2.xlarge": {
                 "ap-northeast-1": 1.542,
                 "ap-northeast-2": 1.465,
@@ -30001,6 +30153,10 @@
                 "us-east-1": 32.7726,
                 "us-east-2": 32.7726,
                 "us-west-2": 32.7726
+            },
+            "p4de.24xlarge": {
+                "us-east-1": 40.96575,
+                "us-west-2": 40.96575
             },
             "r3.large": {
                 "ap-northeast-1": 0.2,
@@ -32291,27 +32447,6 @@
                 "us-west-1": 0.01,
                 "us-west-2": 0.0084
             },
-            "t4g.small": {
-                "ap-east-1": 0.0232,
-                "ap-northeast-1": 0.0216,
-                "ap-northeast-2": 0.0208,
-                "ap-south-1": 0.0112,
-                "ap-southeast-1": 0.0212,
-                "ap-southeast-2": 0.0212,
-                "ca-central-1": 0.0184,
-                "eu-central-1": 0.0192,
-                "eu-north-1": 0.0172,
-                "eu-south-1": 0.0192,
-                "eu-west-1": 0.0184,
-                "eu-west-2": 0.0188,
-                "eu-west-3": 0.0188,
-                "sa-east-1": 0.0268,
-                "us-east-1": 0.0168,
-                "us-east-2": 0.0168,
-                "us-gov-west-1": 0.0196,
-                "us-west-1": 0.02,
-                "us-west-2": 0.0168
-            },
             "t4g.medium": {
                 "ap-east-1": 0.0464,
                 "ap-northeast-1": 0.0432,
@@ -34330,6 +34465,74 @@
                 "us-west-1": 28.032,
                 "us-west-2": 26.688
             },
+            "c6id.large": {
+                "eu-west-1": 0.68645,
+                "us-east-1": 0.6728,
+                "us-east-2": 0.6728,
+                "us-west-2": 0.6728
+            },
+            "c6id.xlarge": {
+                "eu-west-1": 0.8929,
+                "us-east-1": 0.8656,
+                "us-east-2": 0.8656,
+                "us-west-2": 0.8656
+            },
+            "c6id.metal": {
+                "eu-west-1": 28.5728,
+                "us-east-1": 27.6992,
+                "us-east-2": 27.6992,
+                "us-west-2": 27.6992
+            },
+            "c6id.2xlarge": {
+                "eu-west-1": 1.7858,
+                "us-east-1": 1.7312,
+                "us-east-2": 1.7312,
+                "us-west-2": 1.7312
+            },
+            "c6id.4xlarge": {
+                "eu-west-1": 3.5716,
+                "us-east-1": 3.4624,
+                "us-east-2": 3.4624,
+                "us-west-2": 3.4624
+            },
+            "c6id.8xlarge": {
+                "eu-west-1": 7.1432,
+                "us-east-1": 6.9248,
+                "us-east-2": 6.9248,
+                "us-west-2": 6.9248
+            },
+            "c6id.12xlarge": {
+                "eu-west-1": 10.7148,
+                "us-east-1": 10.3872,
+                "us-east-2": 10.3872,
+                "us-west-2": 10.3872
+            },
+            "c6id.16xlarge": {
+                "eu-west-1": 14.2864,
+                "us-east-1": 13.8496,
+                "us-east-2": 13.8496,
+                "us-west-2": 13.8496
+            },
+            "c6id.24xlarge": {
+                "eu-west-1": 21.4296,
+                "us-east-1": 20.7744,
+                "us-east-2": 20.7744,
+                "us-west-2": 20.7744
+            },
+            "c6id.32xlarge": {
+                "eu-west-1": 28.5728,
+                "us-east-1": 27.6992,
+                "us-east-2": 27.6992,
+                "us-west-2": 27.6992
+            },
+            "c7g.medium": {},
+            "c7g.large": {},
+            "c7g.xlarge": {},
+            "c7g.2xlarge": {},
+            "c7g.4xlarge": {},
+            "c7g.8xlarge": {},
+            "c7g.12xlarge": {},
+            "c7g.16xlarge": {},
             "d2.xlarge": {},
             "d2.2xlarge": {},
             "d2.4xlarge": {},
@@ -36255,6 +36458,66 @@
                 "us-west-1": 28.416,
                 "us-west-2": 27.392
             },
+            "m6id.large": {
+                "eu-west-1": 0.7043,
+                "us-east-1": 0.69065,
+                "us-east-2": 0.69065,
+                "us-west-2": 0.69065
+            },
+            "m6id.xlarge": {
+                "eu-west-1": 0.9286,
+                "us-east-1": 0.9013,
+                "us-east-2": 0.9013,
+                "us-west-2": 0.9013
+            },
+            "m6id.metal": {
+                "eu-west-1": 29.7152,
+                "us-east-1": 28.8416,
+                "us-east-2": 28.8416,
+                "us-west-2": 28.8416
+            },
+            "m6id.2xlarge": {
+                "eu-west-1": 1.8572,
+                "us-east-1": 1.8026,
+                "us-east-2": 1.8026,
+                "us-west-2": 1.8026
+            },
+            "m6id.4xlarge": {
+                "eu-west-1": 3.7144,
+                "us-east-1": 3.6052,
+                "us-east-2": 3.6052,
+                "us-west-2": 3.6052
+            },
+            "m6id.8xlarge": {
+                "eu-west-1": 7.4288,
+                "us-east-1": 7.2104,
+                "us-east-2": 7.2104,
+                "us-west-2": 7.2104
+            },
+            "m6id.12xlarge": {
+                "eu-west-1": 11.1432,
+                "us-east-1": 10.8156,
+                "us-east-2": 10.8156,
+                "us-west-2": 10.8156
+            },
+            "m6id.16xlarge": {
+                "eu-west-1": 14.8576,
+                "us-east-1": 14.4208,
+                "us-east-2": 14.4208,
+                "us-west-2": 14.4208
+            },
+            "m6id.24xlarge": {
+                "eu-west-1": 22.2864,
+                "us-east-1": 21.6312,
+                "us-east-2": 21.6312,
+                "us-west-2": 21.6312
+            },
+            "m6id.32xlarge": {
+                "eu-west-1": 29.7152,
+                "us-east-1": 28.8416,
+                "us-east-2": 28.8416,
+                "us-west-2": 28.8416
+            },
             "p2.xlarge": {},
             "p2.8xlarge": {},
             "p2.16xlarge": {},
@@ -36263,6 +36526,7 @@
             "p3.16xlarge": {},
             "p3dn.24xlarge": {},
             "p4d.24xlarge": {},
+            "p4de.24xlarge": {},
             "r4.large": {
                 "ap-northeast-1": 0.732,
                 "ap-northeast-2": 0.732,
@@ -37821,7 +38085,6 @@
                 "us-west-2": 1.408
             },
             "t4g.micro": {},
-            "t4g.small": {},
             "t4g.medium": {},
             "t4g.large": {},
             "t4g.xlarge": {},
@@ -63655,64 +63918,64 @@
             "RHEL": {
                 "description": "RHEL7",
                 "4vcpu or less": {
-                    "price": 0.06,
+                    "price": 0,
                     "sku": "57A4-6443-7F8D"
                 },
                 "6vcpu or more": {
-                    "price": 0.13,
+                    "price": 0,
                     "sku": "9AAA-D8A1-1CA1"
                 }
             },
             "RHEL with Update Services": {
                 "description": "Red Hat Enterprise Linux for SAP with Update Services",
                 "4vcpu or less": {
-                    "price": 0.10,
+                    "price": 0,
                     "sku": "7E6E-54A7-319A"
                 },
                 "6vcpu or more": {
-                    "price": 0.225,
+                    "price": 0,
                     "sku": "CB1D-70B4-22E0"
                 }
             },
             "SLES": {
                 "f1": {
-                    "price": 0.02,
+                    "price": 0,
                     "sku": "0469-B817-410A"
                 },
                 "g1": {
-                    "price": 0.02,
+                    "price": 0,
                     "sku": "739A-8A87-1E79"
                 },
                 "any": {
-                    "price": 0.11,
+                    "price": 0,
                     "sku": "42E1-070C-7F4E"
                 }
             },
             "SLES for SAP": {
                 "6vcpu or more": {
-                    "price": 0.41,
+                    "price": 0,
                     "sku": "5E02-C3BA-6290"
                 },
                 "3-4vcpu": {
-                    "price": 0.34,
+                    "price": 0,
                     "sku": "86C1-64B7-1E72"
                 },
                 "1-2vcpu": {
-                    "price": 0.17,
+                    "price": 0,
                     "sku": "EAF4-4289-40E6"
                 }
             },
             "Windows Server": {
                 "any": {
-                    "price": 0.046,
+                    "price": 0,
                     "sku": "00B2-37B0-B8BB"
                 },
                 "f1": {
-                    "price": 0.023,
+                    "price": 0,
                     "sku": "151B-229F-68E1"
                 },
                 "g1": {
-                    "price": 0.023,
+                    "price": 0,
                     "sku": "03F4-45F5-24A2"
                 }
             },
@@ -68677,6 +68940,538 @@
                     "3yr_commitment": {}
                 }
             },
+            "t2d": {
+                "cpu": {
+                    "description": "t2d amd instance core",
+                    "on_demand": {
+                        "us-east4": {
+                            "price": 0.030976,
+                            "sku": "01C8-F6AC-8232"
+                        },
+                        "southamerica-west1": {
+                            "price": 0.03932786,
+                            "sku": "0477-DE99-B0FA"
+                        },
+                        "northamerica-northeast2": {
+                            "price": 0.030278,
+                            "sku": "07D8-AB8A-B2AE"
+                        },
+                        "northamerica-northeast1": {
+                            "price": 0.030278,
+                            "sku": "0C02-6911-ECD5"
+                        },
+                        "asia-northeast3": {
+                            "price": 0.035318,
+                            "sku": "37D7-7917-D77E"
+                        },
+                        "asia-east2": {
+                            "price": 0.038481,
+                            "sku": "39FB-2179-5CCB"
+                        },
+                        "australia-southeast2": {
+                            "price": 0.039025,
+                            "sku": "470A-4F75-9DEF"
+                        },
+                        "us-east5": {
+                            "price": 0.027502,
+                            "sku": "4901-ECCD-AB7D"
+                        },
+                        "asia-south2": {
+                            "price": 0.033034,
+                            "sku": "5037-833F-4A14"
+                        },
+                        "asia-southeast2": {
+                            "price": 0.03698261,
+                            "sku": "53E2-8463-9290"
+                        },
+                        "us-south1": {
+                            "price": 0.03245236,
+                            "sku": "5A44-D30D-8BBE"
+                        },
+                        "europe-west4": {
+                            "price": 0.030278,
+                            "sku": "5FC8-B122-E95E"
+                        },
+                        "asia-south1": {
+                            "price": 0.018151,
+                            "sku": "7B25-FFC2-42EE"
+                        },
+                        "europe-west2": {
+                            "price": 0.035435,
+                            "sku": "7BBB-DC8B-734D"
+                        },
+                        "europe-north1": {
+                            "price": 0.030281,
+                            "sku": "862D-0790-70DA"
+                        },
+                        "europe-southwest1": {
+                            "price": 0.03245236,
+                            "sku": "86BA-809D-BFB3"
+                        },
+                        "asia-northeast1": {
+                            "price": 0.035338,
+                            "sku": "8F0F-B4CF-6A97"
+                        },
+                        "europe-central2": {
+                            "price": 0.035435,
+                            "sku": "939B-CAD6-F771"
+                        },
+                        "us-west4": {
+                            "price": 0.030976,
+                            "sku": "973D-DFDC-9D41"
+                        },
+                        "europe-west1": {
+                            "price": 0.030253,
+                            "sku": "985B-2944-7653"
+                        },
+                        "us-west2": {
+                            "price": 0.033034,
+                            "sku": "9CCD-29C1-67C2"
+                        },
+                        "asia-southeast1": {
+                            "price": 0.033929,
+                            "sku": "9E37-EAF4-1576"
+                        },
+                        "australia-southeast1": {
+                            "price": 0.039025,
+                            "sku": "9E73-269C-A4C5"
+                        },
+                        "europe-west8": {
+                            "price": 0.03190232,
+                            "sku": "A02F-3B54-183E"
+                        },
+                        "europe-west3": {
+                            "price": 0.035435,
+                            "sku": "B260-618D-1521"
+                        },
+                        "asia-east1": {
+                            "price": 0.031844,
+                            "sku": "B70B-A9A7-97BC"
+                        },
+                        "europe-west6": {
+                            "price": 0.038473,
+                            "sku": "BBC5-6580-4535"
+                        },
+                        "us-west3": {
+                            "price": 0.033034,
+                            "sku": "C254-9CFC-EA47"
+                        },
+                        "asia-northeast2": {
+                            "price": 0.035318,
+                            "sku": "CC69-8FF0-F871"
+                        },
+                        "europe-west9": {
+                            "price": 0.03190232,
+                            "sku": "D9CA-61B5-6E5C"
+                        },
+                        "southamerica-east1": {
+                            "price": 0.043657,
+                            "sku": "E3E7-30A1-1760"
+                        },
+                        "us-central1": {
+                            "price": 0.027502,
+                            "sku": "EFE6-E23C-19CB"
+                        }
+                    },
+                    "preemptible": {
+                        "asia-east2": {
+                            "price": 0.009309,
+                            "sku": "0872-6AD0-78AE"
+                        },
+                        "us-south1": {
+                            "price": 0.0078529,
+                            "sku": "0950-B8D9-D7DB"
+                        },
+                        "europe-west9": {
+                            "price": 0.0077198,
+                            "sku": "1523-30DE-77B4"
+                        },
+                        "australia-southeast1": {
+                            "price": 0.00898,
+                            "sku": "19C4-C185-6182"
+                        },
+                        "southamerica-east1": {
+                            "price": 0.010038,
+                            "sku": "1F31-7F36-9DCB"
+                        },
+                        "asia-south1": {
+                            "price": 0.004392,
+                            "sku": "1FA7-3C0E-CAD3"
+                        },
+                        "europe-central2": {
+                            "price": 0.00815,
+                            "sku": "3268-00FC-B8C6"
+                        },
+                        "australia-southeast2": {
+                            "price": 0.0094501,
+                            "sku": "3DD8-9D6E-B229"
+                        },
+                        "asia-east1": {
+                            "price": 0.00732,
+                            "sku": "52BD-EE89-BBED"
+                        },
+                        "asia-southeast2": {
+                            "price": 0.008502,
+                            "sku": "5C27-F271-8727"
+                        },
+                        "us-east5": {
+                            "price": 0.006655,
+                            "sku": "6D7D-6E87-068F"
+                        },
+                        "asia-south2": {
+                            "price": 0.007992,
+                            "sku": "7764-0580-F24E"
+                        },
+                        "europe-west2": {
+                            "price": 0.00815,
+                            "sku": "7790-8F94-3B2E"
+                        },
+                        "asia-northeast2": {
+                            "price": 0.008546,
+                            "sku": "825A-AE41-37C5"
+                        },
+                        "europe-west6": {
+                            "price": 0.00931,
+                            "sku": "9378-09F1-2073"
+                        },
+                        "us-west3": {
+                            "price": 0.007986,
+                            "sku": "9A12-2900-81CF"
+                        },
+                        "us-east4": {
+                            "price": 0.00712,
+                            "sku": "9E96-3C59-3AC1"
+                        },
+                        "northamerica-northeast1": {
+                            "price": 0.007325,
+                            "sku": "A5CA-3CEC-A5E6"
+                        },
+                        "southamerica-west1": {
+                            "price": 0.00951665,
+                            "sku": "ACA0-BAAC-F0B6"
+                        },
+                        "europe-west1": {
+                            "price": 0.007321,
+                            "sku": "AE7B-BBE9-38CB"
+                        },
+                        "asia-northeast3": {
+                            "price": 0.008546,
+                            "sku": "AFF5-5134-0849"
+                        },
+                        "asia-southeast1": {
+                            "price": 0.0078,
+                            "sku": "B78B-4D33-3B7D"
+                        },
+                        "us-west2": {
+                            "price": 0.007986,
+                            "sku": "BF83-01A5-DEFF"
+                        },
+                        "northamerica-northeast2": {
+                            "price": 0.007325,
+                            "sku": "C4E6-C167-EFB7"
+                        },
+                        "europe-west3": {
+                            "price": 0.00815,
+                            "sku": "C8A2-2E6D-562E"
+                        },
+                        "europe-southwest1": {
+                            "price": 0.0078529,
+                            "sku": "C8CB-455F-F4A7"
+                        },
+                        "europe-west4": {
+                            "price": 0.007325,
+                            "sku": "CC57-5EDD-C4D5"
+                        },
+                        "us-west4": {
+                            "price": 0.00712,
+                            "sku": "CE4A-31A3-6CC9"
+                        },
+                        "asia-northeast1": {
+                            "price": 0.00883,
+                            "sku": "D063-EEC4-9701"
+                        },
+                        "europe-west8": {
+                            "price": 0.0077198,
+                            "sku": "DFA9-ABE9-A816"
+                        },
+                        "us-central1": {
+                            "price": 0.006655,
+                            "sku": "E7FF-A0FB-FA82"
+                        },
+                        "europe-north1": {
+                            "price": 0.00732,
+                            "sku": "E862-1286-4BFA"
+                        }
+                    },
+                    "1yr_commitment": {},
+                    "3yr_commitment": {}
+                },
+                "ram": {
+                    "description": "t2d amd instance ram",
+                    "on_demand": {
+                        "australia-southeast2": {
+                            "price": 0.00523,
+                            "sku": "02DE-83D6-EA67"
+                        },
+                        "asia-east2": {
+                            "price": 0.005157,
+                            "sku": "031F-428F-EDCF"
+                        },
+                        "europe-west1": {
+                            "price": 0.004055,
+                            "sku": "0FAA-E6E0-A064"
+                        },
+                        "asia-south1": {
+                            "price": 0.002433,
+                            "sku": "229C-8FDA-854F"
+                        },
+                        "us-west3": {
+                            "price": 0.004427,
+                            "sku": "22CC-8206-6A3A"
+                        },
+                        "northamerica-northeast2": {
+                            "price": 0.004058,
+                            "sku": "2E52-7F18-522F"
+                        },
+                        "us-west4": {
+                            "price": 0.004151,
+                            "sku": "2EF7-138A-094B"
+                        },
+                        "asia-south2": {
+                            "price": 0.004427,
+                            "sku": "32D9-9377-E451"
+                        },
+                        "southamerica-west1": {
+                            "price": 0.00527098,
+                            "sku": "3420-0CE5-7383"
+                        },
+                        "europe-west2": {
+                            "price": 0.004748,
+                            "sku": "3820-932A-0095"
+                        },
+                        "northamerica-northeast1": {
+                            "price": 0.004058,
+                            "sku": "4728-5219-2EB2"
+                        },
+                        "asia-southeast1": {
+                            "price": 0.004547,
+                            "sku": "4756-01E4-0F32"
+                        },
+                        "us-east5": {
+                            "price": 0.003686,
+                            "sku": "4D80-A46A-3A08"
+                        },
+                        "us-west2": {
+                            "price": 0.004427,
+                            "sku": "4FFE-8CDB-F9DB"
+                        },
+                        "asia-southeast2": {
+                            "price": 0.00495623,
+                            "sku": "52F9-32F5-97B2"
+                        },
+                        "europe-west6": {
+                            "price": 0.005156,
+                            "sku": "58AE-BA44-8FED"
+                        },
+                        "europe-west4": {
+                            "price": 0.004058,
+                            "sku": "5BD9-71BC-76F5"
+                        },
+                        "europe-southwest1": {
+                            "price": 0.00434948,
+                            "sku": "705C-082E-B55F"
+                        },
+                        "asia-east1": {
+                            "price": 0.004268,
+                            "sku": "73AA-471D-8CE5"
+                        },
+                        "us-south1": {
+                            "price": 0.00434948,
+                            "sku": "7776-77BF-DAC8"
+                        },
+                        "australia-southeast1": {
+                            "price": 0.00523,
+                            "sku": "7BFA-6743-1916"
+                        },
+                        "asia-northeast1": {
+                            "price": 0.004715,
+                            "sku": "96DD-EC64-2418"
+                        },
+                        "asia-northeast2": {
+                            "price": 0.004734,
+                            "sku": "9B87-74F7-39D6"
+                        },
+                        "europe-north1": {
+                            "price": 0.004058,
+                            "sku": "A064-499E-A036"
+                        },
+                        "europe-central2": {
+                            "price": 0.004748,
+                            "sku": "BD8D-6329-AF14"
+                        },
+                        "asia-northeast3": {
+                            "price": 0.004734,
+                            "sku": "CAF0-D0F9-E367"
+                        },
+                        "us-east4": {
+                            "price": 0.004151,
+                            "sku": "D5BA-C08E-1DDC"
+                        },
+                        "europe-west9": {
+                            "price": 0.00427576,
+                            "sku": "D8DB-8259-C73D"
+                        },
+                        "europe-west3": {
+                            "price": 0.004748,
+                            "sku": "E639-283C-5F35"
+                        },
+                        "europe-west8": {
+                            "price": 0.00427576,
+                            "sku": "F6B6-9866-5955"
+                        },
+                        "us-central1": {
+                            "price": 0.003686,
+                            "sku": "FB05-036A-8982"
+                        },
+                        "southamerica-east1": {
+                            "price": 0.005851,
+                            "sku": "FC42-910D-9BFA"
+                        }
+                    },
+                    "preemptible": {
+                        "asia-south1": {
+                            "price": 0.000589,
+                            "sku": "16F4-DEA5-5551"
+                        },
+                        "asia-southeast1": {
+                            "price": 0.001045,
+                            "sku": "1BDC-E359-59AB"
+                        },
+                        "asia-northeast2": {
+                            "price": 0.001146,
+                            "sku": "1F83-4A97-E585"
+                        },
+                        "europe-central2": {
+                            "price": 0.00109,
+                            "sku": "3BE9-116D-DBB7"
+                        },
+                        "us-east5": {
+                            "price": 0.000892,
+                            "sku": "3D47-7C00-C05E"
+                        },
+                        "southamerica-west1": {
+                            "price": 0.00127556,
+                            "sku": "3E69-3841-3F8F"
+                        },
+                        "europe-west3": {
+                            "price": 0.00109,
+                            "sku": "4732-3E02-8E2D"
+                        },
+                        "us-central1": {
+                            "price": 0.000892,
+                            "sku": "48AB-89F5-9112"
+                        },
+                        "asia-northeast3": {
+                            "price": 0.001146,
+                            "sku": "5AB6-3E11-6168"
+                        },
+                        "australia-southeast2": {
+                            "price": 0.00126664,
+                            "sku": "704F-390A-4CA2"
+                        },
+                        "northamerica-northeast1": {
+                            "price": 0.000987,
+                            "sku": "7520-AD39-67EB"
+                        },
+                        "us-west2": {
+                            "price": 0.001076,
+                            "sku": "7BB3-C293-AF7C"
+                        },
+                        "europe-north1": {
+                            "price": 0.000981,
+                            "sku": "8BD6-A67A-4F39"
+                        },
+                        "asia-south2": {
+                            "price": 0.0010704,
+                            "sku": "911D-1EDD-D1B3"
+                        },
+                        "northamerica-northeast2": {
+                            "price": 0.000987,
+                            "sku": "95F6-7A13-DB3C"
+                        },
+                        "europe-southwest1": {
+                            "price": 0.00105256,
+                            "sku": "9F8A-83CA-FE5C"
+                        },
+                        "europe-west8": {
+                            "price": 0.00103472,
+                            "sku": "A2F6-E55E-31D6"
+                        },
+                        "europe-west1": {
+                            "price": 0.000981,
+                            "sku": "B682-EE21-D0D1"
+                        },
+                        "us-west3": {
+                            "price": 0.001076,
+                            "sku": "B9B5-2BE4-6350"
+                        },
+                        "us-south1": {
+                            "price": 0.00105256,
+                            "sku": "CA70-1A0D-C6A4"
+                        },
+                        "europe-west6": {
+                            "price": 0.001248,
+                            "sku": "CE9A-209A-B1FB"
+                        },
+                        "southamerica-east1": {
+                            "price": 0.001346,
+                            "sku": "D2C9-F871-8C24"
+                        },
+                        "asia-east2": {
+                            "price": 0.001254,
+                            "sku": "D6BE-9BB7-8754"
+                        },
+                        "europe-west9": {
+                            "price": 0.00103472,
+                            "sku": "DAA0-D9ED-8035"
+                        },
+                        "asia-northeast1": {
+                            "price": 0.001178,
+                            "sku": "DADA-8E7D-E76E"
+                        },
+                        "europe-west2": {
+                            "price": 0.00109,
+                            "sku": "DC1F-93D8-BA2F"
+                        },
+                        "australia-southeast1": {
+                            "price": 0.0012,
+                            "sku": "E40C-CD43-CCE2"
+                        },
+                        "asia-east1": {
+                            "price": 0.000981,
+                            "sku": "ECA6-ED4B-61AD"
+                        },
+                        "us-east4": {
+                            "price": 0.000954,
+                            "sku": "F0B8-649C-F8DE"
+                        },
+                        "asia-southeast2": {
+                            "price": 0.00113905,
+                            "sku": "F28B-3200-060B"
+                        },
+                        "us-west4": {
+                            "price": 0.000954,
+                            "sku": "F868-C3B8-8E00"
+                        },
+                        "europe-west4": {
+                            "price": 0.000987,
+                            "sku": "FEC4-A81E-B154"
+                        }
+                    },
+                    "1yr_commitment": {},
+                    "3yr_commitment": {}
+                }
+            },
             "m1": {
                 "cpu": {
                     "description": "memory-optimized instance core",
@@ -71597,5 +72392,5 @@
         }
     },
     "storage": {},
-    "updated": 1653379604
+    "updated": 1654697209
 }
