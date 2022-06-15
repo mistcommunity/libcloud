@@ -25,17 +25,10 @@ import time
 from collections import defaultdict, OrderedDict
 
 import requests
-import demjson  # pylint: disable=import-error
+import ijson  # pylint: disable=import-error
 
-LINUX_PRICING_URLS = [
-    # Deprecated instances (JSON format)
-    "https://aws.amazon.com/ec2/pricing/json/linux-od.json",
-    # Previous generation instances (JavaScript file)
-    "https://a0.awsstatic.com/pricing/1/ec2/previous-generation/linux-od.min.js",
-    # New generation instances (JavaScript file)
-    # Using other endpoint atm
-    # 'https://a0.awsstatic.com/pricing/1/ec2/linux-od.min.js'
-]
+# same URL as the one used by scrape-ec2-sizes.py, now it has official data on pricing
+URL = "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/index.json"
 
 EC2_REGIONS = [
     "us-east-1",
@@ -78,68 +71,131 @@ BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 PRICING_FILE_PATH = os.path.join(BASE_PATH, "../libcloud/data/pricing.json")
 PRICING_FILE_PATH = os.path.abspath(PRICING_FILE_PATH)
 
+TEMPFILE = os.environ.get("TMP_JSON", "/tmp/ec.json")
 
+def download_json():
+    response = requests.get(URL, stream=True)
+    try:
+        return open(TEMPFILE, "r")
+    except IOError:
+        with open(TEMPFILE, "wb") as fo:
+            for chunk in response.iter_content(chunk_size=2**20):
+                if chunk:
+                    fo.write(chunk)
+    return open(TEMPFILE, "r")
+
+
+def get_json():
+    try:
+        return open(TEMPFILE, "r")
+    except IOError:
+        return download_json()
+
+# Prices and sizes are in different dicts and categorized by sku
+def get_all_prices():
+    # return variable
+    # prices = {sku : {price: int, unit: string}}
+    prices = {}
+    current_sku = ""
+    current_rate_code = ""
+    amazonEC2_offer_code = 'JRTCKXETXF'
+    json_file = get_json()
+    parser = ijson.parse(json_file)
+    # use parser because file is very large
+    for prefix, event, value in parser:
+        if 'products' in prefix:
+            continue
+        if (prefix, event) == ('terms.OnDemand', 'map_key'):
+            current_sku = value
+            prices[current_sku] = {}
+        elif (prefix, event) == (f'terms.OnDemand.{current_sku}.{current_sku}.{amazonEC2_offer_code}.priceDimensions', 'map_key'):
+            current_rate_code = value
+        elif (prefix, event) == (f'terms.OnDemand.{current_sku}.{current_sku}.{amazonEC2_offer_code}.priceDimensions.{current_rate_code}.unit', 'string'):
+            prices[current_sku]['unit'] = value
+        elif (prefix, event) == (f'terms.OnDemand.{current_sku}.{current_sku}.{amazonEC2_offer_code}.priceDimensions.{current_rate_code}.pricePerUnit.USD', 'string'):
+            prices[current_sku]['price'] = value
+    return prices
+
+# For each combination of location - size - os the file has a different sku.
+# For each sku we have a price
 def scrape_ec2_pricing():
-    result = defaultdict(OrderedDict)
-    os_map = {"linux": "ec2_linux", "windows-std": "ec2_windows"}
-    for item in os_map.values():
-        result[item] = {}
-    for url in LINUX_PRICING_URLS:
-        response = requests.get(url)
+    skus = {}
+    prices = get_all_prices()
+    json_file = get_json()
+    parser = ijson.parse(json_file)
+    current_sku = ""
 
-        if re.match(r".*?\.json$", url):
-            data = response.json()
-        elif re.match(r".*?\.js$", url):
-            data = response.content.decode()
-            match = re.match(r"^.*callback\((.*?)\);?$", data, re.MULTILINE | re.DOTALL)
-            data = match.group(1)
-            # demjson supports non-strict mode and can parse unquoted objects
-            data = demjson.decode(data)
-        regions = data["config"]["regions"]
+    for prefix, event, value in parser:
+        if "terms" in prefix:
+            break
+        if (prefix, event) == ('products', 'map_key'):
+            current_sku = value
+            skus[current_sku] = {'sku': value}
+        elif (prefix, event) == (f'products.{current_sku}.productFamily', 'string'):
+            skus[current_sku]['family'] = value
+        elif (prefix, event) == (f'products.{current_sku}.attributes.location', 'string'):
+            skus[current_sku]['locationName'] = value
+        elif (prefix, event) == (f'products.{current_sku}.attributes.locationType', 'string'):
+            skus[current_sku]['locationType'] = value
+        elif (prefix, event) == (f'products.{current_sku}.attributes.instanceType', 'string'):
+            skus[current_sku]['size'] = value
+        elif (prefix, event) == (f'products.{current_sku}.attributes.operatingSystem', 'string'):
+            skus[current_sku]['os'] = value
+        elif (prefix, event) == (f'products.{current_sku}.attributes.regionCode', 'string'):
+            skus[current_sku]['location'] = value
+        # only get prices of compute instances atm
+        elif (prefix, event) == (f'products.{current_sku}', 'end_map'):
+            if 'Compute Instance' not in skus[current_sku]['family'] and 'Dedicated Host' not in skus[current_sku]['family']:
+                del skus[current_sku]
+    ec2_linux = defaultdict(OrderedDict)
+    ec2_windows = defaultdict(OrderedDict)
+    ec2_rhel = defaultdict(OrderedDict)
+    ec2_rhel_ha = defaultdict(OrderedDict)
+    ec2_suse = defaultdict(OrderedDict)
 
-        for region_data in regions:
-            region_name = region_data["region"]
-            instance_types = region_data["instanceTypes"]
-
-            for instance_type in instance_types:
-                sizes = instance_type["sizes"]
-                for size in sizes:
-                    if not result["ec2_linux"].get(size["size"], False):
-                        result["ec2_linux"][size["size"]] = {}
-                    price = size["valueColumns"][0]["prices"]["USD"]
-                    if str(price).lower() == "n/a":
-                        # Price not available
-                        continue
-
-                    result["ec2_linux"][size["size"]][region_name] = float(price)
-
-    res = defaultdict(OrderedDict)
-    url = "https://calculator.aws/pricing/1.0/" "ec2/region/{}/ondemand/{}/index.json"
-    instances = set()
-    for OS in ["linux", "windows-std"]:
-        res[os_map[OS]] = {}
-        for region in EC2_REGIONS:
-            res[os_map[OS]][region] = {}
-            response = requests.get(url.format(region, OS))
-            if response.status_code != 200:
-                continue
-            data = response.json()
-
-            for entry in data["prices"]:
-                instance_type = entry["attributes"].get("aws:ec2:instanceType", "")
-                instances.add(instance_type)
-                price = entry["price"].get("USD", 0)
-                res[os_map[OS]][region][instance_type] = price
-    for item in os_map.values():
-        for instance in instances:
-            if not result[item].get(instance, False):
-                result[item][instance] = {}
-            for region in EC2_REGIONS:
-                if res[item][region].get(instance, False):
-                    result[item][instance][region] = float(res[item][region][instance])
-
-    return result
-
+    os_map = {
+        "Linux" : ec2_linux,
+        "Windows": ec2_windows,
+        "RHEL": ec2_rhel,
+        "SUSE": ec2_suse,
+        "Red Hat Enterprise Linux with HA": ec2_rhel_ha
+    }
+    for sku in skus:
+        if skus[sku]['locationType'] != "AWS Region":
+            continue
+        os = skus[sku]['os']
+        if os == "NA":
+            os = "Linux" # linux is free
+        os_dict = os_map.get(os)
+        # new OS, until it is documented skip it
+        if os_dict is None:
+            print(f"Unexpected OS {os}")
+            continue
+        size = skus[sku]['size']
+        location = skus[sku]['location']
+        # size is first seen
+        if not os_dict.get(size):
+            os_dict[size] = {}
+        # if price is not a number then label it as not available
+        try:
+            price = float(prices[sku]['price'])
+            if os_dict[size].get(location) and os_dict[size][location] > price:
+                # do nothing, keep the highest price
+                pass
+            else:
+                os_dict[size][location] = price
+        except ValueError:
+            os_dict[size][location] = 'n/a'
+        except KeyError:
+            # size is available only reserved
+            del os_dict[size]
+    return {
+        "ec2_linux": ec2_linux,
+        "ec2_windows": ec2_windows,
+        "ec2_rhel": ec2_rhel,
+        "ec2_suse": ec2_suse,
+        "ec2_rhel_ha": ec2_rhel_ha
+    }
 
 def update_pricing_file(pricing_file_path, pricing_data):
     with open(pricing_file_path, "r") as fp:
@@ -201,7 +257,9 @@ def sort_key_by_numeric_other(key_value):
 
 
 def main():
-    print("Scraping EC2 pricing data (this may take up to 2 minutes)....")
+    print("Scraping EC2 pricing data (if this runs for the first time "
+          "it has to download a 3GB file, depending on your bandwith "
+          "it might take a while)....")
 
     pricing_data = scrape_ec2_pricing()
     update_pricing_file(pricing_file_path=PRICING_FILE_PATH, pricing_data=pricing_data)
