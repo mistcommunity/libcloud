@@ -145,7 +145,7 @@ def scrape_ec2_pricing():
             skus[current_sku]['location'] = value
         # only get prices of compute instances atm
         elif (prefix, event) == (f'products.{current_sku}', 'end_map'):
-            if 'Compute Instance' not in skus[current_sku]['family']:
+            if 'Compute Instance' not in skus[current_sku]['family'] and 'Dedicated Host' not in skus[current_sku]['family']:
                 del skus[current_sku]
     ec2_linux = defaultdict(OrderedDict)
     ec2_windows = defaultdict(OrderedDict)
@@ -186,6 +186,9 @@ def scrape_ec2_pricing():
                 os_dict[size][location] = price
         except ValueError:
             os_dict[size][location] = 'n/a'
+        except KeyError:
+            # size is available only reserved
+            del os_dict[size]
     return {
         "ec2_linux": ec2_linux,
         "ec2_windows": ec2_windows,
