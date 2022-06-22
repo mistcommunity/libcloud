@@ -571,7 +571,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
         state = data["status"]
         size = data["config"]["machineType"]
         locations = data["locations"]
-        nodes = data["initialNodeCount"]
+        nodes = data.get("initialNodeCount", 0)
         try:
             min_nodes = data["autoscaling"]["minNodeCount"]
         except (KeyError, TypeError):
@@ -581,10 +581,10 @@ class GKEContainerDriver(KubernetesContainerDriver):
         except (KeyError, TypeError):
             max_nodes = None
         extra = {
-            "config": data["config"],
-            "network_config": data["networkConfig"],
-            "upgrade_settings": data["upgradeSettings"],
-            "version": data["version"],
+            "config": data.get("config"),
+            "network_config": data.get("networkConfig"),
+            "upgrade_settings": data.get("upgradeSettings"),
+            "version": data.get("version"),
             "instance_group_urls": data.get("instanceGroupUrls"),
             "management": data.get("management"),
             "max_pods_constraint": data.get("maxPodsConstraint"),
