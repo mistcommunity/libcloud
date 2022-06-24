@@ -686,13 +686,12 @@ class OpenStackIdentityConnection(ConnectionUserAndKey):
 
     def morph_action_hook(self, action):
         (_, _, _, request_path) = self._tuple_from_url(self.auth_url)
-
         if request_path == "":
             # No path is provided in the auth_url, use action passed to this
             # method.
             return action
 
-        return request_path
+        return super(OpenStackIdentityConnection, self).morph_action_hook(action=action)
 
     def add_default_headers(self, headers):
         headers["Accept"] = "application/json"
