@@ -427,11 +427,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
         """
         if isinstance(cluster, str):
             cluster = self.ex_get_cluster(zone, cluster)
-        host, port = cluster.extra["endpoint"], "443"
-        # pylint: disable=maybe-no-member
-        token = self.connection.oauth2_credential.access_token
-        credentials = dict(host=host, port=port, token=token)
-        return credentials
+        return cluster.credentials
 
     def get_server_config(self, ex_zone):
         """
