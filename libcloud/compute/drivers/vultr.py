@@ -1655,7 +1655,7 @@ class VultrNodeDriverV2(VultrNodeDriver):
         :rtype: ``list`` of :class: `NodeSize`
         """
         data = self._paginated_request("/v2/plans-metal", "plans_metal")
-        return [self._to_size(item) for item in data]
+        return [self._to_size(item) for item in data if item.get("id")]
 
     def ex_list_snapshots(self):
         """List node snapshots.
