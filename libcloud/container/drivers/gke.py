@@ -41,6 +41,7 @@ class GKECluster(ContainerCluster):
         host,
         port,
         token,
+        token_expiry,
         ca_cert,
         nodepools,
         extra=None,
@@ -59,6 +60,7 @@ class GKECluster(ContainerCluster):
             "host": host,
             "port": port,
             "token": token,
+            "token_expiry": token_expiry.strftime('%Y-%m-%dT%H:%M:%SZ'),
             "ca_cert": ca_cert,
         }
 
@@ -612,6 +614,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
         host = data.get("endpoint", "")
         port = "443"
         token = self.connection.oauth2_credential.access_token
+        token_expiry = self.connection.oauth2_credential.token_expire_utc_datetime
         ca_cert = base64.b64decode(data["masterAuth"]["clusterCaCertificate"]).decode(
             "utf-8"
         )
@@ -627,6 +630,7 @@ class GKEContainerDriver(KubernetesContainerDriver):
             host=host,
             port=port,
             token=token,
+            token_expiry=token_expiry,
             ca_cert=ca_cert,
             config={
                 k: data.pop(k)

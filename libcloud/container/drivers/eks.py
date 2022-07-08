@@ -30,6 +30,7 @@ from libcloud.common.aws import SignedAWSConnection, AWSJsonResponse
 from libcloud.common.exceptions import BaseHTTPError
 from libcloud.utils.misc import to_memory_str
 from libcloud.utils.misc import to_n_bytes
+from datetime import datetime, timedelta
 
 __all__ = ["ElasticKubernetesDriver"]
 
@@ -52,6 +53,7 @@ class EKSCluster(ContainerCluster):
         host,
         port,
         token,
+        token_expiry,
         ca_cert,
         extra=None,
         total_cpus=None,
@@ -64,6 +66,7 @@ class EKSCluster(ContainerCluster):
             "host": host,
             "port": port,
             "token": token,
+            "token_expiry": token_expiry.strftime('%Y-%m-%dT%H:%M:%SZ'),
             "ca_cert": ca_cert,
         }
         # CA Certificate can only be passed as a path to the underlying requests session.
@@ -629,13 +632,14 @@ class ElasticKubernetesDriver(ContainerDriver):
             "headers": {"x-k8s-aws-id": cluster_name},
             "context": {},
         }
+        dt = datetime.utcnow()
         signed_url = self.connection.signer.generate_sts_presigned_url(
-            params=params, host=host
+            params=params, host=host,dt=dt
         )
         base64_url = base64.urlsafe_b64encode(signed_url.encode("utf-8")).decode(
             "utf-8"
         )
-        return "k8s-aws-v1." + re.sub(r"=*", "", base64_url)
+        return "k8s-aws-v1." + re.sub(r"=*", "", base64_url), dt + timedelta(minutes=14)
 
     def _to_cluster(self, data, fetch_nodes=True):
         id_ = data["arn"]
@@ -667,6 +671,8 @@ class ElasticKubernetesDriver(ContainerDriver):
             "tags": data["tags"],
         }
 
+        token, token_expiry = self._get_cluster_token(name)
+
         cluster = EKSCluster(
             id=id_,
             name=name,
@@ -675,7 +681,8 @@ class ElasticKubernetesDriver(ContainerDriver):
             status=status,
             host=endpoint,
             port="443",
-            token=self._get_cluster_token(name),
+            token=token,
+            token_expiry=token_expiry,
             ca_cert=ca_cert,
             extra=extra,
         )
