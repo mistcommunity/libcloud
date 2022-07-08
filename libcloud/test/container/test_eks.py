@@ -21,6 +21,8 @@ import unittest
 
 from unittest.mock import MagicMock
 
+from datetime import datetime
+
 from libcloud.container.drivers.eks import ElasticKubernetesDriver
 
 from libcloud.test import MockHttp
@@ -79,8 +81,10 @@ class ElasticKubernetesDriverTestCase(unittest.TestCase):
         self.assertTrue(result)
 
     def test_get_cluster_credentials(self):
-        cluster = cluster = self.driver.get_cluster("default")
-        self.driver._get_cluster_token = MagicMock(return_value="12345")
+        dt = datetime.utcnow()
+        self.driver._get_cluster_token = MagicMock(
+            return_value=("12345", dt))
+        cluster = self.driver.get_cluster("default")
         credentials = self.driver.get_cluster_credentials(cluster)
         self.assertEqual(
             credentials["host"],
@@ -89,6 +93,8 @@ class ElasticKubernetesDriverTestCase(unittest.TestCase):
         )
         self.assertEqual(credentials["port"], "443")
         self.assertEqual(credentials["token"], "12345")
+        self.assertEqual(credentials["token_expiry"],
+                         dt.strftime('%Y-%m-%dT%H:%M:%SZ'))
 
 
 class EKSMockHttp(MockHttp):
