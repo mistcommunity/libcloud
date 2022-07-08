@@ -447,9 +447,10 @@ class AWSRequestSignerAlgorithmV4(AWSRequestSigner):
             ]
         )
 
-    def generate_sts_presigned_url(self, params, host):
+    def generate_sts_presigned_url(self, params, host, dt=None):
         query = {"X-Amz-Algorithm": self.ALGORITHM}
-        dt = datetime.utcnow()
+        if not dt:
+            dt = datetime.utcnow()
         credential_scope = self._get_credential_scope(dt=dt, for_sts_service=True)
         query["X-Amz-Credential"] = "{key}/{credential_scope}".format(
             key=self.access_key, credential_scope=credential_scope
