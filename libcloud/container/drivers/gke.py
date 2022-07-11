@@ -60,7 +60,7 @@ class GKECluster(ContainerCluster):
             "host": host,
             "port": port,
             "token": token,
-            "token_expiry": token_expiry.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "token_expiry": token_expiry.strftime("%Y-%m-%dT%H:%M:%SZ"),
             "ca_cert": ca_cert,
         }
 
@@ -571,13 +571,15 @@ class GKEContainerDriver(KubernetesContainerDriver):
         locations = data["locations"]
         nodes = data.get("initialNodeCount", 0)
         try:
-            min_nodes = data["autoscaling"]["minNodeCount"]
-        except (KeyError, TypeError):
-            min_nodes = None
-        try:
             max_nodes = data["autoscaling"]["maxNodeCount"]
         except (KeyError, TypeError):
             max_nodes = None
+        try:
+            min_nodes = data["autoscaling"]["minNodeCount"]
+        except (KeyError, TypeError):
+            # Handle the case where max_nodes is set but min_nodes is not.
+            # The GKE API does not return min_nodes if it's value is 0.
+            min_nodes = None if max_nodes is None else 0
         extra = {
             "config": data.get("config"),
             "network_config": data.get("networkConfig"),
