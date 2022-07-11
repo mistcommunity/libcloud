@@ -854,7 +854,8 @@ class CloudFilesStorageDriver(StorageDriver, OpenStackDriverMixin):
 
         return obj
 
-    def iterate_container_objects(self, container, prefix=None, ex_prefix=None):
+    def iterate_container_objects(self, container, prefix=None, ex_prefix=None,
+                                  delimiter=None, maxkeys=None):
         """
         Return a generator of objects for the given container.
 
@@ -878,6 +879,12 @@ class CloudFilesStorageDriver(StorageDriver, OpenStackDriverMixin):
         if prefix:
             params["prefix"] = prefix
 
+        if delimiter:
+            params["delimiter"] = delimiter
+
+        if maxkeys:
+            params["limit"] = maxkeys
+
         while True:
             container_name_encoded = self._encode_container_name(container.name)
             response = self.connection.request(
@@ -896,6 +903,9 @@ class CloudFilesStorageDriver(StorageDriver, OpenStackDriverMixin):
                 for obj in objects:
                     yield obj
                 params["marker"] = obj.name
+
+                if len(objects) == maxkeys:
+                    break
 
             else:
                 raise LibcloudError("Unexpected status code: %s" % (response.status))
@@ -1009,13 +1019,19 @@ class CloudFilesStorageDriver(StorageDriver, OpenStackDriverMixin):
         objects = []
 
         for obj in response:
-            name = obj["name"]
-            size = int(obj["bytes"])
-            hash = obj["hash"]
-            extra = {
-                "content_type": obj.get("content_type"),
-                "last_modified": obj["last_modified"],
-            }
+            try:
+                name = obj["name"]
+                size = int(obj["bytes"])
+                hash = obj["hash"]
+                extra = {
+                    "content_type": obj.get("content_type"),
+                    "last_modified": obj["last_modified"],
+                }
+            except KeyError:
+                name = obj["subdir"]
+                size = 0
+                hash = ''
+                extra = {}
             objects.append(
                 Object(
                     name=name,
