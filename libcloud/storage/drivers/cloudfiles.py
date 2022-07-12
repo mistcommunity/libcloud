@@ -1019,19 +1019,14 @@ class CloudFilesStorageDriver(StorageDriver, OpenStackDriverMixin):
         objects = []
 
         for obj in response:
-            try:
-                name = obj["name"]
-                size = int(obj["bytes"])
-                hash = obj["hash"]
-                extra = {
-                    "content_type": obj.get("content_type"),
-                    "last_modified": obj["last_modified"],
-                }
-            except KeyError:
-                name = obj["subdir"]
-                size = 0
-                hash = ''
-                extra = {}
+            # if the object is a subdir, the other fields won't be populated
+            name = obj.get("name", obj.get("subdir"))
+            size = int(obj.get("bytes", 0))
+            hash = obj.get("hash", '')
+            extra = {
+                "content_type": obj.get("content_type", ''),
+                "last_modified": obj.get("last_modified", ''),
+            }
             objects.append(
                 Object(
                     name=name,
@@ -1108,6 +1103,36 @@ class OpenStackSwiftStorageDriver(CloudFilesStorageDriver):
             port=port,
             region=region,
             **kwargs,
+        )
+    def list_container_objects(self, container, prefix=None, ex_prefix=None,
+                               ex_delimiter=None, ex_maxkeys=None):
+        # type: (Container, Optional[str], Optional[str], Optional[str], Optional[int]) -> List[Object]  # noqa E501
+        """
+        Return a list of objects for the given container.
+
+        :param container: Container instance.
+        :type container: :class:`libcloud.storage.base.Container`
+
+        :param prefix: Filter objects starting with a prefix.
+        :type  prefix: ``str``
+
+        :param ex_prefix: (Deprecated.) Filter objects starting with a prefix.
+        :type  ex_prefix: ``str``
+
+        :return: A list of Object instances.
+        :rtype: ``list`` of :class:`libcloud.storage.base.Object`
+        """
+        kwargs = {}
+        if ex_delimiter:
+            kwargs["delimiter"] = ex_delimiter
+        if ex_maxkeys:
+            kwargs["maxkeys"] = ex_maxkeys
+
+        return list(
+            self.iterate_container_objects(
+                container, prefix=prefix, ex_prefix=ex_prefix,
+                **kwargs
+            )
         )
 
 
