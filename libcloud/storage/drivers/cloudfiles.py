@@ -854,7 +854,8 @@ class CloudFilesStorageDriver(StorageDriver, OpenStackDriverMixin):
 
         return obj
 
-    def iterate_container_objects(self, container, prefix=None, ex_prefix=None):
+    def iterate_container_objects(self, container, prefix=None, ex_prefix=None,
+                                  delimiter=None, maxkeys=None):
         """
         Return a generator of objects for the given container.
 
@@ -878,6 +879,12 @@ class CloudFilesStorageDriver(StorageDriver, OpenStackDriverMixin):
         if prefix:
             params["prefix"] = prefix
 
+        if delimiter:
+            params["delimiter"] = delimiter
+
+        if maxkeys:
+            params["limit"] = maxkeys
+
         while True:
             container_name_encoded = self._encode_container_name(container.name)
             response = self.connection.request(
@@ -896,6 +903,9 @@ class CloudFilesStorageDriver(StorageDriver, OpenStackDriverMixin):
                 for obj in objects:
                     yield obj
                 params["marker"] = obj.name
+
+                if len(objects) == maxkeys:
+                    break
 
             else:
                 raise LibcloudError("Unexpected status code: %s" % (response.status))
@@ -1009,12 +1019,13 @@ class CloudFilesStorageDriver(StorageDriver, OpenStackDriverMixin):
         objects = []
 
         for obj in response:
-            name = obj["name"]
-            size = int(obj["bytes"])
-            hash = obj["hash"]
+            # if the object is a subdir, the other fields won't be populated
+            name = obj.get("name", obj.get("subdir"))
+            size = int(obj.get("bytes", 0))
+            hash = obj.get("hash", '')
             extra = {
-                "content_type": obj.get("content_type"),
-                "last_modified": obj["last_modified"],
+                "content_type": obj.get("content_type", ''),
+                "last_modified": obj.get("last_modified", ''),
             }
             objects.append(
                 Object(
@@ -1092,6 +1103,36 @@ class OpenStackSwiftStorageDriver(CloudFilesStorageDriver):
             port=port,
             region=region,
             **kwargs,
+        )
+    def list_container_objects(self, container, prefix=None, ex_prefix=None,
+                               ex_delimiter=None, ex_maxkeys=None):
+        # type: (Container, Optional[str], Optional[str], Optional[str], Optional[int]) -> List[Object]  # noqa E501
+        """
+        Return a list of objects for the given container.
+
+        :param container: Container instance.
+        :type container: :class:`libcloud.storage.base.Container`
+
+        :param prefix: Filter objects starting with a prefix.
+        :type  prefix: ``str``
+
+        :param ex_prefix: (Deprecated.) Filter objects starting with a prefix.
+        :type  ex_prefix: ``str``
+
+        :return: A list of Object instances.
+        :rtype: ``list`` of :class:`libcloud.storage.base.Object`
+        """
+        kwargs = {}
+        if ex_delimiter:
+            kwargs["delimiter"] = ex_delimiter
+        if ex_maxkeys:
+            kwargs["maxkeys"] = ex_maxkeys
+
+        return list(
+            self.iterate_container_objects(
+                container, prefix=prefix, ex_prefix=ex_prefix,
+                **kwargs
+            )
         )
 
 
