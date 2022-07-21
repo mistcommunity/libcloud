@@ -1097,10 +1097,18 @@ class LibvirtNodeDriver(NodeDriver):
         try:
             for net in self.connection.listAllNetworks():
                 extra = {
-                    "bridge": net.bridgeName(),
-                    "xml": net.XMLDesc(),
                     "host": self.host,
                 }
+
+                try:
+                    extra["bridge"] = net.bridgeName()
+                except Exception:
+                    ...
+                try:
+                    extra["xml"] = net.XMLDesc()
+                except Exception:
+                    ...
+
                 networks.append(Network(net.UUIDString(), net.name(), extra))
         except:
             pass  # Not supported by all hypervisors.
