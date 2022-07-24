@@ -200,7 +200,7 @@ class LibvirtNodeDriver(NodeDriver):
 
             atexit.register(self.disconnect)
 
-    def list_nodes(self, show_hypervisor=True):
+    def list_nodes(self, show_hypervisor=True, parse_arp_table=False):
         # active domains
         domain_ids = self.connection.listDomainsID()
         domains = [self.connection.lookupByID(id) for id in domain_ids]
@@ -218,8 +218,10 @@ class LibvirtNodeDriver(NodeDriver):
         # libvirt connection. Then we can check what ip address each MAC
         # address has
         self.arp_table = {}
-        cmd = "arp -an"
-        self.arp_table = self._parse_arp_table(self._run_command(cmd).get("output"))
+        if parse_arp_table:
+            cmd = "arp -an"
+            self.arp_table = self._parse_arp_table(
+                self._run_command(cmd).get("output"))
 
         nodes = [self._to_node(domain) for domain in domains]
 
@@ -244,11 +246,23 @@ class LibvirtNodeDriver(NodeDriver):
             extra=size_extra,
         )
 
-        public_ips, private_ips = [], []
+        public_ips, private_ips, all_ips = [], [], []
+        ifaces = {}
+        if state == NodeState.RUNNING:
+            ifaces = domain.interfaceAddresses(
+                libvirt.VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_LEASE)
+            all_ips += [
+                a.get('addr')
+                    for iface in ifaces
+                    for a in ifaces[iface]['addrs'] if a.get('addr')
+            ]
 
-        ip_addresses = self._get_ip_addresses_for_domain(domain)
+        if len(self.arp_table.keys()):
+            all_ips += [
+                ip for ip in self._get_ip_addresses_for_domain(
+                    domain) if ip not in all_ips]
 
-        for ip_address in ip_addresses:
+        for ip_address in all_ips:
             if is_public_subnet(ip_address):
                 public_ips.append(ip_address)
             else:
@@ -300,6 +314,7 @@ class LibvirtNodeDriver(NodeDriver):
             "processors": vcpu_count,
             "used_cpu_time": used_cpu_time,
             "xml_description": xml_description,
+            "ifaces": ifaces,
         }
         node = Node(
             id=domain.UUIDString(),
