@@ -495,13 +495,12 @@ class Connection(object):
         user_agent_suffix = " ".join(["(%s)" % x for x in self.ua])
 
         if self.driver:
-            user_agent = "libcloud/%s (%s) %s" % (
-                libcloud.__version__,
+            user_agent = "libcloud (%s) %s" % (
                 self.driver.name,
                 user_agent_suffix,
             )
         else:
-            user_agent = "libcloud/%s %s" % (libcloud.__version__, user_agent_suffix)
+            user_agent = "libcloud %s" % (user_agent_suffix)
 
         return user_agent
 
