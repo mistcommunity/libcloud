@@ -419,7 +419,8 @@ class AzureNodeDriver(NodeDriver):
             return i[0] if i else None
 
     def list_nodes(
-        self, ex_resource_group=None, ex_fetch_nic=True, ex_fetch_power_state=True
+        self, ex_resource_group=None, ex_fetch_nic=True, ex_fetch_power_state=True,
+        ex_async=True
     ):
         """
         List all nodes.
@@ -463,12 +464,30 @@ class AzureNodeDriver(NodeDriver):
             r = self.connection.request(next_url)
             nodes_data.extend(r.object["value"])
 
-        return [
-            self._to_node(
-                n, fetch_nic=ex_fetch_nic, fetch_power_state=ex_fetch_power_state
-            )
-            for n in nodes_data
+        if ex_async:
+            import asyncio
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            nodes = loop.run_until_complete(self._to_nodes(nodes_data))
+        else:
+            nodes = [
+                self._to_node(
+                    n, fetch_nic=ex_fetch_nic,
+                    fetch_power_state=ex_fetch_power_state
+                )
+                for n in nodes_data
+            ]
+        return nodes
+
+    async def _to_nodes(self, vms, ex_fetch_nic=True, ex_fetch_power_state=True):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        vms = [
+            loop.run_in_executor(
+                None, self._to_node, vms[i], ex_fetch_nic,
+                ex_fetch_power_state) for i in range(len(vms))
         ]
+        return await asyncio.gather(*vms)
 
     def create_node(
         self,
