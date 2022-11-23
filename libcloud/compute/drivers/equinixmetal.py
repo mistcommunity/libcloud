@@ -190,7 +190,7 @@ class EquinixMetalNodeDriver(NodeDriver):
             projects = [Project(project) for project in projects]
         return projects
 
-    def list_nodes(self, ex_project_id=None):
+    def list_nodes(self, ex_project_id=None, ex_async=True):
         if ex_project_id:
             return self.ex_list_nodes_for_project(ex_project_id=ex_project_id)
 
@@ -198,46 +198,35 @@ class EquinixMetalNodeDriver(NodeDriver):
         # return nodes for this project only
         if self.project_id:
             return self.ex_list_nodes_for_project(ex_project_id=self.project_id)
-
-        # In case of Python2 perform requests serially
-        if not use_asyncio():
+        if ex_async:
+            import asyncio
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_closed():
+                    raise RuntimeError('loop is closed')
+            except RuntimeError:
+                asyncio.set_event_loop(asyncio.new_event_loop())
+                loop = asyncio.get_event_loop()
+            node_lists = loop.run_until_complete(self.list_resources_async("nodes", loop))
             nodes = []
-            for project in self.projects:
-                nodes.extend(self.ex_list_nodes_for_project(ex_project_id=project.id))
+            for l in node_lists:
+                nodes += l
             return nodes
-        # In case of Python3 use asyncio to perform requests in parallel
-        return self.list_resources_async("nodes")
+        nodes = []
+        for project in driver.projects:
+            nodes += self.ex_list_nodes_for_project(project.id)
+        return nodes
 
-    def list_resources_async(self, resource_type):
-        # The _list_nodes function is defined dynamically using exec in
-        # order to prevent a SyntaxError in Python2 due to "yield from".
-        # This cruft can be removed once Python2 support is no longer
-        # required.
+    async def list_resources_async(self, resource_type, loop):
+        import asyncio
         assert resource_type in ["nodes", "volumes"]
-        glob = globals()
-        loc = locals()
-        exec(
-            """
-import asyncio
-@asyncio.coroutine
-def _list_async(driver):
-    projects = [project.id for project in driver.projects]
-    loop = asyncio.get_event_loop()
-    futures = [
-        loop.run_in_executor(None, driver.ex_list_%s_for_project, p)
-        for p in projects
-    ]
-    retval = []
-    for future in futures:
-        result = yield from future
-        retval.extend(result)
-    return retval"""
-            % resource_type,
-            glob,
-            loc,
-        )
-
-        return asyncio.run(loc["_list_async"](loc["self"]))
+        projects = [project.id for project in self.projects]
+        resources = [
+            loop.run_in_executor(None, getattr(self, f'ex_list_{resource_type}_for_project'), p)
+            for p in projects
+        ]
+        print([getattr(self, f'ex_list_{resource_type}_for_project') for p in projects])
+        return await asyncio.gather(*resources)
 
     def ex_list_nodes_for_project(
         self, ex_project_id, include="plan", page=1, per_page=1000
