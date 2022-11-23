@@ -594,7 +594,7 @@ class Connection(object):
         # Extend default parameters
         import inspect
 
-        if len(inspect.getargspec(self.add_default_params).args) == 3:
+        if len(inspect.getfullargspec(self.add_default_params).args) == 3:
             params = self.add_default_params(params, method)
         else:
             params = self.add_default_params(params)
