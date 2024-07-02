@@ -1677,8 +1677,10 @@ class OpenStack_1_1_Tests(unittest.TestCase, TestCaseMixin):
         node = self.driver.create_node(name="racktest", image=image, size=size)
         node.id = 4242
         ip = "42.42.42.42"
+        port_id = 'ce531f90-199f-48c0-816c-13e38010b442'
 
         self.assertTrue(self.driver.ex_attach_floating_ip_to_node(node, ip))
+        self.assertTrue(self.driver.ex_attach_floating_ip_to_node(node, ip, port_id))
 
     def test_detach_floating_ip_from_node(self):
         image = NodeImage(id=11, name="Ubuntu 8.10 (intrepid)", driver=self.driver)

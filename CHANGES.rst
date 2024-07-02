@@ -28,6 +28,11 @@ Common
 Compute
 ~~~~~~~
 
+- [OpenStack] Optional node port ID to attach the floating IP in OpenStack
+  ex_attach_floating_ip_to_node function.
+  (#2028)
+  [Miguel Caballer - @micafer]
+
 - [OpenStack] Add metadata fields ``os_distro`` and ``os_version`` provided
   by OpenStack Image API (if set) to the ``extra`` field of the OpenStack NodeImage.
   (#1982)
