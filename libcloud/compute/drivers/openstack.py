@@ -4309,7 +4309,7 @@ class OpenStack_2_NodeDriver(OpenStack_1_1_NodeDriver):
         :type       ip: ``str`` or :class:`OpenStack_1_1_FloatingIpAddress`
 
         :param      port_id: Optional node port ID to attach the floating IP
-        :type       ip: ``str``
+        :type       port_id: ``str``
 
         :rtype: ``bool``
         """
