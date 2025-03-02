@@ -170,6 +170,83 @@ jobs:
         run: |
           tox -e black-check,isort-check,pyupgrade,checks,import-timings,lint,pylint,mypy
 
+  build_test_release_artifact:
+    name: Build and Test Release Artifact
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python_version: [3.9]
+
+    steps:
+      - uses: actions/checkout@master
+        with:
+          fetch-depth: 1
+
+      - name: Use Python ${{ matrix.python_version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python_version }}
+
+      - name: Cache Python Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements-lint.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install Python Dependencies
+        run: |
+          pip install -r requirements-ci.txt
+          pip install "build==1.2.2"
+
+      - name: Build Release Artifact
+        run: |
+          pip list installed
+          python -m build -vv
+
+      - name: Set Environment
+        run: |
+          export PYTHONPATH=.
+          export VERSION=$(python -c "import libcloud ; print(libcloud.__version__)")
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+
+      - name: Verify Tarball Release Artifact
+        run: |
+          # Verify tarball file exists
+          export TARBALL_FILENAME="apache_libcloud-${VERSION}.tar.gz"
+
+          ls -la "dist/${TARBALL_FILENAME}"
+
+          cd dist/
+
+          # Unpack tarball and verify + run the tests
+          tar -xzvf "${TARBALL_FILENAME}"
+
+          cd "apache_libcloud-${VERSION}/" 
+          tox -c tox.ini -epy3.9
+
+      - name: Verify Wheel Release Artifact
+        run: |
+          # Verify wheel file exists
+          export WHEEL_FILENAME="apache_libcloud-${VERSION}-py3-none-any.whl"
+
+          ls -la "dist/${WHEEL_FILENAME}"
+
+          cd dist/
+
+          # Unpack wheel and verify + run tests
+          unzip "${WHEEL_FILENAME}" -d "wheel"
+          cd wheel
+
+          # Since wheel doesn't include those files, we need to manually copy them over from
+          # repo root so we can run the tests
+          cp ../../tox.ini .
+          cp ../../requirements-tests.txt .
+          cp ../../libcloud/test/secrets.py-dist libcloud/test/secrets.py-dist
+          tox -c tox.ini -epy3.9
+
   build_test_docker_image:
     name: Build and Verify Docker Image
     runs-on: ubuntu-latest

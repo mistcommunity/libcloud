@@ -74,7 +74,7 @@ Changelog = "https://github.com/apache/libcloud/blob/trunk/CHANGES.rst"
 
 [project.optional-dependencies]
 build = [
-    "build==1.2.1"
+    "build==1.2.2"
 ]
 publish = [
     "twine==5.1.1"
@@ -89,9 +89,20 @@ where = ["./"]
 include = ["libcloud", "libcloud.test*", "libcloud.*" ]
 
 [tool.setuptools.package-data]
-"*" = ["*.json", "*.xml", "*.pub", "*.key", "*.pem", "*.crt", "*.csv", "*.txt", "*.html"]
-"libcloud.test.compute.fixtures.misc" = ["*"]
-"libcloud.test.dns.fixtures.worldwidedns" = ["*"]
+"libcloud.data" = [
+    "pricing.json"
+]
+"libcloud.test" = [
+    "**/*.json",
+    "**/*.xml",
+    "**/*.pub",
+    "**/*.key",
+    "**/*.pem",
+    "**/*.crt",
+    "**/*.csv",
+    "**/*.txt",
+    "**/*.html",
+]
 
 [tool.setuptools]
 include-package-data = true
@@ -102,7 +113,6 @@ version = {attr = "libcloud.__version__"}
 readme = {file = ["README.rst"], content-type = "text/x-rst"}
 
 [tool.distutils.bdist_wheel]
-universal = true
 
 
 [tool.black]

@@ -7,6 +7,12 @@ Changes in Apache Libcloud 3.9.0
 Common
 ~~~~~~
 
+- Unused ``setup.py`` file has been removed. The project has switched
+  to ``pyproject.toml`` a while ago and unused file has been removed to
+  reduce potential confusion.
+  (#2024)
+  [Tomaz Muraus - @Kami]
+
 - Indicate we also support Python 3.12 (non beta) and Python 3.13.
   (#2050)
   [Tomaz Muraus - @Kami]
@@ -35,6 +41,16 @@ Common
 - [NTT CIS] Fix invalid comparison in the ``XmlListConfig.__init__()`` method.
   (#1940)
   [@munahaf on behalf of OpenRefactory and Open Source Security Foundation]
+
+- Update versions of build and packaging tools required to build the package.
+
+  Per report from Rui Chen (@chenrui333) ansible homebrew package which
+  depends on libcloud was failing to build with Libcloud 3.8.0.
+
+  Special thanks to Rui Chen for their assistance with troubleshooting the issue
+  and testing v3.9.0 release candidate.
+  (#2047)
+  [Tomaz Muraus - @Kami, Rui Chen - @chenrui333]
 
 Compute
 ~~~~~~~
