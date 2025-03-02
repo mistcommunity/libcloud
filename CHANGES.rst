@@ -7,6 +7,17 @@ Changes in Apache Libcloud 3.9.0
 Common
 ~~~~~~
 
+- Indicate we also support Python 3.12 (non beta) and Python 3.13.
+  (#2050)
+  [Tomaz Muraus - @Kami]
+
+- Support for Python 3.8 which is EOL has been removed.
+
+  If you still want to use Libcloud with Python 3.8, you should use an older
+  release which still supports Python 3.8.
+  (#2050)
+  [Tomaz Muraus - @Kami]
+
 - Support for Python 3.7 which is EOL has been removed.
 
   If you still want to use Libcloud with Python 3.7, you should use an older
