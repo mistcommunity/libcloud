@@ -199,7 +199,7 @@ jobs:
       - name: Install Python Dependencies
         run: |
           pip install -r requirements-ci.txt
-          pip install -e ".[build]"
+          pip install "build==1.2.2"
 
       - name: Build Release Artifact
         run: |
