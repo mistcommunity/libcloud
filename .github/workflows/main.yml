@@ -32,13 +32,12 @@ jobs:
       fail-fast: false
       matrix:
         python_version:
-          - 3.8
-          - 3.9
+          - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
           # cryptography is not compatible with older PyPy versions
-          - "pypy-3.8"
+          - "pypy-3.9"
         os:
           - ubuntu-latest
 
@@ -74,8 +73,7 @@ jobs:
          tox -e py${{ matrix.python_version }}
 
       - name: Run dist install checks tox target
-        # NOTE: 3.12 will be failing until we migrate away from setup.py
-        if: ${{ matrix.python_version != 'pypy-3.7' && matrix.python_version != 'pypy-3.8' && matrix.python_version != '3.12-dev' }}
+        if: ${{ matrix.python_version != 'pypy-3.7' && matrix.python_version != 'pypy-3.9' && matrix.python_version != '3.12-dev' }}
         run: |
          tox -e py${{ matrix.python_version }}-dist,py${{ matrix.python_version }}-dist-wheel
 
@@ -85,7 +83,7 @@ jobs:
 
     strategy:
       matrix:
-        python_version: [3.8]
+        python_version: [3.9]
 
     steps:
       - uses: actions/checkout@master
@@ -133,7 +131,7 @@ jobs:
 
     strategy:
       matrix:
-        python_version: [3.8]
+        python_version: [3.9]
 
     steps:
       - uses: actions/checkout@master
@@ -176,7 +174,7 @@ jobs:
 
     strategy:
       matrix:
-        python_version: [3.8]
+        python_version: [3.9]
 
     steps:
       - uses: actions/checkout@master
@@ -200,7 +198,7 @@ jobs:
 
     strategy:
       matrix:
-        python_version: [3.8]
+        python_version: [3.9]
 
     steps:
       - uses: actions/checkout@master
@@ -268,7 +266,7 @@ jobs:
 
     strategy:
       matrix:
-        python_version: [3.8]
+        python_version: [3.9]
 
     steps:
       - uses: actions/checkout@master
@@ -307,7 +305,7 @@ jobs:
 
     strategy:
       matrix:
-        python_version: [3.8]
+        python_version: [3.9]
 
     steps:
       - name: Print Environment Info
