@@ -176,11 +176,4 @@ REGION_DETAILS = {
         "id": "us-west-2",
         "signature_version": "2",
     },
-    "me-central-1": {
-        "api_name": "ec2_me_central",
-        "country": "UAE",
-        "endpoint": "ec2.me-central-1.amazonaws.com",
-        "id": "me-central-1",
-        "signature_version": "4",
-    },
 }
