@@ -108,6 +108,10 @@ Compute
   (#1983)
   [@cdfmlr]
 
+- [Amazon S3] Add support for ``me-central-1`` region.
+  (#2030)
+  [@seifertdan]
+
 Storage
 ~~~~~~~
 
@@ -134,6 +138,11 @@ Other / Development
   tests in parallel and order in which they run is not fully deterministic).
   (#1994)
   [Tomaz Muraus - @Kami]
+
+- Add a workaround so tests work with pytest >= 8.2. Also use latest version of
+  pytest for running tests.
+  (#2033)
+  [Steve Kowalik - @s-t-e-v-e-n-k]
 
 Changes in Apache Libcloud 3.8.0
 --------------------------------
