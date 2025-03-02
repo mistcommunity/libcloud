@@ -6,7 +6,7 @@ bandit[toml]==1.7.8; python_version >= '3.7'
 black==24.4.0; python_version >= '3.7' and implementation_name == "cpython"
 isort[pyproject]==5.12.0; python_version >= '3.8'
 pyupgrade==3.3.1
-rstcheck==6.2.1; python_version >= '3.7'
+rstcheck==6.2.4; python_version >= '3.7'
 codespell==2.2.5
 
 requests>=2.27.1
