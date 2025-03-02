@@ -35,7 +35,7 @@ jobs:
       - name: Use Python ${{ matrix.python_version }}
         uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.9
 
       - name: Install Dependencies
         run: |

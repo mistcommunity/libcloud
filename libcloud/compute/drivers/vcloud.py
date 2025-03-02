@@ -1463,21 +1463,23 @@ class VCloud_1_5_NodeDriver(VCloudNodeDriver):
         if control_access.subjects:
             access_settings_elem = ET.SubElement(xml, "AccessSettings")
 
-        for subject in control_access.subjects:
-            setting = ET.SubElement(access_settings_elem, "AccessSetting")
+            for subject in control_access.subjects:
+                setting = ET.SubElement(access_settings_elem, "AccessSetting")
 
-            if subject.id:
-                href = subject.id
-            else:
-                res = self.ex_query(type=subject.type, filter="name==" + subject.name)
+                if subject.id:
+                    href = subject.id
+                else:
+                    res = self.ex_query(type=subject.type, filter="name==" + subject.name)
 
-                if not res:
-                    raise LibcloudError(
-                        'Specified subject "{} {}" not found '.format(subject.type, subject.name)
-                    )
-                href = res[0]["href"]
-            ET.SubElement(setting, "Subject", {"href": href})
-            ET.SubElement(setting, "AccessLevel").text = subject.access_level
+                    if not res:
+                        raise LibcloudError(
+                            'Specified subject "{} {}" not found '.format(
+                                subject.type, subject.name
+                            )
+                        )
+                    href = res[0]["href"]
+                ET.SubElement(setting, "Subject", {"href": href})
+                ET.SubElement(setting, "AccessLevel").text = subject.access_level
 
         headers = {"Content-Type": "application/vnd.vmware.vcloud.controlAccess+xml"}
         self.connection.request(
