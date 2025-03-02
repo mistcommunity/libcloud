@@ -5579,7 +5579,6 @@ class NttCisNodeDriver(NodeDriver):
             "networkId": findtext(element, "networkId", TYPES_URN),
             "networkDomainId": (
                 element.find(fixxpath("networkInfo", TYPES_URN)).get("networkDomainId")
-
                 if has_network_info
                 else None
             ),
@@ -5590,7 +5589,6 @@ class NttCisNodeDriver(NodeDriver):
                     element.find(fixxpath("snapshotService/window", TYPES_URN)).get("dayOfWeek"),
                     element.find(fixxpath("snapshotService/window", TYPES_URN)).get("startHour"),
                 )
-
                 if has_snapshot
                 else None
             ),
@@ -5609,14 +5607,12 @@ class NttCisNodeDriver(NodeDriver):
 
         private_ip = (
             element.find(fixxpath("networkInfo/primaryNic", TYPES_URN)).get("privateIpv4")
-
             if has_network_info
             else element.find(fixxpath("nic", TYPES_URN)).get("privateIpv4")
         )
 
         extra["ipv6"] = (
             element.find(fixxpath("networkInfo/primaryNic", TYPES_URN)).get("ipv6")
-
             if has_network_info
             else element.find(fixxpath("nic", TYPES_URN)).get("ipv6")
         )

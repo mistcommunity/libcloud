@@ -87,9 +87,7 @@ def parse_changes_file(file_path, versions=None):
                     active_tickets = active_tickets.split(", ")
                     active_tickets = [
                         ticket
-
                         for ticket in active_tickets
-
                         if ticket.startswith("LIBCLOUD-") or ticket.startswith("GITHUB-")
                     ]
 

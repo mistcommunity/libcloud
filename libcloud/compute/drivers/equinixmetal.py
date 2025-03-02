@@ -530,7 +530,6 @@ def _list_async(driver):
             cpus = None
         regions = [
             region.get("href").replace("/metal/v1/locations/metros", "")
-
             for region in data.get("available_in_metros", [])
         ]
         extra = {
@@ -717,9 +716,7 @@ def _list_async(driver):
         ip_addresses = self.connection.request(path, params=params).object
         result = [
             a
-
             for a in ip_addresses.get("ip_addresses", [])
-
             if not only_associated or len(a.get("assignments", [])) > 0
         ]
 

@@ -6447,7 +6447,6 @@ class GCENodeDriver(NodeDriver):
 
         if all(
             (node_uri != n) and (not hasattr(n, "extra") or n.extra["selfLink"] != node_uri)
-
             for n in targetpool.nodes
         ):
             targetpool.nodes.append(node)
@@ -10565,7 +10564,6 @@ class GCENodeDriver(NodeDriver):
         """
         extra = {
             k: urlmap.get(k)
-
             for k in ("creationTimestamp", "description", "fingerprint", "selfLink")
         }
 

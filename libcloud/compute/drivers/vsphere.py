@@ -168,7 +168,6 @@ class VSphereNodeDriver(NodeDriver):
 
         potential_locations = [
             dc
-
             for dc in content.viewManager.CreateContainerView(
                 content.rootFolder,
                 [vim.ClusterComputeResource, vim.HostSystem],
@@ -755,7 +754,6 @@ class VSphereNodeDriver(NodeDriver):
                     "created": s.createTime.strftime("%Y-%m-%d %H:%M"),
                     "state": s.state,
                 }
-
                 for s in virtual_machine.snapshot.rootSnapshotList
             ]
             extra["snapshots"] = snapshots
@@ -1421,7 +1419,6 @@ class VSphere_REST_NodeDriver(NodeDriver):
         loop = asyncio.get_event_loop()
         vms = [
             loop.run_in_executor(None, self._to_node, vm_ids[i], interfaces)
-
             for i in range(len(vm_ids))
         ]
 
@@ -1442,14 +1439,12 @@ class VSphere_REST_NodeDriver(NodeDriver):
                 None,
                 functools.partial(self.ex_list_hosts, ex_filter_datacenters=datacenter["id"]),
             )
-
             for datacenter in datacenters
         ]
         hosts = await asyncio.gather(*hosts_futures)
 
         vm_resp_futures = [
             loop.run_in_executor(None, functools.partial(self._get_vms_with_host, host))
-
             for host in itertools.chain(*hosts)
         ]
 
@@ -1598,7 +1593,6 @@ class VSphere_REST_NodeDriver(NodeDriver):
                 "status": interface["status"],
                 "ip": interface["ipv4"]["address"],
             }
-
             for interface in response
         ]
 
