@@ -155,7 +155,7 @@ class OpenStack_1_0_Tests(TestCaseMixin, unittest.TestCase):
 
         count = 5
 
-        # Test authentication and token re-use
+        # Test authentication and token reuse
         con = cls("username", "key")
         osa = con.get_auth_class()
 

@@ -792,7 +792,7 @@ class ParamikoSSHClientTests(LibcloudTestCase):
         self.assertEqual(client._get_sftp_client(), mock_sft_client)
         self.assertEqual(mock_client.open_sftp.call_count, 1)
 
-        # 2. existing sftp connection which is already opened is re-used
+        # 2. existing sftp connection which is already opened is reused
         mock_client = Mock()
         mock_sft_client = Mock()
         client.client = mock_client

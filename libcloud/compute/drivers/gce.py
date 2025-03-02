@@ -229,7 +229,7 @@ class GCEConnection(GoogleBaseConnection):
         """
         Take a list of API responses ("item"-portion only) and combine them.
 
-        Helper function to combine multiple aggegrated responses into a single
+        Helper function to combine multiple aggregated responses into a single
         dictionary that resembles an API response.
 
         Note: keys that don't have a 'list_name" key (including warnings)

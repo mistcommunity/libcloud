@@ -956,7 +956,7 @@ class KubeVirtNodeDriver(KubernetesDriverMixin, NodeDriver):
                                        be used for the creation of the
                                        Persistent Volume Claim.
                                        Make sure it allows for
-                                       dymamic provisioning.
+                                       dynamic provisioning.
             - optional:
                 - access_mode: default is ReadWriteOnce
                 - volume_mode: default is `Filesystem`, it can also be `Block`

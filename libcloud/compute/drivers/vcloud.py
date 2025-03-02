@@ -707,7 +707,7 @@ class VCloudNodeDriver(NodeDriver):
             self._wait_for_task_completion(res.object.get("href"))
         except ExpatError:
             # The undeploy response is malformed XML atm.
-            # We can remove this whent he providers fix the problem.
+            # We can remove this when the providers fix the problem.
             pass
         except Exception:
             # Some vendors don't implement undeploy at all yet,

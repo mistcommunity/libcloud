@@ -1947,7 +1947,7 @@ class NodeDriver(BaseDriver):
 
                 if "ssh session not active" in str(e).lower():
                     # Sometimes connection gets closed or disconnected half
-                    # way through for wahtever reason.
+                    # way through for whatever reason.
                     # If this happens, we try to re-connect before
                     # re-attempting to run the step.
                     try:

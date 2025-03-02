@@ -2043,7 +2043,7 @@ class VSphere_REST_NodeDriver(NodeDriver):
                         ex_folder = folder["folder"]
 
                 if ex_folder is None:
-                    msg = "No suitable folder vor VMs found, please create one"
+                    msg = "No suitable folder for VMs found, please create one"
                     raise ProviderError(msg, 404)
             spec["placement"]["folder"] = ex_folder
 
@@ -2176,7 +2176,7 @@ class VSphere_REST_NodeDriver(NodeDriver):
                         ex_folder = folder["folder"]
 
                 if ex_folder is None:
-                    msg = "No suitable folder vor VMs found, please create one"
+                    msg = "No suitable folder for VMs found, please create one"
                     raise ProviderError(msg, 404)
             spec["placement"]["folder"] = ex_folder
 
