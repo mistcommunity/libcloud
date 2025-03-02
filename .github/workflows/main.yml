@@ -230,7 +230,7 @@ jobs:
       - name: Verify Wheel Release Artifact
         run: |
           # Verify wheel file exists
-          export WHEEL_FILENAME="apache_libcloud-${VERSION}-py2.py3-none-any.whl"
+          export WHEEL_FILENAME="apache_libcloud-${VERSION}-py3-none-any.whl"
 
           ls -la "dist/${WHEEL_FILENAME}"
 
