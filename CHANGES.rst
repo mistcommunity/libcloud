@@ -108,6 +108,10 @@ Compute
   (#1983)
   [@cdfmlr]
 
+- [Amazon S3] Add support for ``me-central-1`` region.
+  (#2030)
+  [@seifertdan]
+
 Storage
 ~~~~~~~
 
