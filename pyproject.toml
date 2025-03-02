@@ -89,19 +89,6 @@ where = ["./"]
 include = ["libcloud", "libcloud.test*", "libcloud.*" ]
 
 [tool.setuptools.package-data]
-"*" = [
-    "LICENSE",
-    "NOTICE",
-    "example*.py",
-    "CHANGES.rst",
-    "README.rst",
-    "tox.ini",
-    "pyproject.toml",
-    "requirements-tests.txt",
-    "requirements-lint.txt",
-    "libcloud/test/secrets.py-dist",
-    "demos/*"
-]
 "libcloud.data" = [
     "pricing.json"
 ]
@@ -114,10 +101,26 @@ include = ["libcloud", "libcloud.test*", "libcloud.*" ]
     "*.crt",
     "*.csv",
     "*.txt",
-    "*.html"
+    "*.html",
+    "secrets.py-dist",
 ]
 "libcloud.test.compute.fixtures.misc" = ["*"]
 "libcloud.test.dns.fixtures.worldwidedns" = ["*"]
+
+# Files outside of packages (in the repository root, demos directory, etc.)
+[tool.setuptools.data-files]
+"" = [
+    "LICENSE",
+    "NOTICE",
+    "CHANGES.rst",
+    "README.rst",
+    "tox.ini",
+    "pyproject.toml",
+    "requirements-tests.txt",
+    "requirements-lint.txt",
+]
+"demos" = ["demos/*"]
+
 
 [tool.setuptools]
 include-package-data = true
