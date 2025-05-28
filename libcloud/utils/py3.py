@@ -53,19 +53,7 @@ if (2, 7) <= sys.version_info < (2, 8):
 if sys.version_info >= (3, 0):
     PY3 = True
 
-if PY2_pre_279:
-    try:
-        from backports.ssl_match_hostname import (
-            match_hostname,
-            CertificateError,
-        )  # NOQA
-    except ImportError:
-        import warnings
-
-        warnings.warn("Missing backports.ssl_match_hostname package")
-else:
-    # ssl module in Python >= 3.2 includes match hostname function
-    from ssl import match_hostname, CertificateError  # NOQA
+from ssl import match_hostname, CertificateError  # NOQA
 
 if PY3:
     import http.client as httplib
